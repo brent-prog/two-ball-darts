@@ -104,11 +104,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="quick-stats">
+      <section className="quick-stats" aria-label="Round status and navigation">
         <div><span>Current leader</span><strong>{leader.name}</strong></div>
         <div><span>Leader score</span><strong>{fmt(total(leader))}</strong></div>
         <div><span>Strokes</span><strong>{strokes(leader)}</strong></div>
         <div><span>Active hole</span><strong>{activeHole}</strong></div>
+        <div className="quick-nav"><a href="#scorecard" className="button secondary">Scorecard</a><a href="#rules" className="button primary">Check Rules</a></div>
       </section>
 
       <section className="card" id="scorecard">
