@@ -3,13 +3,20 @@
 import { useMemo, useState } from 'react';
 import LogoMark from '@/components/LogoMark';
 import { holes, scoreResults } from '@/lib/brand';
-import { answerRuleQuestion } from '@/lib/rules';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
 const defaults = [
   { id: 'p1', name: 'Player 1', scores: {} },
   { id: 'p2', name: 'Player 2', scores: {} }
+];
+
+const dartOptions = [
+  { value: '', label: 'Select result' },
+  { value: 'power', label: 'Double / triple target' },
+  { value: 'single', label: 'Single target' },
+  { value: 'onboard', label: 'On-board miss / bull' },
+  { value: 'offboard', label: 'Off the board' }
 ];
 
 const scoreByKey = new Map(scoreResults.map(result => [result.key, result]));
@@ -22,6 +29,32 @@ const savedScore = (row, hole) => row.hole_scores?.find(score => score.hole_numb
 const savedStrokes = row => row.hole_scores?.reduce((sum, score) => sum + (Number(score.strokes) || 0), 0) ?? 0;
 const savedSideScore = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.relative_score) || 0), 0);
 const savedSideStrokes = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.strokes) || 0), 0);
+
+function scoreTwoDarts(dart1, dart2) {
+  if (!dart1 || !dart2) {
+    return {
+      title: 'Select both darts',
+      matchedRule: 'select_both_darts',
+      answer: 'Choose a result for Dart 1 and Dart 2 to calculate the official score.'
+    };
+  }
+
+  const darts = [dart1, dart2];
+  const power = darts.filter(dart => dart === 'power').length;
+  const single = darts.filter(dart => dart === 'single').length;
+  const onboard = darts.filter(dart => dart === 'onboard').length;
+  const offboard = darts.filter(dart => dart === 'offboard').length;
+
+  if (power === 2) return { title: 'Eagle', matchedRule: 'eagle', answer: 'Both darts hit DOUBLE/TRIPLE target. Score: EAGLE (-2). Strokes: 1.' };
+  if (power === 1 && single === 1) return { title: 'Birdie', matchedRule: 'birdie', answer: 'One DOUBLE/TRIPLE target plus one SINGLE target. Score: BIRDIE (-1). Strokes: 2.' };
+  if (single === 2) return { title: 'Par', matchedRule: 'two_single_targets', answer: 'Two SINGLE target hits. Score: PAR (E). Strokes: 3.' };
+  if (power === 1 && onboard === 1) return { title: 'Par', matchedRule: 'double_triple_on_board_miss', answer: 'One DOUBLE/TRIPLE target plus one on-board miss. Score: PAR (E). Strokes: 3.' };
+  if ((single === 1 && onboard === 1) || (power === 1 && offboard === 1)) return { title: 'Bogey', matchedRule: 'bogey', answer: 'Official result is BOGEY (+1). Strokes: 4.' };
+  if ((single === 1 && offboard === 1) || (onboard === 2)) return { title: 'Double bogey', matchedRule: 'double_bogey', answer: 'Official result is DOUBLE BOGEY (+2). Strokes: 5.' };
+  if (offboard >= 1) return { title: 'Triple bogey', matchedRule: 'triple_bogey', answer: 'No target hits plus at least one off-board dart. Score: TRIPLE BOGEY (+3). Strokes: 6.' };
+
+  return { title: 'Official rule check', matchedRule: 'general_rules', answer: 'Select both darts to calculate the official result.' };
+}
 
 function symbolClass(score) {
   if (score === -2) return 'eagle';
@@ -124,8 +157,9 @@ function SavedScorecard({ game, rows, onClose }) {
 export default function Home() {
   const [players, setPlayers] = useState(defaults);
   const [activeHole, setActiveHole] = useState(1);
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState(answerRuleQuestion('bull'));
+  const [dartOne, setDartOne] = useState('');
+  const [dartTwo, setDartTwo] = useState('');
+  const [answer, setAnswer] = useState(scoreTwoDarts('', ''));
   const [status, setStatus] = useState('');
   const [historyStatus, setHistoryStatus] = useState('');
   const [history, setHistory] = useState([]);
@@ -144,6 +178,21 @@ export default function Home() {
 
   function removePlayer(playerId) {
     setPlayers(current => current.length <= 1 ? current : current.filter(player => player.id !== playerId));
+  }
+
+  function updateRuleDart(which, value) {
+    const nextDartOne = which === 'one' ? value : dartOne;
+    const nextDartTwo = which === 'two' ? value : dartTwo;
+    const response = scoreTwoDarts(nextDartOne, nextDartTwo);
+
+    if (which === 'one') setDartOne(value);
+    if (which === 'two') setDartTwo(value);
+    setAnswer(response);
+    setShowAllRules(false);
+
+    if (nextDartOne && nextDartTwo) {
+      supabase.from('rule_questions').insert({ owner_key: getOwnerKey(), question: `Dart 1: ${nextDartOne}; Dart 2: ${nextDartTwo}`, matched_rule: response.matchedRule, answer: response.answer }).then(() => undefined);
+    }
   }
 
   async function saveRound() {
@@ -201,13 +250,6 @@ export default function Home() {
     setSelectedRows([]);
   }
 
-  function askRule() {
-    const response = answerRuleQuestion(question);
-    setAnswer(response);
-    setShowAllRules(false);
-    supabase.from('rule_questions').insert({ owner_key: getOwnerKey(), question, matched_rule: response.matchedRule, answer: response.answer }).then(() => undefined);
-  }
-
   return (
     <main className="app-shell">
       <section className="hero-card">
@@ -245,8 +287,11 @@ export default function Home() {
       <section className="two-column">
         <div className="card" id="rules">
           <p className="eyebrow">Official rule assistant</p>
-          <h2>Ask a rule question</h2>
-          <div className="rule-input"><input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Example: single target plus off board?"/><button className="button primary" onClick={askRule}>Ask</button></div>
+          <h2>Check a two-dart result</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px', margin: '14px 0' }}>
+            <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 1<select value={dartOne} onChange={e => updateRuleDart('one', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 2<select value={dartTwo} onChange={e => updateRuleDart('two', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+          </div>
           <button className="button primary" style={{ marginTop: '2px', boxShadow: '0 0 0 3px rgba(208,169,72,.28)' }} onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
           {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
         </div>
