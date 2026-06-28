@@ -17,6 +17,8 @@ const fmt = score => score === 0 ? 'E' : score > 0 ? `+${score}` : `${score}`;
 const total = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
 const strokes = player => totalPar + total(player);
 const side = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
+const savedHole = (row, hole) => row.hole_scores?.find(score => score.hole_number === hole)?.relative_score ?? '';
+const savedSide = (row, list) => list.reduce((sum, hole) => sum + (Number(savedHole(row, hole)) || 0), 0);
 
 function AllRulesPanel() {
   return (
@@ -37,13 +39,52 @@ function AllRulesPanel() {
   );
 }
 
+function SavedScorecard({ game, rows }) {
+  if (!game || !rows?.length) return null;
+  return (
+    <div style={{ marginTop: '18px' }}>
+      <div className="section-heading compact" style={{ marginBottom: '12px' }}>
+        <div>
+          <p className="eyebrow">Viewing saved round</p>
+          <h3 style={{ margin: 0, fontSize: '1.5rem' }}>{game.title}</h3>
+          <p style={{ margin: '6px 0 0' }}>{new Date(game.played_at).toLocaleString()}</p>
+        </div>
+      </div>
+      <div className="scorecard-table-wrap">
+        <table className="scorecard-table">
+          <thead>
+            <tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr>
+            <tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr>
+          </thead>
+          <tbody>
+            {rows.map(row => (
+              <tr key={row.id}>
+                <th>{row.players?.display_name || 'Player'}</th>
+                {holes.slice(0,9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
+                <td className="subtotal">{fmt(savedSide(row, holes.slice(0,9)))}</td>
+                {holes.slice(9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
+                <td className="subtotal">{fmt(savedSide(row, holes.slice(9)))}</td>
+                <td className="subtotal">{row.total_strokes}</td>
+                <td className="total-score">{fmt(row.total_score)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [players, setPlayers] = useState(defaults);
   const [activeHole, setActiveHole] = useState(1);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState(answerRuleQuestion('bull'));
   const [status, setStatus] = useState('');
+  const [historyStatus, setHistoryStatus] = useState('');
   const [history, setHistory] = useState([]);
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [showAllRules, setShowAllRules] = useState(false);
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
 
@@ -58,7 +99,7 @@ export default function Home() {
   async function saveRound() {
     setStatus('Saving round...');
     const ownerKey = getOwnerKey();
-    const { data: game, error } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, status: 'complete' }).select('id').single();
+    const { data: game, error } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, status: 'complete' }).select('id,title,played_at,course_name').single();
     if (error || !game) { setStatus(error?.message || 'Could not save round.'); return; }
 
     for (const [index, player] of players.entries()) {
@@ -75,14 +116,34 @@ export default function Home() {
       if (rows.length) await supabase.from('hole_scores').insert(rows);
     }
 
-    setStatus('Round saved to Supabase history.');
-    loadHistory();
+    setStatus('Round saved. Use Load, then View Scorecard to open it.');
+    await loadHistory(game.id);
   }
 
-  async function loadHistory() {
+  async function loadHistory(gameIdToOpen) {
+    setHistoryStatus('Loading saved rounds...');
     const ownerKey = getOwnerKey();
-    const { data } = await supabase.from('games').select('id,title,played_at,course_name').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(8);
+    const { data, error } = await supabase.from('games').select('id,title,played_at,course_name').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(12);
+    if (error) { setHistoryStatus(error.message); return; }
     setHistory(data ?? []);
+    setHistoryStatus(data?.length ? `${data.length} saved round${data.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.');
+    if (gameIdToOpen) {
+      const game = data?.find(item => item.id === gameIdToOpen);
+      if (game) await viewSavedGame(game);
+    }
+  }
+
+  async function viewSavedGame(game) {
+    setHistoryStatus('Opening saved scorecard...');
+    const { data, error } = await supabase
+      .from('game_players')
+      .select('id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number,relative_score,strokes,result)')
+      .eq('game_id', game.id)
+      .order('display_order', { ascending: true });
+    if (error) { setHistoryStatus(error.message); return; }
+    setSelectedGame(game);
+    setSelectedRows(data ?? []);
+    setHistoryStatus(data?.length ? 'Saved scorecard opened.' : 'Saved round found, but no player score rows were returned.');
   }
 
   function askRule() {
@@ -133,7 +194,14 @@ export default function Home() {
           <button className="button primary" style={{ marginTop: '2px', boxShadow: '0 0 0 3px rgba(208,169,72,.28)' }} onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
           {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
         </div>
-        <div className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={loadHistory}>Load</button></div><div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {game.course_name}</span></div>)}</div></div>
+        <div className="card">
+          <div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>
+          {historyStatus && <p className="status-line">{historyStatus}</p>}
+          <div className="history-list">
+            {history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {game.course_name}</span><button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}
+          </div>
+          <SavedScorecard game={selectedGame} rows={selectedRows} />
+        </div>
       </section>
     </main>
   );
