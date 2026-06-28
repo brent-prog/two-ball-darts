@@ -258,6 +258,21 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <footer style={{ marginTop: '22px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '22px', padding: '18px', background: 'linear-gradient(180deg, rgba(6,57,39,.88), rgba(2,20,15,.96))', boxShadow: '0 18px 44px rgba(0,0,0,.35)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '72px 1fr auto', gap: '16px', alignItems: 'center' }}>
+          <img src="/two-ball-darts-logo.png" alt="TWO BALL DARTS" style={{ width: '64px', height: '64px', objectFit: 'contain', display: 'block' }} />
+          <div>
+            <strong style={{ display: 'block', fontSize: '1.35rem', letterSpacing: '.03em' }}>TWO BALL DARTS</strong>
+            <span style={{ color: '#d0a948', fontWeight: 900 }}>No gimmes. Just throw.</span>
+            <p style={{ margin: '6px 0 0', color: '#f5e8c6' }}>18 holes. Two darts per hole. Bulls count for nothing - ever.</p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <a href="#scorecard" className="button secondary" style={{ padding: '9px 14px' }}>Scorecard</a>
+            <a href="#rules" className="button primary" style={{ padding: '9px 14px' }}>Rules</a>
+          </div>
+        </div>
+      </footer>
       <SavedScorecard game={selectedGame} rows={selectedRows} onClose={closeSavedScorecard} />
     </main>
   );
