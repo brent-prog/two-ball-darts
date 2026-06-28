@@ -39,37 +39,40 @@ function AllRulesPanel() {
   );
 }
 
-function SavedScorecard({ game, rows }) {
+function SavedScorecard({ game, rows, onClose }) {
   if (!game || !rows?.length) return null;
   return (
-    <div style={{ marginTop: '18px' }}>
-      <div className="section-heading compact" style={{ marginBottom: '12px' }}>
-        <div>
-          <p className="eyebrow">Viewing saved round</p>
-          <h3 style={{ margin: 0, fontSize: '1.5rem' }}>{game.title}</h3>
-          <p style={{ margin: '6px 0 0' }}>{new Date(game.played_at).toLocaleString()}</p>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.78)', padding: '24px', display: 'grid', placeItems: 'center' }}>
+      <div className="card" style={{ width: 'min(1180px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0 }}>
+        <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
+          <div>
+            <p className="eyebrow">Viewing saved round</p>
+            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.6rem)' }}>{game.title}</h2>
+            <p style={{ margin: '6px 0 0' }}>{new Date(game.played_at).toLocaleString()}</p>
+          </div>
+          <button className="button primary" onClick={onClose}>Close</button>
         </div>
-      </div>
-      <div className="scorecard-table-wrap">
-        <table className="scorecard-table">
-          <thead>
-            <tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr>
-            <tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr>
-          </thead>
-          <tbody>
-            {rows.map(row => (
-              <tr key={row.id}>
-                <th>{row.players?.display_name || 'Player'}</th>
-                {holes.slice(0,9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
-                <td className="subtotal">{fmt(savedSide(row, holes.slice(0,9)))}</td>
-                {holes.slice(9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
-                <td className="subtotal">{fmt(savedSide(row, holes.slice(9)))}</td>
-                <td className="subtotal">{row.total_strokes}</td>
-                <td className="total-score">{fmt(row.total_score)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="scorecard-table-wrap">
+          <table className="scorecard-table">
+            <thead>
+              <tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr>
+              <tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr>
+            </thead>
+            <tbody>
+              {rows.map(row => (
+                <tr key={row.id}>
+                  <th>{row.players?.display_name || 'Player'}</th>
+                  {holes.slice(0,9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
+                  <td className="subtotal">{fmt(savedSide(row, holes.slice(0,9)))}</td>
+                  {holes.slice(9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
+                  <td className="subtotal">{fmt(savedSide(row, holes.slice(9)))}</td>
+                  <td className="subtotal">{row.total_strokes}</td>
+                  <td className="total-score">{fmt(row.total_score)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -116,7 +119,7 @@ export default function Home() {
       if (rows.length) await supabase.from('hole_scores').insert(rows);
     }
 
-    setStatus('Round saved. Use Load, then View Scorecard to open it.');
+    setStatus('Round saved. Opening saved scorecard.');
     await loadHistory(game.id);
   }
 
@@ -144,6 +147,11 @@ export default function Home() {
     setSelectedGame(game);
     setSelectedRows(data ?? []);
     setHistoryStatus(data?.length ? 'Saved scorecard opened.' : 'Saved round found, but no player score rows were returned.');
+  }
+
+  function closeSavedScorecard() {
+    setSelectedGame(null);
+    setSelectedRows([]);
   }
 
   function askRule() {
@@ -200,9 +208,9 @@ export default function Home() {
           <div className="history-list">
             {history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {game.course_name}</span><button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}
           </div>
-          <SavedScorecard game={selectedGame} rows={selectedRows} />
         </div>
       </section>
+      <SavedScorecard game={selectedGame} rows={selectedRows} onClose={closeSavedScorecard} />
     </main>
   );
 }
