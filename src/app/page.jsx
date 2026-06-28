@@ -16,10 +16,31 @@ const scoreByKey = new Map(scoreResults.map(result => [result.key, result]));
 const fmt = score => score === 0 ? 'E' : score > 0 ? `+${score}` : `${score}`;
 const total = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
 const strokes = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
-const side = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
-const savedHole = (row, hole) => row.hole_scores?.find(score => score.hole_number === hole)?.relative_score ?? '';
+const sideScore = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
+const sideStrokes = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
+const savedScore = (row, hole) => row.hole_scores?.find(score => score.hole_number === hole) ?? null;
 const savedStrokes = row => row.hole_scores?.reduce((sum, score) => sum + (Number(score.strokes) || 0), 0) ?? 0;
-const savedSide = (row, list) => list.reduce((sum, hole) => sum + (Number(savedHole(row, hole)) || 0), 0);
+const savedSideScore = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.relative_score) || 0), 0);
+const savedSideStrokes = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.strokes) || 0), 0);
+
+function symbolClass(score) {
+  if (score === -2) return 'eagle';
+  if (score === -1) return 'birdie';
+  if (score === 1) return 'bogey';
+  if (score === 2) return 'double-bogey';
+  if (score === 3) return 'triple-bogey';
+  return 'par';
+}
+
+function ScoreCell({ result }) {
+  if (!result) return <td></td>;
+  return <td><span className={`score-symbol ${symbolClass(result.score)}`}>{result.strokes}</span></td>;
+}
+
+function SavedScoreCell({ score }) {
+  if (!score) return <td></td>;
+  return <td><span className={`score-symbol ${symbolClass(Number(score.relative_score))}`}>{score.strokes}</span></td>;
+}
 
 function AllRulesPanel() {
   return (
@@ -63,12 +84,12 @@ function SavedScorecard({ game, rows, onClose }) {
               {rows.map(row => (
                 <tr key={row.id}>
                   <th>{row.players?.display_name || 'Player'}</th>
-                  {holes.slice(0,9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
-                  <td className="subtotal">{fmt(savedSide(row, holes.slice(0,9)))}</td>
-                  {holes.slice(9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
-                  <td className="subtotal">{fmt(savedSide(row, holes.slice(9)))}</td>
+                  {holes.slice(0,9).map(h => <SavedScoreCell key={h} score={savedScore(row, h)} />)}
+                  <td className="subtotal">{savedSideStrokes(row, holes.slice(0,9))}</td>
+                  {holes.slice(9).map(h => <SavedScoreCell key={h} score={savedScore(row, h)} />)}
+                  <td className="subtotal">{savedSideStrokes(row, holes.slice(9))}</td>
                   <td className="subtotal">{savedStrokes(row)}</td>
-                  <td className="total-score">{fmt(row.total_score)}</td>
+                  <td className="total-score">{fmt(savedSideScore(row, holes))}</td>
                 </tr>
               ))}
             </tbody>
@@ -196,7 +217,7 @@ export default function Home() {
           <h3 style={{ fontSize: '1.55rem', marginBottom: '10px' }}>Hole {activeHole}</h3>
           <div className="player-score-grid">{players.map(player => <div className="player-hole-card" key={player.id}><div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', marginBottom: '8px' }}><input style={{ padding: '10px', marginBottom: 0 }} value={player.name} onFocus={e => e.target.select()} onChange={e => updateName(player.id, e.target.value)} /><button className="button ghost" style={{ padding: '8px 12px', borderRadius: '10px', opacity: players.length <= 1 ? .45 : 1 }} disabled={players.length <= 1} onClick={() => removePlayer(player.id)}>Remove</button></div> <div className="score-buttons">{scoreResults.map(result => <button key={result.key} style={{ minHeight: '42px', padding: '8px 10px' }} className={player.scores[activeHole] === result.key ? 'selected' : ''} onClick={() => updateScore(player.id, result.key)}><span>{result.label}</span><strong>{fmt(result.score)}</strong></button>)}<button className="clear-score" style={{ minHeight: '40px', padding: '8px 10px' }} onClick={() => updateScore(player.id, '')}>Clear</button></div></div>)}</div>
         </div>
-        <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr><tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th>{holes.slice(0,9).map(h => <td key={h}>{scoreByKey.get(player.scores[h])?.score ?? ''}</td>)}<td className="subtotal">{fmt(side(player, holes.slice(0,9)))}</td>{holes.slice(9).map(h => <td key={h}>{scoreByKey.get(player.scores[h])?.score ?? ''}</td>)}<td className="subtotal">{fmt(side(player, holes.slice(9)))}</td><td className="subtotal">{strokes(player)}</td><td className="total-score">{fmt(total(player))}</td></tr>)}</tbody></table></div>{status && <p className="status-line">{status}</p>}
+        <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr><tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th>{holes.slice(0,9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(0,9))}</td>{holes.slice(9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(9))}</td><td className="subtotal">{strokes(player)}</td><td className="total-score">{fmt(sideScore(player, holes))}</td></tr>)}</tbody></table></div>{status && <p className="status-line">{status}</p>}
       </section>
 
       <section className="two-column">
