@@ -220,12 +220,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="quick-stats" aria-label="Round status and navigation" style={{ position: 'sticky', top: '10px', zIndex: 50, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', backdropFilter: 'blur(12px)' }}>
-        <div><span>Current leader</span><strong>{leader.name}</strong></div>
-        <div><span>Leader score</span><strong>{fmt(total(leader))}</strong></div>
-        <div><span>Strokes</span><strong>{strokes(leader)}</strong></div>
-        <div><span>Active hole</span><strong>{activeHole}</strong></div>
-        <div className="quick-nav" style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap', borderRight: 0 }}><a href="#scorecard" className="button secondary">Scorecard</a><a href="#rules" className="button primary">Check Rules</a></div>
+      <section className="quick-stats" aria-label="Round status and navigation" style={{ position: 'sticky', top: '10px', zIndex: 50, display: 'grid', gridTemplateColumns: '72px repeat(4, minmax(110px, 1fr)) minmax(220px, auto)', alignItems: 'center', backdropFilter: 'blur(12px)' }}>
+        <div style={{ padding: '8px 12px', display: 'grid', placeItems: 'center' }}><img src="/two-ball-darts-logo.png" alt="TWO BALL DARTS" style={{ width: '52px', height: '52px', objectFit: 'contain', display: 'block' }} /></div>
+        <div style={{ padding: '10px 14px' }}><span>Leader</span><strong style={{ fontSize: '1.28rem', marginTop: '2px' }}>{leader.name}</strong></div>
+        <div style={{ padding: '10px 14px' }}><span>Score</span><strong style={{ fontSize: '1.28rem', marginTop: '2px' }}>{fmt(total(leader))}</strong></div>
+        <div style={{ padding: '10px 14px' }}><span>Strokes</span><strong style={{ fontSize: '1.28rem', marginTop: '2px' }}>{strokes(leader)}</strong></div>
+        <div style={{ padding: '10px 14px' }}><span>Hole</span><strong style={{ fontSize: '1.28rem', marginTop: '2px' }}>{activeHole}</strong></div>
+        <div className="quick-nav" style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'nowrap', borderRight: 0, padding: '10px 12px' }}><a href="#scorecard" className="button secondary" style={{ padding: '9px 14px' }}>Scorecard</a><a href="#rules" className="button primary" style={{ padding: '9px 14px' }}>Check Rules</a></div>
       </section>
 
       <section className="card" id="scorecard" style={{ paddingTop: '18px' }}>
