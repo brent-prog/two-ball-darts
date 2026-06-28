@@ -166,17 +166,37 @@ export default function Home() {
   const [selectedGame, setSelectedGame] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [showAllRules, setShowAllRules] = useState(false);
+  const [savedGameId, setSavedGameId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
 
+  function markRoundDirty() {
+    setSavedGameId(null);
+    setStatus('');
+  }
+
   function updateScore(playerId, score) {
+    markRoundDirty();
     setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [activeHole]: score } } : player));
   }
 
   function updateName(playerId, name) {
+    markRoundDirty();
     setPlayers(current => current.map(player => player.id === playerId ? { ...player, name } : player));
   }
 
+  function addPlayer() {
+    markRoundDirty();
+    setPlayers(current => [...current, { id: crypto.randomUUID(), name: `Player ${current.length + 1}`, scores: {} }]);
+  }
+
+  function resetRound() {
+    markRoundDirty();
+    setPlayers(current => current.map(player => ({ ...player, scores: {} })));
+  }
+
   function removePlayer(playerId) {
+    markRoundDirty();
     setPlayers(current => current.length <= 1 ? current : current.filter(player => player.id !== playerId));
   }
 
@@ -196,10 +216,20 @@ export default function Home() {
   }
 
   async function saveRound() {
+    if (savedGameId) {
+      setStatus('Round already saved. Change a player or score to save a new version.');
+      return;
+    }
+
+    setIsSaving(true);
     setStatus('Saving round...');
     const ownerKey = getOwnerKey();
     const { data: game, error } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, status: 'complete' }).select('id,title,played_at,course_name').single();
-    if (error || !game) { setStatus(error?.message || 'Could not save round.'); return; }
+    if (error || !game) {
+      setStatus(error?.message || 'Could not save round.');
+      setIsSaving(false);
+      return;
+    }
 
     for (const [index, player] of players.entries()) {
       const displayName = player.name.trim() || `Player ${index + 1}`;
@@ -215,7 +245,9 @@ export default function Home() {
       if (rows.length) await supabase.from('hole_scores').insert(rows);
     }
 
-    setStatus('Round saved. Opening saved scorecard.');
+    setSavedGameId(game.id);
+    setIsSaving(false);
+    setStatus('Round saved. Change a player or score to enable saving a new version.');
     await loadHistory(game.id);
   }
 
@@ -274,7 +306,7 @@ export default function Home() {
       <section className="card" id="scorecard" style={{ paddingTop: '18px' }}>
         <div className="section-heading" style={{ marginBottom: '12px', alignItems: 'center' }}>
           <p className="eyebrow" style={{ margin: 0 }}>Live round</p>
-          <div className="actions-inline"><button className="button secondary" onClick={() => setPlayers([...players, { id: crypto.randomUUID(), name: `Player ${players.length + 1}`, scores: {} }])}>Add player</button><button className="button ghost" onClick={() => setPlayers(players.map(p => ({ ...p, scores: {} })))}>Reset</button><button className="button primary" onClick={saveRound}>Save round</button></div>
+          <div className="actions-inline"><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || Boolean(savedGameId)} onClick={saveRound}>{isSaving ? 'Saving...' : savedGameId ? 'Saved' : 'Save round'}</button></div>
         </div>
         <div className="hole-picker" style={{ marginBottom: '12px' }}>{holes.map(hole => <button key={hole} className={hole === activeHole ? 'active' : ''} onClick={() => setActiveHole(hole)}>{hole}</button>)}</div>
         <div className="active-hole-panel" style={{ padding: '14px', marginBottom: '16px' }}>
@@ -292,8 +324,8 @@ export default function Home() {
             <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 1<select value={dartOne} onChange={e => updateRuleDart('one', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 2<select value={dartTwo} onChange={e => updateRuleDart('two', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           </div>
-          <button className="button primary" style={{ marginTop: '2px', boxShadow: '0 0 0 3px rgba(208,169,72,.28)' }} onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
           {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
+          <button className="button primary" style={{ marginTop: '14px', boxShadow: '0 0 0 3px rgba(208,169,72,.28)' }} onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
         </div>
         <div className="card">
           <div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>
