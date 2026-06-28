@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import LogoMark from '@/components/LogoMark';
-import { holes, scoreResults, totalPar } from '@/lib/brand';
+import { holes, scoreResults } from '@/lib/brand';
 import { answerRuleQuestion } from '@/lib/rules';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
@@ -15,9 +15,10 @@ const defaults = [
 const scoreByKey = new Map(scoreResults.map(result => [result.key, result]));
 const fmt = score => score === 0 ? 'E' : score > 0 ? `+${score}` : `${score}`;
 const total = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
-const strokes = player => totalPar + total(player);
+const strokes = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
 const side = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
 const savedHole = (row, hole) => row.hole_scores?.find(score => score.hole_number === hole)?.relative_score ?? '';
+const savedStrokes = row => row.hole_scores?.reduce((sum, score) => sum + (Number(score.strokes) || 0), 0) ?? 0;
 const savedSide = (row, list) => list.reduce((sum, hole) => sum + (Number(savedHole(row, hole)) || 0), 0);
 
 function AllRulesPanel() {
@@ -66,7 +67,7 @@ function SavedScorecard({ game, rows, onClose }) {
                   <td className="subtotal">{fmt(savedSide(row, holes.slice(0,9)))}</td>
                   {holes.slice(9).map(h => <td key={h}>{savedHole(row, h)}</td>)}
                   <td className="subtotal">{fmt(savedSide(row, holes.slice(9)))}</td>
-                  <td className="subtotal">{row.total_strokes}</td>
+                  <td className="subtotal">{savedStrokes(row)}</td>
                   <td className="total-score">{fmt(row.total_score)}</td>
                 </tr>
               ))}
