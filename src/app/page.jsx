@@ -11,11 +11,31 @@ const defaults = [
   { id: 'p1', name: 'Player 1', scores: {} },
   { id: 'p2', name: 'Player 2', scores: {} }
 ];
+
 const scoreByKey = new Map(scoreResults.map(result => [result.key, result]));
 const fmt = score => score === 0 ? 'E' : score > 0 ? `+${score}` : `${score}`;
 const total = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
 const strokes = player => totalPar + total(player);
 const side = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
+
+function AllRulesPanel() {
+  return (
+    <div className="rule-answer" style={{ marginTop: '14px' }}>
+      <h3>All Official Rules</h3>
+      <p><strong>Basic game:</strong> Play holes 1-18. The hole number is the target. All holes are par 3. Each player throws exactly two darts per hole. Lowest score wins.</p>
+      <div style={{ display: 'grid', gap: '10px', margin: '16px 0' }}>
+        {scoreResults.map(result => (
+          <div key={result.key} style={{ border: '1px solid rgba(208,169,72,.45)', borderRadius: '10px', padding: '10px 12px', background: 'rgba(0,0,0,.14)' }}>
+            <strong>{result.label} ({fmt(result.score)})</strong>
+            <p style={{ margin: '6px 0 0' }}>{result.description}</p>
+          </div>
+        ))}
+      </div>
+      <p><strong>Local rulings:</strong> Only the active hole number counts as a target hit. Everything else is a miss. Bulls count for nothing - ever. A bull is still an on-board miss. Off the board literally means off the board. If a dart sticks anywhere in the cork/board, it is on-board and OK. Worst possible score on any hole is triple bogey.</p>
+      <p><strong>Tie-break:</strong> After 18 holes, if players are tied, each tied player throws one dart. Closest to the bullseye wins.</p>
+    </div>
+  );
+}
 
 export default function Home() {
   const [players, setPlayers] = useState(defaults);
@@ -24,6 +44,7 @@ export default function Home() {
   const [answer, setAnswer] = useState(answerRuleQuestion('bull'));
   const [status, setStatus] = useState('');
   const [history, setHistory] = useState([]);
+  const [showAllRules, setShowAllRules] = useState(false);
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
 
   function updateScore(playerId, score) {
@@ -39,6 +60,7 @@ export default function Home() {
     const ownerKey = getOwnerKey();
     const { data: game, error } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, status: 'complete' }).select('id').single();
     if (error || !game) { setStatus(error?.message || 'Could not save round.'); return; }
+
     for (const [index, player] of players.entries()) {
       const displayName = player.name.trim() || `Player ${index + 1}`;
       const { data: dbPlayer } = await supabase.from('players').upsert({ owner_key: ownerKey, display_name: displayName }, { onConflict: 'owner_key,display_name' }).select('id').single();
@@ -52,6 +74,7 @@ export default function Home() {
       }).filter(Boolean);
       if (rows.length) await supabase.from('hole_scores').insert(rows);
     }
+
     setStatus('Round saved to Supabase history.');
     loadHistory();
   }
@@ -65,6 +88,7 @@ export default function Home() {
   function askRule() {
     const response = answerRuleQuestion(question);
     setAnswer(response);
+    setShowAllRules(false);
     supabase.from('rule_questions').insert({ owner_key: getOwnerKey(), question, matched_rule: response.matchedRule, answer: response.answer }).then(() => undefined);
   }
 
@@ -94,7 +118,16 @@ export default function Home() {
         <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr><tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th>{holes.slice(0,9).map(h => <td key={h}>{scoreByKey.get(player.scores[h])?.score ?? ''}</td>)}<td className="subtotal">{fmt(side(player, holes.slice(0,9)))}</td>{holes.slice(9).map(h => <td key={h}>{scoreByKey.get(player.scores[h])?.score ?? ''}</td>)}<td className="subtotal">{fmt(side(player, holes.slice(9)))}</td><td className="subtotal">{strokes(player)}</td><td className="total-score">{fmt(total(player))}</td></tr>)}</tbody></table></div>{status && <p className="status-line">{status}</p>}
       </section>
 
-      <section className="two-column"><div className="card" id="rules"><p className="eyebrow">Official rule assistant</p><h2>Ask a rule question</h2><div className="rule-input"><input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Example: single target plus off board?"/><button className="button primary" onClick={askRule}>Ask</button></div><div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div></div><div className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={loadHistory}>Load</button></div><div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {game.course_name}</span></div>)}</div></div></section>
+      <section className="two-column">
+        <div className="card" id="rules">
+          <p className="eyebrow">Official rule assistant</p>
+          <h2>Ask a rule question</h2>
+          <div className="rule-input"><input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Example: single target plus off board?"/><button className="button primary" onClick={askRule}>Ask</button></div>
+          <button className="button secondary" onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
+          {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
+        </div>
+        <div className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={loadHistory}>Load</button></div><div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {game.course_name}</span></div>)}</div></div>
+      </section>
     </main>
   );
 }
