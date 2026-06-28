@@ -29,6 +29,17 @@ const savedScore = (row, hole) => row.hole_scores?.find(score => score.hole_numb
 const savedStrokes = row => row.hole_scores?.reduce((sum, score) => sum + (Number(score.strokes) || 0), 0) ?? 0;
 const savedSideScore = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.relative_score) || 0), 0);
 const savedSideStrokes = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.strokes) || 0), 0);
+const savedRoundPlayers = game => game.game_players ?? [];
+const savedRoundPlayerNames = game => savedRoundPlayers(game).map(row => row.players?.display_name).filter(Boolean);
+const savedPlayerHoleCount = row => new Set((row.hole_scores ?? []).map(score => score.hole_number)).size;
+const isSavedRoundComplete = game => savedRoundPlayers(game).length > 0 && savedRoundPlayers(game).every(row => savedPlayerHoleCount(row) >= 18);
+const savedRoundLabel = game => isSavedRoundComplete(game) ? 'Official 18' : 'Incomplete round';
+const savedRoundSummary = game => {
+  const names = savedRoundPlayerNames(game);
+  const playerCount = names.length || savedRoundPlayers(game).length;
+  const playerLabel = `${playerCount} player${playerCount === 1 ? '' : 's'}`;
+  return names.length ? `${playerLabel}: ${names.join(', ')}` : `${playerLabel}: names unavailable`;
+};
 
 function scoreTwoDarts(dart1, dart2) {
   if (!dart1 || !dart2) {
@@ -254,7 +265,12 @@ export default function Home() {
   async function loadHistory(gameIdToOpen) {
     setHistoryStatus('Loading saved rounds...');
     const ownerKey = getOwnerKey();
-    const { data, error } = await supabase.from('games').select('id,title,played_at,course_name').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(12);
+    const { data, error } = await supabase
+      .from('games')
+      .select('id,title,played_at,course_name,game_players(id,players(display_name),hole_scores(hole_number))')
+      .eq('owner_key', ownerKey)
+      .order('played_at', { ascending: false })
+      .limit(12);
     if (error) { setHistoryStatus(error.message); return; }
     setHistory(data ?? []);
     setHistoryStatus(data?.length ? `${data.length} saved round${data.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.');
@@ -331,7 +347,7 @@ export default function Home() {
           <div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>
           {historyStatus && <p className="status-line">{historyStatus}</p>}
           <div className="history-list">
-            {history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {game.course_name}</span><button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}
+            {history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span><button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}
           </div>
         </div>
       </section>
