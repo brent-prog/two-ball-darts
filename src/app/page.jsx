@@ -184,11 +184,12 @@ export default function Home() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [showAllRules, setShowAllRules] = useState(false);
   const [savedGameId, setSavedGameId] = useState(null);
+  const [isRoundDirty, setIsRoundDirty] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
 
   function markRoundDirty() {
-    setSavedGameId(null);
+    setIsRoundDirty(true);
     setStatus('');
   }
 
@@ -208,13 +209,22 @@ export default function Home() {
   }
 
   function resetRound() {
-    markRoundDirty();
+    setSavedGameId(null);
+    setIsRoundDirty(true);
+    setStatus('');
     setPlayers(current => current.map(player => ({ ...player, scores: {} })));
   }
 
   function removePlayer(playerId) {
     markRoundDirty();
     setPlayers(current => current.length <= 1 ? current : current.filter(player => player.id !== playerId));
+  }
+
+  function saveButtonLabel() {
+    if (isSaving) return 'Saving...';
+    if (savedGameId && !isRoundDirty) return 'Saved';
+    if (savedGameId && isRoundDirty) return 'Save changes';
+    return 'Save round';
   }
 
   function updateRuleDart(which, value) {
@@ -237,60 +247,81 @@ export default function Home() {
     await supabase.from('games').delete().eq('id', gameId);
   }
 
-  async function saveRound() {
+  async function writeRoundRows(gameId) {
     if (savedGameId) {
-      setStatus('Round already saved. Change a player or score to save a new version.');
+      const { error: deleteError } = await supabase.from('game_players').delete().eq('game_id', gameId);
+      if (deleteError) throw new Error(deleteError.message || 'Could not clear previous saved player rows.');
+    }
+
+    for (const [index, player] of players.entries()) {
+      const displayName = player.name.trim() || `Player ${index + 1}`;
+      const { data: dbPlayer, error: playerError } = await supabase
+        .from('players')
+        .upsert({ owner_key: getOwnerKey(), display_name: displayName }, { onConflict: 'owner_key,display_name' })
+        .select('id,display_name')
+        .single();
+      if (playerError || !dbPlayer) throw new Error(playerError?.message || `Could not save player ${displayName}.`);
+
+      const { data: gp, error: gamePlayerError } = await supabase
+        .from('game_players')
+        .insert({ game_id: gameId, player_id: dbPlayer.id, display_order: index, total_score: total(player), total_strokes: strokes(player) })
+        .select('id')
+        .single();
+      if (gamePlayerError || !gp) throw new Error(gamePlayerError?.message || `Could not attach player ${displayName} to round.`);
+
+      const rows = holes.map(hole => {
+        const key = player.scores[hole];
+        const result = scoreByKey.get(key);
+        return result ? { game_player_id: gp.id, hole_number: hole, result: key, relative_score: result.score, strokes: result.strokes } : null;
+      }).filter(Boolean);
+
+      if (rows.length) {
+        const { error: scoreError } = await supabase.from('hole_scores').insert(rows);
+        if (scoreError) throw new Error(scoreError.message || `Could not save scores for ${displayName}.`);
+      }
+    }
+  }
+
+  async function saveRound() {
+    if (savedGameId && !isRoundDirty) {
+      setStatus('Round already saved. Change a player or score to save updates.');
       return;
     }
 
     setIsSaving(true);
     setStatus('Saving round...');
     const ownerKey = getOwnerKey();
-    let gameId = null;
+    const roundLabel = currentRoundComplete(players) ? 'Official 18' : 'Incomplete round';
+    let gameId = savedGameId;
+    let createdNewGame = false;
 
     try {
-      const roundLabel = currentRoundComplete(players) ? 'Official 18' : 'Incomplete round';
-      const { data: game, error: gameError } = await supabase
-        .from('games')
-        .insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, course_name: roundLabel, status: 'complete' })
-        .select('id,title,played_at,course_name')
-        .single();
-      if (gameError || !game) throw new Error(gameError?.message || 'Could not create saved round.');
-      gameId = game.id;
-
-      for (const [index, player] of players.entries()) {
-        const displayName = player.name.trim() || `Player ${index + 1}`;
-        const { data: dbPlayer, error: playerError } = await supabase
-          .from('players')
-          .upsert({ owner_key: ownerKey, display_name: displayName }, { onConflict: 'owner_key,display_name' })
-          .select('id,display_name')
+      if (gameId) {
+        const { error: gameUpdateError } = await supabase
+          .from('games')
+          .update({ course_name: roundLabel, status: 'complete' })
+          .eq('id', gameId)
+          .eq('owner_key', ownerKey);
+        if (gameUpdateError) throw new Error(gameUpdateError.message || 'Could not update saved round.');
+      } else {
+        const { data: game, error: gameError } = await supabase
+          .from('games')
+          .insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, course_name: roundLabel, status: 'complete' })
+          .select('id,title,played_at,course_name')
           .single();
-        if (playerError || !dbPlayer) throw new Error(playerError?.message || `Could not save player ${displayName}.`);
-
-        const { data: gp, error: gamePlayerError } = await supabase
-          .from('game_players')
-          .insert({ game_id: game.id, player_id: dbPlayer.id, display_order: index, total_score: total(player), total_strokes: strokes(player) })
-          .select('id')
-          .single();
-        if (gamePlayerError || !gp) throw new Error(gamePlayerError?.message || `Could not attach player ${displayName} to round.`);
-
-        const rows = holes.map(hole => {
-          const key = player.scores[hole];
-          const result = scoreByKey.get(key);
-          return result ? { game_player_id: gp.id, hole_number: hole, result: key, relative_score: result.score, strokes: result.strokes } : null;
-        }).filter(Boolean);
-
-        if (rows.length) {
-          const { error: scoreError } = await supabase.from('hole_scores').insert(rows);
-          if (scoreError) throw new Error(scoreError.message || `Could not save scores for ${displayName}.`);
-        }
+        if (gameError || !game) throw new Error(gameError?.message || 'Could not create saved round.');
+        gameId = game.id;
+        createdNewGame = true;
       }
 
-      setSavedGameId(game.id);
-      setStatus('Round saved. Change a player or score to enable saving a new version.');
-      await loadHistory(game.id);
+      await writeRoundRows(gameId);
+
+      setSavedGameId(gameId);
+      setIsRoundDirty(false);
+      setStatus(`Round saved as ${roundLabel}.`);
+      await loadHistory(gameId);
     } catch (error) {
-      await cleanupFailedGame(gameId);
+      if (createdNewGame) await cleanupFailedGame(gameId);
       setStatus(`Save failed: ${error.message}`);
     } finally {
       setIsSaving(false);
@@ -329,10 +360,11 @@ export default function Home() {
     if (error) { setHistoryStatus(error.message); return; }
 
     const enriched = await enrichGamesWithPlayers(data ?? []);
-    setHistory(enriched);
-    setHistoryStatus(enriched.length ? `${enriched.length} saved round${enriched.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.');
+    const visible = enriched.filter(game => savedRoundPlayers(game).length > 0);
+    setHistory(visible);
+    setHistoryStatus(visible.length ? `${visible.length} saved round${visible.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.');
     if (gameIdToOpen) {
-      const game = enriched.find(item => item.id === gameIdToOpen);
+      const game = visible.find(item => item.id === gameIdToOpen);
       if (game) await viewSavedGame(game);
     }
   }
@@ -379,7 +411,7 @@ export default function Home() {
       <section className="card" id="scorecard" style={{ paddingTop: '18px' }}>
         <div className="section-heading" style={{ marginBottom: '12px', alignItems: 'center' }}>
           <p className="eyebrow" style={{ margin: 0 }}>Live round</p>
-          <div className="actions-inline"><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || Boolean(savedGameId)} onClick={saveRound}>{isSaving ? 'Saving...' : savedGameId ? 'Saved' : 'Save round'}</button></div>
+          <div className="actions-inline"><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button></div>
         </div>
         <div className="hole-picker" style={{ marginBottom: '12px' }}>{holes.map(hole => <button key={hole} className={hole === activeHole ? 'active' : ''} onClick={() => setActiveHole(hole)}>{hole}</button>)}</div>
         <div className="active-hole-panel" style={{ padding: '14px', marginBottom: '16px' }}>
