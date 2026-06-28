@@ -104,12 +104,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="quick-stats" aria-label="Round status and navigation">
+      <section className="quick-stats" aria-label="Round status and navigation" style={{ position: 'sticky', top: '10px', zIndex: 50, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', backdropFilter: 'blur(12px)' }}>
         <div><span>Current leader</span><strong>{leader.name}</strong></div>
         <div><span>Leader score</span><strong>{fmt(total(leader))}</strong></div>
         <div><span>Strokes</span><strong>{strokes(leader)}</strong></div>
         <div><span>Active hole</span><strong>{activeHole}</strong></div>
-        <div className="quick-nav"><a href="#scorecard" className="button secondary">Scorecard</a><a href="#rules" className="button primary">Check Rules</a></div>
+        <div className="quick-nav" style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap', borderRight: 0 }}><a href="#scorecard" className="button secondary">Scorecard</a><a href="#rules" className="button primary">Check Rules</a></div>
       </section>
 
       <section className="card" id="scorecard">
