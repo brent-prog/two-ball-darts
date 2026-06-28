@@ -123,7 +123,7 @@ export default function Home() {
           <p className="eyebrow">Official rule assistant</p>
           <h2>Ask a rule question</h2>
           <div className="rule-input"><input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Example: single target plus off board?"/><button className="button primary" onClick={askRule}>Ask</button></div>
-          <button className="button secondary" onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
+          <button className="button primary" style={{ marginTop: '2px', boxShadow: '0 0 0 3px rgba(208,169,72,.28)' }} onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
           {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
         </div>
         <div className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={loadHistory}>Load</button></div><div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {game.course_name}</span></div>)}</div></div>
