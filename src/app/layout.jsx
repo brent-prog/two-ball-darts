@@ -1,4 +1,5 @@
 import './globals.css';
+import './mobile-fixes.css';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
