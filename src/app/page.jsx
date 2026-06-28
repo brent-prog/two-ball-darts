@@ -25,6 +25,8 @@ const total = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player
 const strokes = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
 const sideScore = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
 const sideStrokes = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
+const scoredHoleCount = player => holes.filter(hole => scoreByKey.has(player.scores[hole])).length;
+const currentRoundComplete = players => players.length > 0 && players.every(player => scoredHoleCount(player) === 18);
 const savedScore = (row, hole) => row.hole_scores?.find(score => score.hole_number === hole) ?? null;
 const savedStrokes = row => row.hole_scores?.reduce((sum, score) => sum + (Number(score.strokes) || 0), 0) ?? 0;
 const savedSideScore = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.relative_score) || 0), 0);
@@ -32,7 +34,11 @@ const savedSideStrokes = (row, list) => list.reduce((sum, hole) => sum + (Number
 const savedRoundPlayers = game => game.game_players ?? [];
 const savedRoundPlayerNames = game => savedRoundPlayers(game).map(row => row.players?.display_name).filter(Boolean);
 const savedPlayerHoleCount = row => new Set((row.hole_scores ?? []).map(score => score.hole_number)).size;
-const isSavedRoundComplete = game => savedRoundPlayers(game).length > 0 && savedRoundPlayers(game).every(row => savedPlayerHoleCount(row) >= 18);
+const isSavedRoundComplete = game => {
+  const rows = savedRoundPlayers(game);
+  if (rows.length > 0) return rows.every(row => savedPlayerHoleCount(row) === 18);
+  return game.course_name === 'Official 18';
+};
 const savedRoundLabel = game => isSavedRoundComplete(game) ? 'Official 18' : 'Incomplete round';
 const savedRoundSummary = game => {
   const names = savedRoundPlayerNames(game);
@@ -226,6 +232,11 @@ export default function Home() {
     }
   }
 
+  async function cleanupFailedGame(gameId) {
+    if (!gameId) return;
+    await supabase.from('games').delete().eq('id', gameId);
+  }
+
   async function saveRound() {
     if (savedGameId) {
       setStatus('Round already saved. Change a player or score to save a new version.');
@@ -235,31 +246,75 @@ export default function Home() {
     setIsSaving(true);
     setStatus('Saving round...');
     const ownerKey = getOwnerKey();
-    const { data: game, error } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, status: 'complete' }).select('id,title,played_at,course_name').single();
-    if (error || !game) {
-      setStatus(error?.message || 'Could not save round.');
+    let gameId = null;
+
+    try {
+      const roundLabel = currentRoundComplete(players) ? 'Official 18' : 'Incomplete round';
+      const { data: game, error: gameError } = await supabase
+        .from('games')
+        .insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, course_name: roundLabel, status: 'complete' })
+        .select('id,title,played_at,course_name')
+        .single();
+      if (gameError || !game) throw new Error(gameError?.message || 'Could not create saved round.');
+      gameId = game.id;
+
+      for (const [index, player] of players.entries()) {
+        const displayName = player.name.trim() || `Player ${index + 1}`;
+        const { data: dbPlayer, error: playerError } = await supabase
+          .from('players')
+          .upsert({ owner_key: ownerKey, display_name: displayName }, { onConflict: 'owner_key,display_name' })
+          .select('id,display_name')
+          .single();
+        if (playerError || !dbPlayer) throw new Error(playerError?.message || `Could not save player ${displayName}.`);
+
+        const { data: gp, error: gamePlayerError } = await supabase
+          .from('game_players')
+          .insert({ game_id: game.id, player_id: dbPlayer.id, display_order: index, total_score: total(player), total_strokes: strokes(player) })
+          .select('id')
+          .single();
+        if (gamePlayerError || !gp) throw new Error(gamePlayerError?.message || `Could not attach player ${displayName} to round.`);
+
+        const rows = holes.map(hole => {
+          const key = player.scores[hole];
+          const result = scoreByKey.get(key);
+          return result ? { game_player_id: gp.id, hole_number: hole, result: key, relative_score: result.score, strokes: result.strokes } : null;
+        }).filter(Boolean);
+
+        if (rows.length) {
+          const { error: scoreError } = await supabase.from('hole_scores').insert(rows);
+          if (scoreError) throw new Error(scoreError.message || `Could not save scores for ${displayName}.`);
+        }
+      }
+
+      setSavedGameId(game.id);
+      setStatus('Round saved. Change a player or score to enable saving a new version.');
+      await loadHistory(game.id);
+    } catch (error) {
+      await cleanupFailedGame(gameId);
+      setStatus(`Save failed: ${error.message}`);
+    } finally {
       setIsSaving(false);
-      return;
+    }
+  }
+
+  async function enrichGamesWithPlayers(games) {
+    if (!games?.length) return [];
+    const gameIds = games.map(game => game.id);
+    const { data: rows, error } = await supabase
+      .from('game_players')
+      .select('id,game_id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number)')
+      .in('game_id', gameIds)
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      setHistoryStatus(error.message);
+      return games;
     }
 
-    for (const [index, player] of players.entries()) {
-      const displayName = player.name.trim() || `Player ${index + 1}`;
-      const { data: dbPlayer } = await supabase.from('players').upsert({ owner_key: ownerKey, display_name: displayName }, { onConflict: 'owner_key,display_name' }).select('id').single();
-      if (!dbPlayer) continue;
-      const { data: gp } = await supabase.from('game_players').insert({ game_id: game.id, player_id: dbPlayer.id, display_order: index, total_score: total(player), total_strokes: strokes(player) }).select('id').single();
-      if (!gp) continue;
-      const rows = holes.map(hole => {
-        const key = player.scores[hole];
-        const result = scoreByKey.get(key);
-        return result ? { game_player_id: gp.id, hole_number: hole, result: key, relative_score: result.score, strokes: result.strokes } : null;
-      }).filter(Boolean);
-      if (rows.length) await supabase.from('hole_scores').insert(rows);
-    }
-
-    setSavedGameId(game.id);
-    setIsSaving(false);
-    setStatus('Round saved. Change a player or score to enable saving a new version.');
-    await loadHistory(game.id);
+    return games.map(game => ({
+      ...game,
+      game_players: (rows ?? []).filter(row => row.game_id === game.id)
+    }));
   }
 
   async function loadHistory(gameIdToOpen) {
@@ -267,15 +322,17 @@ export default function Home() {
     const ownerKey = getOwnerKey();
     const { data, error } = await supabase
       .from('games')
-      .select('id,title,played_at,course_name,game_players(id,players(display_name),hole_scores(hole_number))')
+      .select('id,title,played_at,course_name')
       .eq('owner_key', ownerKey)
       .order('played_at', { ascending: false })
       .limit(12);
     if (error) { setHistoryStatus(error.message); return; }
-    setHistory(data ?? []);
-    setHistoryStatus(data?.length ? `${data.length} saved round${data.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.');
+
+    const enriched = await enrichGamesWithPlayers(data ?? []);
+    setHistory(enriched);
+    setHistoryStatus(enriched.length ? `${enriched.length} saved round${enriched.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.');
     if (gameIdToOpen) {
-      const game = data?.find(item => item.id === gameIdToOpen);
+      const game = enriched.find(item => item.id === gameIdToOpen);
       if (game) await viewSavedGame(game);
     }
   }
