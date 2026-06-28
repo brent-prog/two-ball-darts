@@ -1,0 +1,26 @@
+html,body{
+  background:#02140f!important;
+  max-width:100%;
+  overflow-x:hidden;
+  overscroll-behavior-y:none;
+}
+
+body{
+  min-height:100dvh;
+}
+
+@media(max-width:700px){
+  footer>div{
+    grid-template-columns:1fr!important;
+    text-align:left;
+  }
+
+  footer img{
+    width:56px!important;
+    height:56px!important;
+  }
+
+  footer .button{
+    width:auto;
+  }
+}
