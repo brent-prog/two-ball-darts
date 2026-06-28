@@ -32,14 +32,35 @@ function symbolClass(score) {
   return 'par';
 }
 
+function symbolStyle(score) {
+  const base = {
+    display: 'inline-grid',
+    placeItems: 'center',
+    minWidth: '34px',
+    height: '34px',
+    padding: '0 6px',
+    color: '#102017',
+    fontWeight: 900,
+    lineHeight: 1,
+    background: 'rgba(255,255,255,.08)'
+  };
+  if (score === -2) return { ...base, border: '4px double #102017', borderRadius: '999px' };
+  if (score === -1) return { ...base, border: '3px solid #102017', borderRadius: '999px' };
+  if (score === 1) return { ...base, border: '3px solid #102017', borderRadius: '2px' };
+  if (score === 2) return { ...base, border: '4px double #102017', borderRadius: '2px' };
+  if (score === 3) return { ...base, border: '3px solid #102017', borderRadius: '2px', boxShadow: '0 0 0 3px #102017 inset' };
+  return base;
+}
+
 function ScoreCell({ result }) {
   if (!result) return <td></td>;
-  return <td><span className={`score-symbol ${symbolClass(result.score)}`}>{result.strokes}</span></td>;
+  return <td style={{ padding: '6px 4px' }}><span className={`score-symbol ${symbolClass(result.score)}`} style={symbolStyle(result.score)}>{result.strokes}</span></td>;
 }
 
 function SavedScoreCell({ score }) {
   if (!score) return <td></td>;
-  return <td><span className={`score-symbol ${symbolClass(Number(score.relative_score))}`}>{score.strokes}</span></td>;
+  const relativeScore = Number(score.relative_score);
+  return <td style={{ padding: '6px 4px' }}><span className={`score-symbol ${symbolClass(relativeScore)}`} style={symbolStyle(relativeScore)}>{score.strokes}</span></td>;
 }
 
 function AllRulesPanel() {
