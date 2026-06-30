@@ -48,14 +48,7 @@ const savedRoundSummary = game => {
 };
 
 function scoreTwoDarts(dart1, dart2) {
-  if (!dart1 || !dart2) {
-    return {
-      title: 'Select both darts',
-      matchedRule: 'select_both_darts',
-      scoreKey: '',
-      answer: 'Choose a result for Dart 1 and Dart 2 to calculate the official score.'
-    };
-  }
+  if (!dart1 || !dart2) return { title: 'Select both darts', matchedRule: 'select_both_darts', scoreKey: '', answer: 'Choose a result for Dart 1 and Dart 2 to calculate the official score.' };
 
   const darts = [dart1, dart2];
   const power = darts.filter(dart => dart === 'power').length;
@@ -84,17 +77,7 @@ function symbolClass(score) {
 }
 
 function symbolStyle(score) {
-  const base = {
-    display: 'inline-grid',
-    placeItems: 'center',
-    minWidth: '34px',
-    height: '34px',
-    padding: '0 6px',
-    color: '#102017',
-    fontWeight: 900,
-    lineHeight: 1,
-    background: 'rgba(255,255,255,.08)'
-  };
+  const base = { display: 'inline-grid', placeItems: 'center', minWidth: '34px', height: '34px', padding: '0 6px', color: '#102017', fontWeight: 900, lineHeight: 1, background: 'rgba(255,255,255,.08)' };
   if (score === -2) return { ...base, border: '4px double #102017', borderRadius: '999px' };
   if (score === -1) return { ...base, border: '3px solid #102017', borderRadius: '999px' };
   if (score === 1) return { ...base, border: '3px solid #102017', borderRadius: '2px' };
@@ -179,7 +162,9 @@ export default function Home() {
   const [dartTwo, setDartTwo] = useState('');
   const [answer, setAnswer] = useState(scoreTwoDarts('', ''));
   const [showAddToScore, setShowAddToScore] = useState(false);
+  const [showRuleHolePicker, setShowRuleHolePicker] = useState(false);
   const [rulePlayerId, setRulePlayerId] = useState('');
+  const [ruleHole, setRuleHole] = useState(1);
   const [status, setStatus] = useState('');
   const [historyStatus, setHistoryStatus] = useState('');
   const [history, setHistory] = useState([]);
@@ -197,9 +182,13 @@ export default function Home() {
     setStatus('');
   }
 
-  function updateScore(playerId, score) {
+  function updateScoreForHole(playerId, score, hole) {
     markRoundDirty();
-    setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [activeHole]: score } } : player));
+    setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player));
+  }
+
+  function updateScore(playerId, score) {
+    updateScoreForHole(playerId, score, activeHole);
   }
 
   function updateName(playerId, name) {
@@ -241,19 +230,29 @@ export default function Home() {
     setAnswer(response);
     setShowAllRules(false);
     setShowAddToScore(false);
+    setShowRuleHolePicker(false);
     setRulePlayerId('');
+    setRuleHole(activeHole);
 
     if (nextDartOne && nextDartTwo) {
       supabase.from('rule_questions').insert({ owner_key: getOwnerKey(), question: `Dart 1: ${nextDartOne}; Dart 2: ${nextDartTwo}`, matched_rule: response.matchedRule, answer: response.answer }).then(() => undefined);
     }
   }
 
+  function openAddToScore() {
+    setRuleHole(activeHole);
+    setShowRuleHolePicker(false);
+    setShowAddToScore(current => !current);
+  }
+
   function addRuleResultToScore() {
     if (!rulePlayerId || !answer.scoreKey) return;
-    updateScore(rulePlayerId, answer.scoreKey);
+    updateScoreForHole(rulePlayerId, answer.scoreKey, ruleHole);
+    setActiveHole(ruleHole);
     const playerName = players.find(player => player.id === rulePlayerId)?.name || 'Player';
-    setStatus(`${answer.title} added to ${playerName} on hole ${activeHole}.`);
+    setStatus(`${answer.title} added to ${playerName} on hole ${ruleHole}.`);
     setShowAddToScore(false);
+    setShowRuleHolePicker(false);
     setRulePlayerId('');
   }
 
@@ -312,25 +311,16 @@ export default function Home() {
 
     try {
       if (gameId) {
-        const { error: gameUpdateError } = await supabase
-          .from('games')
-          .update({ course_name: roundLabel, status: 'complete' })
-          .eq('id', gameId)
-          .eq('owner_key', ownerKey);
+        const { error: gameUpdateError } = await supabase.from('games').update({ course_name: roundLabel, status: 'complete' }).eq('id', gameId).eq('owner_key', ownerKey);
         if (gameUpdateError) throw new Error(gameUpdateError.message || 'Could not update saved round.');
       } else {
-        const { data: game, error: gameError } = await supabase
-          .from('games')
-          .insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, course_name: roundLabel, status: 'complete' })
-          .select('id,title,played_at,course_name')
-          .single();
+        const { data: game, error: gameError } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, course_name: roundLabel, status: 'complete' }).select('id,title,played_at,course_name').single();
         if (gameError || !game) throw new Error(gameError?.message || 'Could not create saved round.');
         gameId = game.id;
         createdNewGame = true;
       }
 
       await writeRoundRows(gameId);
-
       setSavedGameId(gameId);
       setIsRoundDirty(false);
       setStatus(`Round saved as ${roundLabel}.`);
@@ -357,21 +347,13 @@ export default function Home() {
       return games;
     }
 
-    return games.map(game => ({
-      ...game,
-      game_players: (rows ?? []).filter(row => row.game_id === game.id)
-    }));
+    return games.map(game => ({ ...game, game_players: (rows ?? []).filter(row => row.game_id === game.id) }));
   }
 
   async function loadHistory(gameIdToOpen) {
     setHistoryStatus('Loading saved rounds...');
     const ownerKey = getOwnerKey();
-    const { data, error } = await supabase
-      .from('games')
-      .select('id,title,played_at,course_name')
-      .eq('owner_key', ownerKey)
-      .order('played_at', { ascending: false })
-      .limit(12);
+    const { data, error } = await supabase.from('games').select('id,title,played_at,course_name').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(12);
     if (error) { setHistoryStatus(error.message); return; }
 
     const enriched = await enrichGamesWithPlayers(data ?? []);
@@ -386,11 +368,7 @@ export default function Home() {
 
   async function viewSavedGame(game) {
     setHistoryStatus('Opening saved scorecard...');
-    const { data, error } = await supabase
-      .from('game_players')
-      .select('id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number,relative_score,strokes,result)')
-      .eq('game_id', game.id)
-      .order('display_order', { ascending: true });
+    const { data, error } = await supabase.from('game_players').select('id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number,relative_score,strokes,result)').eq('game_id', game.id).order('display_order', { ascending: true });
     if (error) { setHistoryStatus(error.message); return; }
     setSelectedGame(game);
     setSelectedRows(data ?? []);
@@ -445,12 +423,14 @@ export default function Home() {
             <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 2<select value={dartTwo} onChange={e => updateRuleDart('two', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           </div>
           {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
-          {canAddRuleResult && !showAllRules && <button className="button secondary" style={{ marginTop: '14px', marginRight: '10px', boxShadow: '0 0 0 3px rgba(208,169,72,.16)' }} onClick={() => setShowAddToScore(current => !current)}>Add to Score</button>}
+          {canAddRuleResult && !showAllRules && <button className="button secondary" style={{ marginTop: '14px', marginRight: '10px', boxShadow: '0 0 0 3px rgba(208,169,72,.16)' }} onClick={openAddToScore}>Add to Score</button>}
           {showAddToScore && canAddRuleResult && !showAllRules && <div className="rule-answer" style={{ marginTop: '14px', borderLeftColor: '#d0a948' }}>
             <h3>Add {answer.title} to score</h3>
-            <p>Current hole selected: <strong>Hole {activeHole}</strong></p>
+            <p>Selected scoring hole: <strong>Hole {ruleHole}</strong></p>
+            <button className="button secondary" style={{ marginBottom: '12px' }} onClick={() => setShowRuleHolePicker(current => !current)}>{showRuleHolePicker ? 'Hide Hole Picker' : 'Change Hole'}</button>
+            {showRuleHolePicker && <div className="hole-picker" style={{ marginBottom: '14px', gridTemplateColumns: 'repeat(6, 1fr)' }}>{holes.map(hole => <button key={hole} className={hole === ruleHole ? 'active' : ''} onClick={() => setRuleHole(hole)}>{hole}</button>)}</div>}
             <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Player<select value={rulePlayerId} onChange={e => setRulePlayerId(e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}><option value="">Select player</option>{players.map(player => <option key={player.id} value={player.id}>{player.name}</option>)}</select></label>
-            <button className="button primary" style={{ marginTop: '12px' }} disabled={!rulePlayerId} onClick={addRuleResultToScore}>Confirm Hole {activeHole}</button>
+            <button className="button primary" style={{ marginTop: '12px' }} disabled={!rulePlayerId} onClick={addRuleResultToScore}>Confirm Hole {ruleHole}</button>
           </div>}
           <button className="button primary" style={{ marginTop: '14px', boxShadow: '0 0 0 3px rgba(208,169,72,.28)' }} onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
         </div>
