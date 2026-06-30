@@ -1,0 +1,70 @@
+#rules .rule-answer{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  gap:12px;
+  border-left:0;
+  border:1px solid rgba(208,169,72,.42);
+  border-radius:18px;
+  padding:18px 20px 20px;
+  background:linear-gradient(135deg,rgba(2,20,15,.96),rgba(4,47,35,.78));
+  box-shadow:inset 7px 0 0 var(--red),0 12px 28px rgba(0,0,0,.22);
+}
+
+#rules .rule-answer::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle at 92% 0%,rgba(208,169,72,.18),transparent 34%);
+}
+
+#rules .rule-answer h3{
+  margin:0;
+  color:var(--ivory2);
+  font-size:clamp(1.75rem,3vw,2.35rem);
+  line-height:1;
+  letter-spacing:-.03em;
+  text-transform:none;
+}
+
+#rules .rule-answer p{
+  margin:0;
+  max-width:56ch;
+  color:var(--ivory2);
+  font-size:1.05rem;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+#rules .rule-answer span{
+  width:max-content;
+  max-width:100%;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:2px;
+  border:1px solid rgba(208,169,72,.5);
+  border-radius:999px;
+  padding:8px 11px;
+  color:var(--gold);
+  background:rgba(0,0,0,.24);
+  font-size:.92rem;
+  line-height:1;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+#rules .rule-answer span::before{
+  content:'Rule';
+  border-radius:999px;
+  padding:4px 7px;
+  color:#102017;
+  background:var(--gold);
+  font-size:.72rem;
+  line-height:1;
+}
+
+#rules .rule-answer strong{
+  color:var(--gold);
+}
