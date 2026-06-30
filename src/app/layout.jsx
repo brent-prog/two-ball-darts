@@ -1,5 +1,6 @@
 import './globals.css';
 import './mobile-fixes.css';
+import './rule-result-polish.css';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
