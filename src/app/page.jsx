@@ -49,13 +49,11 @@ const savedRoundSummary = game => {
 
 function scoreTwoDarts(dart1, dart2) {
   if (!dart1 || !dart2) return { title: 'Select both darts', matchedRule: 'select_both_darts', scoreKey: '', answer: 'Choose a result for Dart 1 and Dart 2 to calculate the official score.' };
-
   const darts = [dart1, dart2];
   const power = darts.filter(dart => dart === 'power').length;
   const single = darts.filter(dart => dart === 'single').length;
   const onboard = darts.filter(dart => dart === 'onboard').length;
   const offboard = darts.filter(dart => dart === 'offboard').length;
-
   if (power === 2) return { title: 'Eagle', matchedRule: 'eagle', scoreKey: 'eagle', answer: 'Both darts hit DOUBLE/TRIPLE target. Score: EAGLE (-2). Strokes: 1.' };
   if (power === 1 && single === 1) return { title: 'Birdie', matchedRule: 'birdie', scoreKey: 'birdie', answer: 'One DOUBLE/TRIPLE target plus one SINGLE target. Score: BIRDIE (-1). Strokes: 2.' };
   if (single === 2) return { title: 'Par', matchedRule: 'two_single_targets', scoreKey: 'par', answer: 'Two SINGLE target hits. Score: PAR (E). Strokes: 3.' };
@@ -63,7 +61,6 @@ function scoreTwoDarts(dart1, dart2) {
   if ((single === 1 && onboard === 1) || (power === 1 && offboard === 1)) return { title: 'Bogey', matchedRule: 'bogey', scoreKey: 'bogey', answer: 'Official result is BOGEY (+1). Strokes: 4.' };
   if ((single === 1 && offboard === 1) || (onboard === 2)) return { title: 'Double bogey', matchedRule: 'double_bogey', scoreKey: 'double_bogey', answer: 'Official result is DOUBLE BOGEY (+2). Strokes: 5.' };
   if (offboard >= 1) return { title: 'Triple bogey', matchedRule: 'triple_bogey', scoreKey: 'triple_bogey', answer: 'No target hits plus at least one off-board dart. Score: TRIPLE BOGEY (+3). Strokes: 6.' };
-
   return { title: 'Official rule check', matchedRule: 'general_rules', scoreKey: '', answer: 'Select both darts to calculate the official result.' };
 }
 
@@ -155,6 +152,22 @@ function SavedScorecard({ game, rows, onClose }) {
   );
 }
 
+function LiveScorecard({ players }) {
+  return (
+    <div className="scorecard-table-wrap">
+      <table className="scorecard-table">
+        <thead>
+          <tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr>
+          <tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr>
+        </thead>
+        <tbody>
+          {players.map(player => <tr key={player.id}><th>{player.name}</th>{holes.slice(0,9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(0,9))}</td>{holes.slice(9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(9))}</td><td className="subtotal">{strokes(player)}</td><td className="total-score">{fmt(sideScore(player, holes))}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function Home() {
   const [players, setPlayers] = useState(defaults);
   const [activeHole, setActiveHole] = useState(1);
@@ -171,6 +184,7 @@ export default function Home() {
   const [selectedGame, setSelectedGame] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [showAllRules, setShowAllRules] = useState(false);
+  const [showLiveScorecard, setShowLiveScorecard] = useState(false);
   const [savedGameId, setSavedGameId] = useState(null);
   const [isRoundDirty, setIsRoundDirty] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -208,6 +222,7 @@ export default function Home() {
     setSavedGameId(null);
     setIsRoundDirty(true);
     setStatus('');
+    setShowLiveScorecard(false);
     setPlayers(current => current.map(player => ({ ...player, scores: {} })));
   }
 
@@ -235,7 +250,6 @@ export default function Home() {
     const nextDartOne = which === 'one' ? value : dartOne;
     const nextDartTwo = which === 'two' ? value : dartTwo;
     const response = scoreTwoDarts(nextDartOne, nextDartTwo);
-
     if (which === 'one') setDartOne(value);
     if (which === 'two') setDartTwo(value);
     setAnswer(response);
@@ -244,7 +258,6 @@ export default function Home() {
     setShowRuleHolePicker(false);
     setRulePlayerId('');
     setRuleHole(activeHole);
-
     if (nextDartOne && nextDartTwo) {
       supabase.from('rule_questions').insert({ owner_key: getOwnerKey(), question: `Dart 1: ${nextDartOne}; Dart 2: ${nextDartTwo}`, matched_rule: response.matchedRule, answer: response.answer }).then(() => undefined);
     }
@@ -277,29 +290,17 @@ export default function Home() {
       const { error: deleteError } = await supabase.from('game_players').delete().eq('game_id', gameId);
       if (deleteError) throw new Error(deleteError.message || 'Could not clear previous saved player rows.');
     }
-
     for (const [index, player] of players.entries()) {
       const displayName = player.name.trim() || `Player ${index + 1}`;
-      const { data: dbPlayer, error: playerError } = await supabase
-        .from('players')
-        .upsert({ owner_key: getOwnerKey(), display_name: displayName }, { onConflict: 'owner_key,display_name' })
-        .select('id,display_name')
-        .single();
+      const { data: dbPlayer, error: playerError } = await supabase.from('players').upsert({ owner_key: getOwnerKey(), display_name: displayName }, { onConflict: 'owner_key,display_name' }).select('id,display_name').single();
       if (playerError || !dbPlayer) throw new Error(playerError?.message || `Could not save player ${displayName}.`);
-
-      const { data: gp, error: gamePlayerError } = await supabase
-        .from('game_players')
-        .insert({ game_id: gameId, player_id: dbPlayer.id, display_order: index, total_score: total(player), total_strokes: strokes(player) })
-        .select('id')
-        .single();
+      const { data: gp, error: gamePlayerError } = await supabase.from('game_players').insert({ game_id: gameId, player_id: dbPlayer.id, display_order: index, total_score: total(player), total_strokes: strokes(player) }).select('id').single();
       if (gamePlayerError || !gp) throw new Error(gamePlayerError?.message || `Could not attach player ${displayName} to round.`);
-
       const rows = holes.map(hole => {
         const key = player.scores[hole];
         const result = scoreByKey.get(key);
         return result ? { game_player_id: gp.id, hole_number: hole, result: key, relative_score: result.score, strokes: result.strokes } : null;
       }).filter(Boolean);
-
       if (rows.length) {
         const { error: scoreError } = await supabase.from('hole_scores').insert(rows);
         if (scoreError) throw new Error(scoreError.message || `Could not save scores for ${displayName}.`);
@@ -312,14 +313,12 @@ export default function Home() {
       setStatus('Round already saved. Change a player or score to save updates.');
       return;
     }
-
     setIsSaving(true);
     setStatus('Saving round...');
     const ownerKey = getOwnerKey();
     const roundLabel = currentRoundComplete(players) ? 'Official 18' : 'Incomplete round';
     let gameId = savedGameId;
     let createdNewGame = false;
-
     try {
       if (gameId) {
         const { error: gameUpdateError } = await supabase.from('games').update({ course_name: roundLabel, status: 'complete' }).eq('id', gameId).eq('owner_key', ownerKey);
@@ -330,7 +329,6 @@ export default function Home() {
         gameId = game.id;
         createdNewGame = true;
       }
-
       await writeRoundRows(gameId);
       setSavedGameId(gameId);
       setIsRoundDirty(false);
@@ -347,17 +345,11 @@ export default function Home() {
   async function enrichGamesWithPlayers(games) {
     if (!games?.length) return [];
     const gameIds = games.map(game => game.id);
-    const { data: rows, error } = await supabase
-      .from('game_players')
-      .select('id,game_id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number)')
-      .in('game_id', gameIds)
-      .order('display_order', { ascending: true });
-
+    const { data: rows, error } = await supabase.from('game_players').select('id,game_id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number)').in('game_id', gameIds).order('display_order', { ascending: true });
     if (error) {
       setHistoryStatus(error.message);
       return games;
     }
-
     return games.map(game => ({ ...game, game_players: (rows ?? []).filter(row => row.game_id === game.id) }));
   }
 
@@ -366,7 +358,6 @@ export default function Home() {
     const ownerKey = getOwnerKey();
     const { data, error } = await supabase.from('games').select('id,title,played_at,course_name').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(12);
     if (error) { setHistoryStatus(error.message); return; }
-
     const enriched = await enrichGamesWithPlayers(data ?? []);
     const visible = enriched.filter(game => savedRoundPlayers(game).length > 0);
     setHistory(visible);
@@ -437,7 +428,12 @@ export default function Home() {
             {activeHole < 18 ? <button className="button primary" onClick={goToNextHole}>Next Hole</button> : <button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button>}
           </div>}
         </div>
-        <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr><tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th>{holes.slice(0,9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(0,9))}</td>{holes.slice(9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(9))}</td><td className="subtotal">{strokes(player)}</td><td className="total-score">{fmt(sideScore(player, holes))}</td></tr>)}</tbody></table></div>{status && <p className="status-line">{status}</p>}
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: showLiveScorecard ? '12px' : 0 }}>
+          <div style={{ color: '#d0a948', fontWeight: 900 }}>Scorecard is hidden during live scoring to keep entry fast.</div>
+          <button className="button secondary" onClick={() => setShowLiveScorecard(current => !current)}>{showLiveScorecard ? 'Hide Scorecard' : 'Show Scorecard'}</button>
+        </div>
+        {showLiveScorecard && <LiveScorecard players={players} />}
+        {status && <p className="status-line">{status}</p>}
       </section>
 
       <section className="two-column">
