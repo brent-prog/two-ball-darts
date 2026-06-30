@@ -113,6 +113,53 @@ function AllRulesPanel() {
   );
 }
 
+function HowToPlayModal({ onClose }) {
+  const cheatRows = [
+    ['Eagle', 'Both darts hit double/triple target', '-2'],
+    ['Birdie', 'One double/triple target + one single target', '-1'],
+    ['Par', 'Two singles OR double/triple target + on-board miss', 'E'],
+    ['Bogey', 'Single target + on-board miss OR double/triple target + off board', '+1'],
+    ['Double Bogey', 'No target hits with both darts on-board OR single target + off board', '+2'],
+    ['Triple Bogey', 'No target hits + at least one off-board dart', '+3']
+  ];
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,.78)', padding: '20px', display: 'grid', placeItems: 'center' }}>
+      <div className="card" style={{ width: 'min(760px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
+        <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
+          <div>
+            <p className="eyebrow">Quick start</p>
+            <h2 style={{ fontSize: 'clamp(2rem, 6vw, 3.8rem)' }}>How to Play</h2>
+          </div>
+          <button className="button primary" onClick={onClose}>Close</button>
+        </div>
+        <div className="rule-answer" style={{ borderLeftColor: '#d0a948' }}>
+          <h3>Two Ball Darts is golf scoring on a dartboard.</h3>
+          <ol style={{ display: 'grid', gap: '10px', margin: '12px 0 0', paddingLeft: '22px', lineHeight: 1.45 }}>
+            <li>Play holes (numbers on the dartboard) from 1 through 18. The hole number is your target.</li>
+            <li>Each player throws two darts at that number. Doubles &amp; Triples improve the score.</li>
+            <li>Your two darts create a golf score: Eagle, Birdie, Par, Bogey, Double Bogey, or Triple Bogey.</li>
+            <li>Enter each player's result, then move to the next hole.</li>
+            <li>Lowest score after 18 holes wins.</li>
+          </ol>
+        </div>
+        <div style={{ marginTop: '16px' }}>
+          <p className="eyebrow">Scoring cheat sheet</p>
+          <div style={{ display: 'grid', gap: '8px' }}>
+            {cheatRows.map(([label, description, score]) => (
+              <div key={label} style={{ display: 'grid', gridTemplateColumns: 'minmax(110px, 150px) 1fr 58px', gap: '10px', alignItems: 'center', border: '1px solid rgba(208,169,72,.45)', borderRadius: '12px', padding: '10px', background: 'rgba(0,0,0,.18)' }}>
+                <strong style={{ color: '#fff4d6' }}>{label}</strong>
+                <span style={{ lineHeight: 1.35 }}>{description}</span>
+                <strong style={{ color: '#d0a948', textAlign: 'right' }}>{score}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SavedScorecard({ game, rows, onClose }) {
   if (!game || !rows?.length) return null;
   return (
@@ -185,6 +232,7 @@ export default function Home() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [showAllRules, setShowAllRules] = useState(false);
   const [showLiveScorecard, setShowLiveScorecard] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [savedGameId, setSavedGameId] = useState(null);
   const [isRoundDirty, setIsRoundDirty] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -389,8 +437,8 @@ export default function Home() {
         <div className="hero-copy">
           <p className="eyebrow">18 holes · 2 darts per hole · all holes par 3</p>
           <h1>No gimmes. Just throw.</h1>
-          <p>Golf-course scoring for the dartboard. Track a live round, settle rule arguments, and keep your score history.</p>
-          <div className="hero-actions"><a href="#scorecard" className="button primary">Start scoring</a><a href="#rules" className="button secondary">Check rules</a></div>
+          <p>Golf-course scoring for the dartboard. Play holes 1 through 18 by throwing two darts at each number. Lowest score wins.</p>
+          <div className="hero-actions"><a href="#scorecard" className="button primary">Start scoring</a><button className="button secondary" onClick={() => setShowHowToPlay(true)}>How to Play</button><a href="#rules" className="button secondary">Check rules</a></div>
         </div>
       </section>
 
@@ -405,7 +453,7 @@ export default function Home() {
 
       <section className="card" id="scorecard" style={{ paddingTop: '18px' }}>
         <div className="section-heading" style={{ marginBottom: '12px', alignItems: 'center' }}>
-          <p className="eyebrow" style={{ margin: 0 }}>Live round</p>
+          <div><p className="eyebrow" style={{ margin: 0 }}>Live round</p><p style={{ margin: '6px 0 0', color: '#fff4d6', fontWeight: 900 }}>Choose the current hole, score each player's two darts, then move to the next hole.</p></div>
           <div className="actions-inline"><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button></div>
         </div>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch', marginBottom: '12px', flexWrap: 'wrap' }}>
@@ -479,6 +527,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
       <SavedScorecard game={selectedGame} rows={selectedRows} onClose={closeSavedScorecard} />
     </main>
   );
