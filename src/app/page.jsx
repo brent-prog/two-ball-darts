@@ -176,6 +176,8 @@ export default function Home() {
   const [isSaving, setIsSaving] = useState(false);
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
   const canAddRuleResult = Boolean(dartOne && dartTwo && answer.scoreKey);
+  const answerResult = scoreByKey.get(answer.scoreKey);
+  const answerDescription = answer.scoreKey ? answer.answer.split(' Score: ')[0] : answer.answer;
 
   function markRoundDirty() {
     setIsRoundDirty(true);
@@ -422,7 +424,7 @@ export default function Home() {
             <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 1<select value={dartOne} onChange={e => updateRuleDart('one', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 2<select value={dartTwo} onChange={e => updateRuleDart('two', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           </div>
-          {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
+          {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><div className="rule-result-copy"><p>{answerDescription}</p>{answerResult && <p className="rule-result-score">Score: <strong>({fmt(answerResult.score)})</strong> · Strokes: <strong>{answerResult.strokes}</strong></p>}</div><span>Matched rule: {answer.matchedRule}</span></div>}
           {canAddRuleResult && !showAllRules && <button className="button secondary" style={{ marginTop: '14px', marginRight: '10px', boxShadow: '0 0 0 3px rgba(208,169,72,.16)' }} onClick={openAddToScore}>Add to Score</button>}
           {showAddToScore && canAddRuleResult && !showAllRules && <div className="rule-answer" style={{ marginTop: '14px', borderLeftColor: '#d0a948' }}>
             <h3>Add {answer.title} to score</h3>
