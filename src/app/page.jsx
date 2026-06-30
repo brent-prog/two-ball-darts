@@ -215,6 +215,14 @@ export default function Home() {
     setPlayers(current => current.length <= 1 ? current : current.filter(player => player.id !== playerId));
   }
 
+  function goToPreviousHole() {
+    setActiveHole(current => Math.max(1, current - 1));
+  }
+
+  function goToNextHole() {
+    setActiveHole(current => Math.min(18, current + 1));
+  }
+
   function saveButtonLabel() {
     if (isSaving) return 'Saving...';
     if (savedGameId && !isRoundDirty) return 'Saved';
@@ -407,6 +415,14 @@ export default function Home() {
         <div className="section-heading" style={{ marginBottom: '12px', alignItems: 'center' }}>
           <p className="eyebrow" style={{ margin: 0 }}>Live round</p>
           <div className="actions-inline"><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button></div>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <button className="button secondary" disabled={activeHole === 1} onClick={goToPreviousHole} style={{ opacity: activeHole === 1 ? .45 : 1 }}>Previous Hole</button>
+          <div style={{ flex: '1 1 220px', minWidth: '180px', border: '1px solid rgba(208,169,72,.55)', borderRadius: '14px', padding: '10px 14px', background: 'rgba(0,0,0,.18)', textAlign: 'center' }}>
+            <span style={{ display: 'block', color: '#d0a948', fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.08em' }}>Current hole</span>
+            <strong style={{ display: 'block', marginTop: '3px', fontSize: '1.35rem' }}>Hole {activeHole} of 18</strong>
+          </div>
+          <button className="button primary" disabled={activeHole === 18} onClick={goToNextHole} style={{ opacity: activeHole === 18 ? .45 : 1 }}>Next Hole</button>
         </div>
         <div className="hole-picker" style={{ marginBottom: '12px' }}>{holes.map(hole => <button key={hole} className={hole === activeHole ? 'active' : ''} onClick={() => setActiveHole(hole)}>{hole}</button>)}</div>
         <div className="active-hole-panel" style={{ padding: '14px', marginBottom: '16px' }}>
