@@ -178,6 +178,7 @@ export default function Home() {
   const canAddRuleResult = Boolean(dartOne && dartTwo && answer.scoreKey);
   const answerResult = scoreByKey.get(answer.scoreKey);
   const answerDescription = answer.scoreKey ? answer.answer.split(' Score: ')[0] : answer.answer;
+  const isActiveHoleComplete = players.length > 0 && players.every(player => scoreByKey.has(player.scores[activeHole]));
 
   function markRoundDirty() {
     setIsRoundDirty(true);
@@ -428,6 +429,13 @@ export default function Home() {
         <div className="active-hole-panel" style={{ padding: '14px', marginBottom: '16px' }}>
           <h3 style={{ fontSize: '1.55rem', marginBottom: '10px' }}>Hole {activeHole}</h3>
           <div className="player-score-grid">{players.map(player => <div className="player-hole-card" key={player.id}><div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', marginBottom: '8px' }}><input style={{ padding: '10px', marginBottom: 0 }} value={player.name} onFocus={e => e.target.select()} onChange={e => updateName(player.id, e.target.value)} /><button className="button ghost" style={{ padding: '8px 12px', borderRadius: '10px', opacity: players.length <= 1 ? .45 : 1 }} disabled={players.length <= 1} onClick={() => removePlayer(player.id)}>Remove</button></div> <div className="score-buttons">{scoreResults.map(result => <button key={result.key} style={{ minHeight: '42px', padding: '8px 10px' }} className={player.scores[activeHole] === result.key ? 'selected' : ''} onClick={() => updateScore(player.id, result.key)}><span>{result.label}</span><strong>{fmt(result.score)}</strong></button>)}<button className="clear-score" style={{ minHeight: '40px', padding: '8px 10px' }} onClick={() => updateScore(player.id, '')}>Clear</button></div></div>)}</div>
+          {isActiveHoleComplete && <div style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: '16px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '16px', padding: '14px', background: 'linear-gradient(135deg, rgba(208,169,72,.18), rgba(6,57,39,.62))' }}>
+            <div>
+              <strong style={{ display: 'block', fontSize: '1.25rem', color: '#fff4d6' }}>{activeHole === 18 ? 'Round complete' : `Hole ${activeHole} complete`}</strong>
+              <span style={{ display: 'block', marginTop: '4px', color: '#d0a948', fontWeight: 900 }}>{activeHole === 18 ? 'Every player has a score for 18.' : 'Every player has a score for this hole.'}</span>
+            </div>
+            {activeHole < 18 ? <button className="button primary" onClick={goToNextHole}>Next Hole</button> : <button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button>}
+          </div>}
         </div>
         <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th>{holes.slice(0,9).map(h => <th key={h}>{h}</th>)}<th>OUT</th>{holes.slice(9).map(h => <th key={h}>{h}</th>)}<th>IN</th><th>TOT</th><th>Score</th></tr><tr className="par-row"><th>Par</th>{holes.slice(0,9).map(h => <td key={h}>3</td>)}<td>27</td>{holes.slice(9).map(h => <td key={h}>3</td>)}<td>27</td><td>54</td><td>E</td></tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th>{holes.slice(0,9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(0,9))}</td>{holes.slice(9).map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}<td className="subtotal">{sideStrokes(player, holes.slice(9))}</td><td className="subtotal">{strokes(player)}</td><td className="total-score">{fmt(sideScore(player, holes))}</td></tr>)}</tbody></table></div>{status && <p className="status-line">{status}</p>}
       </section>
