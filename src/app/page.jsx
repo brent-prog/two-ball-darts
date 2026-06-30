@@ -52,6 +52,7 @@ function scoreTwoDarts(dart1, dart2) {
     return {
       title: 'Select both darts',
       matchedRule: 'select_both_darts',
+      scoreKey: '',
       answer: 'Choose a result for Dart 1 and Dart 2 to calculate the official score.'
     };
   }
@@ -62,15 +63,15 @@ function scoreTwoDarts(dart1, dart2) {
   const onboard = darts.filter(dart => dart === 'onboard').length;
   const offboard = darts.filter(dart => dart === 'offboard').length;
 
-  if (power === 2) return { title: 'Eagle', matchedRule: 'eagle', answer: 'Both darts hit DOUBLE/TRIPLE target. Score: EAGLE (-2). Strokes: 1.' };
-  if (power === 1 && single === 1) return { title: 'Birdie', matchedRule: 'birdie', answer: 'One DOUBLE/TRIPLE target plus one SINGLE target. Score: BIRDIE (-1). Strokes: 2.' };
-  if (single === 2) return { title: 'Par', matchedRule: 'two_single_targets', answer: 'Two SINGLE target hits. Score: PAR (E). Strokes: 3.' };
-  if (power === 1 && onboard === 1) return { title: 'Par', matchedRule: 'double_triple_on_board_miss', answer: 'One DOUBLE/TRIPLE target plus one on-board miss. Score: PAR (E). Strokes: 3.' };
-  if ((single === 1 && onboard === 1) || (power === 1 && offboard === 1)) return { title: 'Bogey', matchedRule: 'bogey', answer: 'Official result is BOGEY (+1). Strokes: 4.' };
-  if ((single === 1 && offboard === 1) || (onboard === 2)) return { title: 'Double bogey', matchedRule: 'double_bogey', answer: 'Official result is DOUBLE BOGEY (+2). Strokes: 5.' };
-  if (offboard >= 1) return { title: 'Triple bogey', matchedRule: 'triple_bogey', answer: 'No target hits plus at least one off-board dart. Score: TRIPLE BOGEY (+3). Strokes: 6.' };
+  if (power === 2) return { title: 'Eagle', matchedRule: 'eagle', scoreKey: 'eagle', answer: 'Both darts hit DOUBLE/TRIPLE target. Score: EAGLE (-2). Strokes: 1.' };
+  if (power === 1 && single === 1) return { title: 'Birdie', matchedRule: 'birdie', scoreKey: 'birdie', answer: 'One DOUBLE/TRIPLE target plus one SINGLE target. Score: BIRDIE (-1). Strokes: 2.' };
+  if (single === 2) return { title: 'Par', matchedRule: 'two_single_targets', scoreKey: 'par', answer: 'Two SINGLE target hits. Score: PAR (E). Strokes: 3.' };
+  if (power === 1 && onboard === 1) return { title: 'Par', matchedRule: 'double_triple_on_board_miss', scoreKey: 'par', answer: 'One DOUBLE/TRIPLE target plus one on-board miss. Score: PAR (E). Strokes: 3.' };
+  if ((single === 1 && onboard === 1) || (power === 1 && offboard === 1)) return { title: 'Bogey', matchedRule: 'bogey', scoreKey: 'bogey', answer: 'Official result is BOGEY (+1). Strokes: 4.' };
+  if ((single === 1 && offboard === 1) || (onboard === 2)) return { title: 'Double bogey', matchedRule: 'double_bogey', scoreKey: 'double_bogey', answer: 'Official result is DOUBLE BOGEY (+2). Strokes: 5.' };
+  if (offboard >= 1) return { title: 'Triple bogey', matchedRule: 'triple_bogey', scoreKey: 'triple_bogey', answer: 'No target hits plus at least one off-board dart. Score: TRIPLE BOGEY (+3). Strokes: 6.' };
 
-  return { title: 'Official rule check', matchedRule: 'general_rules', answer: 'Select both darts to calculate the official result.' };
+  return { title: 'Official rule check', matchedRule: 'general_rules', scoreKey: '', answer: 'Select both darts to calculate the official result.' };
 }
 
 function symbolClass(score) {
@@ -177,6 +178,8 @@ export default function Home() {
   const [dartOne, setDartOne] = useState('');
   const [dartTwo, setDartTwo] = useState('');
   const [answer, setAnswer] = useState(scoreTwoDarts('', ''));
+  const [showAddToScore, setShowAddToScore] = useState(false);
+  const [rulePlayerId, setRulePlayerId] = useState('');
   const [status, setStatus] = useState('');
   const [historyStatus, setHistoryStatus] = useState('');
   const [history, setHistory] = useState([]);
@@ -187,6 +190,7 @@ export default function Home() {
   const [isRoundDirty, setIsRoundDirty] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
+  const canAddRuleResult = Boolean(dartOne && dartTwo && answer.scoreKey);
 
   function markRoundDirty() {
     setIsRoundDirty(true);
@@ -236,10 +240,21 @@ export default function Home() {
     if (which === 'two') setDartTwo(value);
     setAnswer(response);
     setShowAllRules(false);
+    setShowAddToScore(false);
+    setRulePlayerId('');
 
     if (nextDartOne && nextDartTwo) {
       supabase.from('rule_questions').insert({ owner_key: getOwnerKey(), question: `Dart 1: ${nextDartOne}; Dart 2: ${nextDartTwo}`, matched_rule: response.matchedRule, answer: response.answer }).then(() => undefined);
     }
+  }
+
+  function addRuleResultToScore() {
+    if (!rulePlayerId || !answer.scoreKey) return;
+    updateScore(rulePlayerId, answer.scoreKey);
+    const playerName = players.find(player => player.id === rulePlayerId)?.name || 'Player';
+    setStatus(`${answer.title} added to ${playerName} on hole ${activeHole}.`);
+    setShowAddToScore(false);
+    setRulePlayerId('');
   }
 
   async function cleanupFailedGame(gameId) {
@@ -430,6 +445,13 @@ export default function Home() {
             <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 2<select value={dartTwo} onChange={e => updateRuleDart('two', e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           </div>
           {showAllRules ? <AllRulesPanel /> : <div className="rule-answer"><h3>{answer.title}</h3><p>{answer.answer}</p><span>Matched rule: {answer.matchedRule}</span></div>}
+          {canAddRuleResult && !showAllRules && <button className="button secondary" style={{ marginTop: '14px', marginRight: '10px', boxShadow: '0 0 0 3px rgba(208,169,72,.16)' }} onClick={() => setShowAddToScore(current => !current)}>Add to Score</button>}
+          {showAddToScore && canAddRuleResult && !showAllRules && <div className="rule-answer" style={{ marginTop: '14px', borderLeftColor: '#d0a948' }}>
+            <h3>Add {answer.title} to score</h3>
+            <p>Current hole selected: <strong>Hole {activeHole}</strong></p>
+            <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Player<select value={rulePlayerId} onChange={e => setRulePlayerId(e.target.value)} style={{ width: '100%', borderRadius: '12px', border: '2px solid #d0a948', background: '#02140f', color: '#fff4d6', padding: '14px', fontWeight: 900 }}><option value="">Select player</option>{players.map(player => <option key={player.id} value={player.id}>{player.name}</option>)}</select></label>
+            <button className="button primary" style={{ marginTop: '12px' }} disabled={!rulePlayerId} onClick={addRuleResultToScore}>Confirm Hole {activeHole}</button>
+          </div>}
           <button className="button primary" style={{ marginTop: '14px', boxShadow: '0 0 0 3px rgba(208,169,72,.28)' }} onClick={() => setShowAllRules(current => !current)}>{showAllRules ? 'Hide All Rules' : 'Display All Rules'}</button>
         </div>
         <div className="card">
