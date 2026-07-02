@@ -26,4 +26,28 @@ body{
   footer .button{
     width:auto;
   }
+
+  .score-buttons{
+    gap:8px!important;
+  }
+
+  .score-buttons button{
+    min-height:52px!important;
+    padding:8px 10px!important;
+    gap:6px!important;
+    font-size:clamp(.9rem,4vw,1.05rem)!important;
+    line-height:1.05!important;
+  }
+
+  .score-buttons button span,
+  .score-buttons button strong{
+    white-space:nowrap!important;
+  }
+}
+
+@media(max-width:390px){
+  .score-buttons button{
+    padding:8px 8px!important;
+    font-size:.92rem!important;
+  }
 }
