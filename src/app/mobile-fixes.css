@@ -14,11 +14,40 @@ body{
   -webkit-overflow-scrolling:touch;
 }
 
+.scorecard-table{
+  border-collapse:separate;
+  border-spacing:0;
+}
+
+.scorecard-table thead,
+.scorecard-table tbody{
+  display:block;
+}
+
+.scorecard-table tr{
+  display:flex;
+  width:max-content;
+  min-width:100%;
+}
+
+.scorecard-table th,
+.scorecard-table td{
+  flex:0 0 48px;
+  min-width:48px;
+}
+
+.scorecard-table th:not(:first-child):not(:last-child),
+.scorecard-table td:not(:first-child):not(:last-child){
+  order:3;
+}
+
 .scorecard-table th:first-child,
 .scorecard-table td:first-child{
+  order:1;
   position:sticky;
   left:0;
   z-index:4;
+  flex-basis:112px;
   min-width:112px;
   max-width:112px;
   box-shadow:3px 0 0 #102017;
@@ -41,9 +70,11 @@ body{
 
 .scorecard-table th:last-child,
 .scorecard-table td:last-child{
+  order:2;
   position:sticky;
   left:112px;
   z-index:5;
+  flex-basis:74px;
   min-width:74px;
   max-width:74px;
   box-shadow:3px 0 0 #102017;
@@ -100,8 +131,15 @@ body{
     white-space:nowrap!important;
   }
 
+  .scorecard-table th,
+  .scorecard-table td{
+    flex-basis:44px;
+    min-width:44px;
+  }
+
   .scorecard-table th:first-child,
   .scorecard-table td:first-child{
+    flex-basis:104px;
     min-width:104px;
     max-width:104px;
     padding-left:6px;
@@ -111,6 +149,7 @@ body{
   .scorecard-table th:last-child,
   .scorecard-table td:last-child{
     left:104px;
+    flex-basis:68px;
     min-width:68px;
     max-width:68px;
     padding-left:6px;
@@ -124,8 +163,15 @@ body{
     font-size:.92rem!important;
   }
 
+  .scorecard-table th,
+  .scorecard-table td{
+    flex-basis:42px;
+    min-width:42px;
+  }
+
   .scorecard-table th:first-child,
   .scorecard-table td:first-child{
+    flex-basis:96px;
     min-width:96px;
     max-width:96px;
   }
@@ -133,6 +179,7 @@ body{
   .scorecard-table th:last-child,
   .scorecard-table td:last-child{
     left:96px;
+    flex-basis:64px;
     min-width:64px;
     max-width:64px;
   }
