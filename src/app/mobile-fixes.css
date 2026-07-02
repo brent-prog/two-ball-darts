@@ -15,6 +15,8 @@ body{
 }
 
 .scorecard-table{
+  width:max-content;
+  min-width:max-content;
   border-collapse:separate;
   border-spacing:0;
 }
@@ -27,13 +29,24 @@ body{
 .scorecard-table tr{
   display:flex;
   width:max-content;
-  min-width:100%;
 }
 
 .scorecard-table th,
 .scorecard-table td{
   flex:0 0 48px;
   min-width:48px;
+  max-width:48px;
+}
+
+.scorecard-table th:nth-child(11),
+.scorecard-table td:nth-child(11),
+.scorecard-table th:nth-child(21),
+.scorecard-table td:nth-child(21),
+.scorecard-table th:nth-child(22),
+.scorecard-table td:nth-child(22){
+  flex-basis:58px;
+  min-width:58px;
+  max-width:58px;
 }
 
 .scorecard-table th:not(:first-child):not(:last-child),
@@ -135,6 +148,18 @@ body{
   .scorecard-table td{
     flex-basis:44px;
     min-width:44px;
+    max-width:44px;
+  }
+
+  .scorecard-table th:nth-child(11),
+  .scorecard-table td:nth-child(11),
+  .scorecard-table th:nth-child(21),
+  .scorecard-table td:nth-child(21),
+  .scorecard-table th:nth-child(22),
+  .scorecard-table td:nth-child(22){
+    flex-basis:58px;
+    min-width:58px;
+    max-width:58px;
   }
 
   .scorecard-table th:first-child,
@@ -165,8 +190,20 @@ body{
 
   .scorecard-table th,
   .scorecard-table td{
-    flex-basis:42px;
-    min-width:42px;
+    flex-basis:40px;
+    min-width:40px;
+    max-width:40px;
+  }
+
+  .scorecard-table th:nth-child(11),
+  .scorecard-table td:nth-child(11),
+  .scorecard-table th:nth-child(21),
+  .scorecard-table td:nth-child(21),
+  .scorecard-table th:nth-child(22),
+  .scorecard-table td:nth-child(22){
+    flex-basis:58px;
+    min-width:58px;
+    max-width:58px;
   }
 
   .scorecard-table th:first-child,
