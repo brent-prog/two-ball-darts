@@ -53,6 +53,15 @@
   left:82px!important;
 }
 
+.tbd-player-score-row:not(.scored) .tbd-hole-status{
+  color:rgba(255,244,214,.72)!important;
+  font-family:Georgia,serif!important;
+  font-style:italic!important;
+  font-weight:700!important;
+  letter-spacing:.01em!important;
+  opacity:.85!important;
+}
+
 @media(max-width:390px){
   .tbd-player-name-line{
     grid-template-columns:auto minmax(0,1fr)!important;
