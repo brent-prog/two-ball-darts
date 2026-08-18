@@ -21,6 +21,20 @@ function updateHazardOptions() {
   });
 }
 
+function updateHazardRulesCopy() {
+  document.querySelectorAll('.rule-answer p').forEach(paragraph => {
+    const text = paragraph.textContent.trim();
+    if (!text.startsWith('Local rulings:')) return;
+
+    paragraph.innerHTML = '<strong>Hazards:</strong> Red bull, green bull, 19, 20, and any dart completely off the board are hazards. A hazard counts the same as a complete board miss. Only the active hole number is a target. Every other board number is a miss. Safe on-board misses still count as on-board, but hazards do not. Worst possible score on any hole is triple bogey.';
+  });
+}
+
+function refreshEnhancements() {
+  updateHazardOptions();
+  updateHazardRulesCopy();
+}
+
 export default function RoundFlowEnhancer() {
   useEffect(() => {
     function startNewRound() {
@@ -70,16 +84,16 @@ export default function RoundFlowEnhancer() {
 
       window.setTimeout(() => {
         addStartNewRoundButton();
-        updateHazardOptions();
+        refreshEnhancements();
       }, 0);
     }
 
     addStartNewRoundButton();
-    updateHazardOptions();
+    refreshEnhancements();
 
     const intervalId = window.setInterval(() => {
       addStartNewRoundButton();
-      updateHazardOptions();
+      refreshEnhancements();
     }, 750);
 
     document.addEventListener('click', handleClick, true);
