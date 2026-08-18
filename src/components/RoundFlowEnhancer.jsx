@@ -117,6 +117,15 @@ function getCurrentTotalScore(playerIndex) {
   return getScorecardTotal(playerIndex) || formatScore(getStoredTotal(playerIndex));
 }
 
+function getScoreBadgeClass(totalValue, leaderValue) {
+  const classes = ['tbd-player-total-score'];
+  if (totalValue === leaderValue) classes.push('is-leader');
+  if (totalValue < 0) classes.push('is-under');
+  if (totalValue > 0) classes.push('is-over');
+  if (totalValue === 0) classes.push('is-even');
+  return classes.join(' ');
+}
+
 function updateHazardOptions() {
   document.querySelectorAll('option').forEach(option => {
     const text = option.textContent.trim();
@@ -178,11 +187,13 @@ function getPlayerCardData(card, index) {
   const selected = card.querySelector('.score-buttons button.selected');
   const selectedLabel = selected?.querySelector('span')?.textContent.trim() || '';
   const selectedScore = selected?.querySelector('strong')?.textContent.trim() || '';
+  const total = getCurrentTotalScore(index);
   return {
     name: input?.value?.trim() || `Player ${index + 1}`,
     result: selectedLabel,
     score: selectedScore,
-    total: getCurrentTotalScore(index),
+    total,
+    totalValue: scoreTextToNumber(total),
     scored: Boolean(selected)
   };
 }
@@ -349,17 +360,20 @@ function buildCompactLiveScoring() {
   }
 
   const cards = [...grid.querySelectorAll('.player-hole-card')];
-  list.innerHTML = cards.map((card, index) => {
-    const player = getPlayerCardData(card, index);
+  const players = cards.map((card, index) => getPlayerCardData(card, index));
+  const leaderValue = Math.min(...players.map(player => player.totalValue));
+
+  list.innerHTML = players.map((player, index) => {
     const action = player.scored ? 'Edit Score' : 'Add Score';
     const status = player.scored ? `${player.result} ${player.score}` : 'No score yet';
     const scoredClass = player.scored ? ' scored' : '';
+    const badgeClass = getScoreBadgeClass(player.totalValue, leaderValue);
     return `
       <div class="tbd-player-score-row${scoredClass}" data-player-index="${index}">
         <div class="tbd-player-score-main">
           <div class="tbd-player-name-line">
             <input class="tbd-player-name-input" type="text" value="${escapeHtml(player.name)}" aria-label="Player name" />
-            <span class="tbd-player-total-score">${escapeHtml(player.total)}</span>
+            <span class="${badgeClass}">${escapeHtml(player.total)}</span>
           </div>
           <span class="tbd-hole-status">${escapeHtml(status)}</span>
         </div>
