@@ -61,11 +61,28 @@ function updateFooterCopy() {
   });
 }
 
+function updateLiveScorecardDefault() {
+  document.querySelectorAll('p').forEach(paragraph => {
+    if (paragraph.textContent.trim() === 'Scorecard is hidden during live scoring to keep entry fast.') {
+      paragraph.style.display = 'none';
+    }
+  });
+
+  if (document.body.dataset.liveScorecardDefaultReady === 'true') return;
+
+  const showScorecardButton = findButtonByText('Show Scorecard');
+  if (!showScorecardButton) return;
+
+  document.body.dataset.liveScorecardDefaultReady = 'true';
+  showScorecardButton.click();
+}
+
 function refreshEnhancements() {
   updateHazardOptions();
   updateHazardRulesCopy();
   updateHowToPlayCopy();
   updateFooterCopy();
+  updateLiveScorecardDefault();
 }
 
 export default function RoundFlowEnhancer() {
@@ -111,8 +128,14 @@ export default function RoundFlowEnhancer() {
       const button = event.target.closest('button');
       if (!button) return;
 
-      if (button.textContent.trim() === 'Reset') {
+      const buttonText = button.textContent.trim();
+
+      if (buttonText === 'Reset') {
         goToHoleOne();
+      }
+
+      if (buttonText === 'Hide Scorecard') {
+        document.body.dataset.liveScorecardDefaultReady = 'true';
       }
 
       window.setTimeout(() => {
