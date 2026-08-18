@@ -369,7 +369,13 @@ function buildCompactLiveScoring() {
   }).join('');
 
   list.querySelectorAll('.tbd-player-name-input').forEach(input => {
-    input.addEventListener('click', event => event.stopPropagation());
+    input.addEventListener('click', event => {
+      event.stopPropagation();
+      event.target.select();
+    });
+    input.addEventListener('focus', event => {
+      window.setTimeout(() => event.target.select(), 0);
+    });
     input.addEventListener('keydown', event => event.stopPropagation());
     input.addEventListener('input', event => {
       const row = event.target.closest('.tbd-player-score-row');
