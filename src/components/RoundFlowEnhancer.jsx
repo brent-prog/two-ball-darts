@@ -52,10 +52,20 @@ function updateHowToPlayCopy() {
   card.dataset.hazardsQuickStartReady = 'true';
 }
 
+function updateFooterCopy() {
+  document.querySelectorAll('footer p').forEach(paragraph => {
+    const text = paragraph.textContent.trim();
+    if (text === '18 holes. Two darts per hole. Bulls count for nothing - ever.') {
+      paragraph.textContent = '18 holes. Two darts per hole. Bulls, 19s, and 20s are hazards.';
+    }
+  });
+}
+
 function refreshEnhancements() {
   updateHazardOptions();
   updateHazardRulesCopy();
   updateHowToPlayCopy();
+  updateFooterCopy();
 }
 
 export default function RoundFlowEnhancer() {
