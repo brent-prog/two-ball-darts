@@ -141,7 +141,14 @@ body{
 .tbd-player-score-main{
   min-width:0;
   display:grid;
-  gap:4px;
+  gap:6px;
+}
+
+.tbd-player-name-line{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
 }
 
 .tbd-player-name-input{
@@ -160,6 +167,25 @@ body{
 
 .tbd-player-name-input:focus{
   border-bottom-color:#f9ee0c;
+}
+
+.tbd-player-total-score{
+  min-width:54px;
+  text-align:center;
+  border:2px solid #d0a948;
+  border-radius:999px;
+  background:#102017;
+  color:#f9ee0c!important;
+  font-size:1.05rem!important;
+  font-weight:1000!important;
+  padding:5px 9px;
+  line-height:1;
+}
+
+.tbd-hole-status{
+  color:#d0a948!important;
+  font-weight:900!important;
+  font-size:.92rem!important;
 }
 
 .tbd-player-score-main strong{
