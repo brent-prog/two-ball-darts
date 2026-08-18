@@ -1,6 +1,7 @@
 import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
+import './player-row-overrides.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 
 export const metadata = {
