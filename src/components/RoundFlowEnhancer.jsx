@@ -30,9 +30,32 @@ function updateHazardRulesCopy() {
   });
 }
 
+function updateHowToPlayCopy() {
+  const quickStartHeading = [...document.querySelectorAll('.eyebrow')].find(node => node.textContent.trim() === 'Quick start');
+  const card = quickStartHeading?.closest('.card');
+  if (!card) return;
+
+  card.querySelectorAll('span').forEach(span => {
+    const text = span.textContent.trim();
+    if (text === 'Two singles OR double/triple target + on-board miss') span.textContent = 'Two singles OR double/triple target + safe on-board miss';
+    if (text === 'Single target + on-board miss OR double/triple target + off board') span.textContent = 'Single target + safe on-board miss OR double/triple target + hazard';
+    if (text === 'No target hits with both darts on-board OR single target + off board') span.textContent = 'No target hits with both darts safe on-board OR single target + hazard';
+    if (text === 'No target hits + at least one off-board dart') span.textContent = 'No target hits + at least one hazard';
+  });
+
+  const orderedList = card.querySelector('ol');
+  if (!orderedList || card.dataset.hazardsQuickStartReady === 'true') return;
+
+  const hazardItem = document.createElement('li');
+  hazardItem.textContent = 'Hazards are red bull, green bull, 19, 20, or completely off the board. Hazards count like a complete board miss.';
+  orderedList.insertBefore(hazardItem, orderedList.children[4] ?? null);
+  card.dataset.hazardsQuickStartReady = 'true';
+}
+
 function refreshEnhancements() {
   updateHazardOptions();
   updateHazardRulesCopy();
+  updateHowToPlayCopy();
 }
 
 export default function RoundFlowEnhancer() {
