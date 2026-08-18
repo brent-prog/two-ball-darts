@@ -61,20 +61,135 @@ function updateFooterCopy() {
   });
 }
 
-function updateLiveScorecardDefault() {
+function updateLiveScorecardText() {
   document.querySelectorAll('p').forEach(paragraph => {
     if (paragraph.textContent.trim() === 'Scorecard is hidden during live scoring to keep entry fast.') {
       paragraph.style.display = 'none';
     }
   });
+}
 
-  if (document.body.dataset.liveScorecardDefaultReady === 'true') return;
+function getActiveHoleLabel() {
+  const heading = document.querySelector('.active-hole-panel h3');
+  return heading?.textContent.trim() || 'Current Hole';
+}
 
-  const showScorecardButton = findButtonByText('Show Scorecard');
-  if (!showScorecardButton) return;
+function getPlayerCardData(card, index) {
+  const input = card.querySelector('input');
+  const selected = card.querySelector('.score-buttons button.selected');
+  const selectedLabel = selected?.querySelector('span')?.textContent.trim() || '';
+  const selectedScore = selected?.querySelector('strong')?.textContent.trim() || '';
+  return {
+    name: input?.value?.trim() || `Player ${index + 1}`,
+    result: selectedLabel,
+    score: selectedScore,
+    scored: Boolean(selected)
+  };
+}
 
-  document.body.dataset.liveScorecardDefaultReady = 'true';
-  showScorecardButton.click();
+function closeMobileScoreModal() {
+  document.querySelector('.tbd-score-modal')?.remove();
+}
+
+function openMobileScoreModal(card, playerName) {
+  closeMobileScoreModal();
+
+  const modal = document.createElement('div');
+  modal.className = 'tbd-score-modal';
+
+  const resultButtons = [...card.querySelectorAll('.score-buttons button')].filter(button => !button.classList.contains('clear-score'));
+  const clearButton = card.querySelector('.score-buttons .clear-score');
+  const holeLabel = getActiveHoleLabel();
+
+  const resultMarkup = resultButtons.map((button, index) => {
+    const label = button.querySelector('span')?.textContent.trim() || button.textContent.trim();
+    const score = button.querySelector('strong')?.textContent.trim() || '';
+    const selected = button.classList.contains('selected') ? ' selected' : '';
+    return `<button type="button" class="tbd-score-choice${selected}" data-score-index="${index}"><span>${label}</span><strong>${score}</strong></button>`;
+  }).join('');
+
+  modal.innerHTML = `
+    <div class="tbd-score-modal-card">
+      <div class="tbd-score-modal-head">
+        <div>
+          <p class="tbd-modal-eyebrow">${holeLabel}</p>
+          <h3>${playerName}</h3>
+        </div>
+        <button type="button" class="tbd-modal-close">Close</button>
+      </div>
+      <div class="tbd-score-choice-grid">${resultMarkup}</div>
+      <button type="button" class="tbd-score-by-darts">Score by Darts Assist</button>
+      <button type="button" class="tbd-clear-score">Clear score</button>
+    </div>
+  `;
+
+  modal.querySelector('.tbd-modal-close')?.addEventListener('click', closeMobileScoreModal);
+  modal.addEventListener('click', event => {
+    if (event.target === modal) closeMobileScoreModal();
+  });
+
+  modal.querySelectorAll('[data-score-index]').forEach(button => {
+    button.addEventListener('click', () => {
+      const sourceButton = resultButtons[Number(button.dataset.scoreIndex)];
+      sourceButton?.click();
+      closeMobileScoreModal();
+      window.setTimeout(refreshEnhancements, 0);
+    });
+  });
+
+  modal.querySelector('.tbd-clear-score')?.addEventListener('click', () => {
+    clearButton?.click();
+    closeMobileScoreModal();
+    window.setTimeout(refreshEnhancements, 0);
+  });
+
+  modal.querySelector('.tbd-score-by-darts')?.addEventListener('click', () => {
+    closeMobileScoreModal();
+    const liveAssistButton = [...document.querySelectorAll('button')].find(button => button.textContent.trim() === 'Score by Darts');
+    liveAssistButton?.click();
+  });
+
+  document.body.appendChild(modal);
+}
+
+function buildCompactLiveScoring() {
+  const panel = document.querySelector('.active-hole-panel');
+  const grid = panel?.querySelector('.player-score-grid');
+  if (!panel || !grid) return;
+
+  let list = panel.querySelector('.tbd-live-score-list');
+  if (!list) {
+    list = document.createElement('div');
+    list.className = 'tbd-live-score-list';
+    grid.parentNode.insertBefore(list, grid);
+  }
+
+  const cards = [...grid.querySelectorAll('.player-hole-card')];
+  list.innerHTML = cards.map((card, index) => {
+    const player = getPlayerCardData(card, index);
+    const action = player.scored ? 'Edit Score' : 'Add Score';
+    const status = player.scored ? `${player.result} ${player.score}` : 'No score yet';
+    const scoredClass = player.scored ? ' scored' : '';
+    return `
+      <div class="tbd-player-score-row${scoredClass}" data-player-index="${index}">
+        <div class="tbd-player-score-main">
+          <strong>${player.name}</strong>
+          <span>${status}</span>
+        </div>
+        <button type="button">${action}</button>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.tbd-player-score-row button').forEach(button => {
+    button.addEventListener('click', event => {
+      const row = event.target.closest('.tbd-player-score-row');
+      const index = Number(row?.dataset.playerIndex);
+      const card = cards[index];
+      const player = getPlayerCardData(card, index);
+      if (card) openMobileScoreModal(card, player.name);
+    });
+  });
 }
 
 function refreshEnhancements() {
@@ -82,7 +197,8 @@ function refreshEnhancements() {
   updateHazardRulesCopy();
   updateHowToPlayCopy();
   updateFooterCopy();
-  updateLiveScorecardDefault();
+  updateLiveScorecardText();
+  buildCompactLiveScoring();
 }
 
 export default function RoundFlowEnhancer() {
@@ -132,10 +248,6 @@ export default function RoundFlowEnhancer() {
 
       if (buttonText === 'Reset') {
         goToHoleOne();
-      }
-
-      if (buttonText === 'Hide Scorecard') {
-        document.body.dataset.liveScorecardDefaultReady = 'true';
       }
 
       window.setTimeout(() => {
