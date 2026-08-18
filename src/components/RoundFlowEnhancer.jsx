@@ -126,6 +126,52 @@ function getScoreBadgeClass(totalValue, leaderValue) {
   return classes.join(' ');
 }
 
+function getPlayerCount() {
+  return document.querySelectorAll('.active-hole-panel .player-score-grid .player-hole-card').length;
+}
+
+function isHoleComplete(holeNumber = getActiveHoleNumber()) {
+  const playerCount = getPlayerCount();
+  if (!playerCount) return false;
+
+  const memory = getScoreMemory();
+  return Array.from({ length: playerCount }, (_, index) => scoreMemoryKey(index, holeNumber))
+    .every(key => Object.prototype.hasOwnProperty.call(memory, key));
+}
+
+function clickNextHole() {
+  const currentHole = getActiveHoleNumber();
+  if (currentHole >= 18) return;
+
+  const nextHoleNumber = currentHole + 1;
+  const pickerButton = [...document.querySelectorAll('.hole-picker button')]
+    .find(button => button.textContent.trim() === String(nextHoleNumber));
+
+  if (pickerButton) {
+    pickerButton.click();
+    return;
+  }
+
+  findButtonByText('Next Hole')?.click();
+}
+
+function autoAdvanceIfComplete(scoredHoleNumber) {
+  window.setTimeout(() => {
+    if (getActiveHoleNumber() !== scoredHoleNumber) return;
+    if (!isHoleComplete(scoredHoleNumber)) return;
+    clickNextHole();
+  }, 500);
+}
+
+function hideNextHoleCompletionAction() {
+  document.querySelectorAll('button').forEach(button => {
+    if (button.textContent.trim() !== 'Next Hole') return;
+    if (button.closest('.hole-nav')) return;
+    if (button.closest('.hole-picker')) return;
+    button.style.display = 'none';
+  });
+}
+
 function updateHazardOptions() {
   document.querySelectorAll('option').forEach(option => {
     const text = option.textContent.trim();
@@ -227,10 +273,12 @@ function getButtonScore(button) {
 
 function applySourceButton(sourceButton, playerIndex) {
   if (!sourceButton) return;
+  const scoredHoleNumber = getActiveHoleNumber();
   recordHoleScore(playerIndex, getButtonScore(sourceButton));
   sourceButton.click();
   closeMobileScoreModal();
   window.setTimeout(refreshEnhancements, 0);
+  autoAdvanceIfComplete(scoredHoleNumber);
 }
 
 function applyResultByLabel(resultButtons, resultLabel, playerIndex) {
@@ -417,6 +465,7 @@ function refreshEnhancements() {
   updateHowToPlayCopy();
   updateFooterCopy();
   updateLiveScorecardText();
+  hideNextHoleCompletionAction();
   buildCompactLiveScoring();
 }
 
