@@ -144,6 +144,24 @@ body{
   gap:4px;
 }
 
+.tbd-player-name-input{
+  width:100%;
+  min-width:0;
+  border:0;
+  border-bottom:2px solid rgba(208,169,72,.45);
+  border-radius:0;
+  background:transparent;
+  color:#fff4d6;
+  font-size:1.08rem;
+  font-weight:900;
+  padding:2px 0 4px;
+  outline:none;
+}
+
+.tbd-player-name-input:focus{
+  border-bottom-color:#f9ee0c;
+}
+
 .tbd-player-score-main strong{
   color:#fff4d6;
   font-size:1.08rem;
