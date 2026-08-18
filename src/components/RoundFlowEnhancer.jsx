@@ -13,6 +13,15 @@ function goToHoleOne() {
   }, 0);
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
 function updateHazardOptions() {
   document.querySelectorAll('option').forEach(option => {
     const text = option.textContent.trim();
@@ -91,6 +100,32 @@ function closeMobileScoreModal() {
   document.querySelector('.tbd-score-modal')?.remove();
 }
 
+function calculateDartResult(dartOne, dartTwo) {
+  const darts = [dartOne, dartTwo];
+  const power = darts.filter(dart => dart === 'power').length;
+  const single = darts.filter(dart => dart === 'single').length;
+  const safe = darts.filter(dart => dart === 'safe').length;
+  const hazard = darts.filter(dart => dart === 'hazard').length;
+
+  if (power === 2) return 'Eagle';
+  if (power === 1 && single === 1) return 'Birdie';
+  if (single === 2 || (power === 1 && safe === 1)) return 'Par';
+  if ((single === 1 && safe === 1) || (power === 1 && hazard === 1)) return 'Bogey';
+  if (safe === 2 || (single === 1 && hazard === 1)) return 'Double Bogey';
+  return 'Triple Bogey';
+}
+
+function getButtonLabel(button) {
+  return button.querySelector('span')?.textContent.trim() || button.textContent.trim();
+}
+
+function applyResultByLabel(resultButtons, resultLabel) {
+  const sourceButton = resultButtons.find(button => getButtonLabel(button) === resultLabel);
+  sourceButton?.click();
+  closeMobileScoreModal();
+  window.setTimeout(refreshEnhancements, 0);
+}
+
 function openMobileScoreModal(card, playerName) {
   closeMobileScoreModal();
 
@@ -102,26 +137,74 @@ function openMobileScoreModal(card, playerName) {
   const holeLabel = getActiveHoleLabel();
 
   const resultMarkup = resultButtons.map((button, index) => {
-    const label = button.querySelector('span')?.textContent.trim() || button.textContent.trim();
+    const label = getButtonLabel(button);
     const score = button.querySelector('strong')?.textContent.trim() || '';
     const selected = button.classList.contains('selected') ? ' selected' : '';
-    return `<button type="button" class="tbd-score-choice${selected}" data-score-index="${index}"><span>${label}</span><strong>${score}</strong></button>`;
+    return `<button type="button" class="tbd-score-choice${selected}" data-score-index="${index}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(score)}</strong></button>`;
   }).join('');
 
   modal.innerHTML = `
     <div class="tbd-score-modal-card">
       <div class="tbd-score-modal-head">
         <div>
-          <p class="tbd-modal-eyebrow">${holeLabel}</p>
-          <h3>${playerName}</h3>
+          <p class="tbd-modal-eyebrow">${escapeHtml(holeLabel)}</p>
+          <h3>${escapeHtml(playerName)}</h3>
         </div>
         <button type="button" class="tbd-modal-close">Close</button>
       </div>
       <div class="tbd-score-choice-grid">${resultMarkup}</div>
-      <button type="button" class="tbd-score-by-darts">Score by Darts Assist</button>
+      <div class="tbd-dart-assist-inline">
+        <p class="tbd-dart-assist-title">Score by Darts</p>
+        <div class="tbd-dart-select-grid">
+          <label>Dart 1
+            <select class="tbd-dart-select" data-dart="one">
+              <option value="">Select result</option>
+              <option value="power">Double / triple target</option>
+              <option value="single">Single target</option>
+              <option value="safe">Safe on-board miss</option>
+              <option value="hazard">Hazard / off-board miss</option>
+            </select>
+          </label>
+          <label>Dart 2
+            <select class="tbd-dart-select" data-dart="two">
+              <option value="">Select result</option>
+              <option value="power">Double / triple target</option>
+              <option value="single">Single target</option>
+              <option value="safe">Safe on-board miss</option>
+              <option value="hazard">Hazard / off-board miss</option>
+            </select>
+          </label>
+        </div>
+        <div class="tbd-dart-result">Choose both darts.</div>
+        <button type="button" class="tbd-apply-dart-result" disabled>Apply Dart Result</button>
+      </div>
       <button type="button" class="tbd-clear-score">Clear score</button>
     </div>
   `;
+
+  const resultBox = modal.querySelector('.tbd-dart-result');
+  const applyButton = modal.querySelector('.tbd-apply-dart-result');
+  const selects = [...modal.querySelectorAll('.tbd-dart-select')];
+
+  function updateDartResult() {
+    const dartOne = modal.querySelector('[data-dart="one"]')?.value || '';
+    const dartTwo = modal.querySelector('[data-dart="two"]')?.value || '';
+    if (!dartOne || !dartTwo) {
+      resultBox.textContent = 'Choose both darts.';
+      applyButton.disabled = true;
+      applyButton.dataset.resultLabel = '';
+      return;
+    }
+
+    const resultLabel = calculateDartResult(dartOne, dartTwo);
+    const resultButton = resultButtons.find(button => getButtonLabel(button) === resultLabel);
+    const score = resultButton?.querySelector('strong')?.textContent.trim() || '';
+    resultBox.textContent = `${resultLabel} ${score}`;
+    applyButton.disabled = false;
+    applyButton.dataset.resultLabel = resultLabel;
+  }
+
+  selects.forEach(select => select.addEventListener('change', updateDartResult));
 
   modal.querySelector('.tbd-modal-close')?.addEventListener('click', closeMobileScoreModal);
   modal.addEventListener('click', event => {
@@ -137,16 +220,15 @@ function openMobileScoreModal(card, playerName) {
     });
   });
 
+  applyButton.addEventListener('click', () => {
+    if (!applyButton.dataset.resultLabel) return;
+    applyResultByLabel(resultButtons, applyButton.dataset.resultLabel);
+  });
+
   modal.querySelector('.tbd-clear-score')?.addEventListener('click', () => {
     clearButton?.click();
     closeMobileScoreModal();
     window.setTimeout(refreshEnhancements, 0);
-  });
-
-  modal.querySelector('.tbd-score-by-darts')?.addEventListener('click', () => {
-    closeMobileScoreModal();
-    const liveAssistButton = [...document.querySelectorAll('button')].find(button => button.textContent.trim() === 'Score by Darts');
-    liveAssistButton?.click();
   });
 
   document.body.appendChild(modal);
@@ -173,8 +255,8 @@ function buildCompactLiveScoring() {
     return `
       <div class="tbd-player-score-row${scoredClass}" data-player-index="${index}">
         <div class="tbd-player-score-main">
-          <strong>${player.name}</strong>
-          <span>${status}</span>
+          <strong>${escapeHtml(player.name)}</strong>
+          <span>${escapeHtml(status)}</span>
         </div>
         <button type="button">${action}</button>
       </div>
@@ -244,9 +326,7 @@ export default function RoundFlowEnhancer() {
       const button = event.target.closest('button');
       if (!button) return;
 
-      const buttonText = button.textContent.trim();
-
-      if (buttonText === 'Reset') {
+      if (button.textContent.trim() === 'Reset') {
         goToHoleOne();
       }
 
