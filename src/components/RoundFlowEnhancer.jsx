@@ -22,6 +22,13 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
+function updateReactInput(input, value) {
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+  setter?.call(input, value);
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
 function updateHazardOptions() {
   document.querySelectorAll('option').forEach(option => {
     const text = option.textContent.trim();
@@ -255,13 +262,23 @@ function buildCompactLiveScoring() {
     return `
       <div class="tbd-player-score-row${scoredClass}" data-player-index="${index}">
         <div class="tbd-player-score-main">
-          <strong>${escapeHtml(player.name)}</strong>
+          <input class="tbd-player-name-input" type="text" value="${escapeHtml(player.name)}" aria-label="Player name" />
           <span>${escapeHtml(status)}</span>
         </div>
         <button type="button">${action}</button>
       </div>
     `;
   }).join('');
+
+  list.querySelectorAll('.tbd-player-name-input').forEach(input => {
+    input.addEventListener('click', event => event.stopPropagation());
+    input.addEventListener('input', event => {
+      const row = event.target.closest('.tbd-player-score-row');
+      const index = Number(row?.dataset.playerIndex);
+      const sourceInput = cards[index]?.querySelector('input');
+      if (sourceInput) updateReactInput(sourceInput, event.target.value);
+    });
+  });
 
   list.querySelectorAll('.tbd-player-score-row button').forEach(button => {
     button.addEventListener('click', event => {
