@@ -3,6 +3,7 @@ import './mobile-fixes.css';
 import './rule-result-polish.css';
 import './player-row-overrides.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
+import HonoursEnhancer from '@/components/HonoursEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <RoundFlowEnhancer />
+        <HonoursEnhancer />
         {children}
       </body>
     </html>
