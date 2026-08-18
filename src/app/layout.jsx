@@ -1,6 +1,7 @@
 import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
+import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -16,7 +17,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <RoundFlowEnhancer />
+        {children}
+      </body>
     </html>
   );
 }
