@@ -13,6 +13,22 @@ function goToHoleOne() {
   }, 0);
 }
 
+function updateHazardLanguage() {
+  document.querySelectorAll('option').forEach(option => {
+    if (option.textContent.trim() === 'On-board miss / bull') option.textContent = 'Safe on-board miss';
+    if (option.textContent.trim() === 'Off the board') option.textContent = 'Hazard / off-board miss';
+  });
+
+  document.querySelectorAll('.rule-answer p').forEach(paragraph => {
+    paragraph.textContent = paragraph.textContent
+      .replaceAll('one on-board miss', 'one safe on-board miss')
+      .replaceAll('plus one on-board miss', 'plus one safe on-board miss')
+      .replaceAll('one off-board dart', 'one hazard/off-board miss')
+      .replaceAll('at least one off-board dart', 'at least one hazard/off-board miss')
+      .replaceAll('Bulls count for nothing - ever. A bull is still an on-board miss.', 'Bulls, 19s, and 20s are hazards. Treat them the same as a complete board miss.');
+  });
+}
+
 export default function RoundFlowEnhancer() {
   useEffect(() => {
     function startNewRound() {
@@ -59,10 +75,16 @@ export default function RoundFlowEnhancer() {
       if (button.textContent.trim() === 'Reset') {
         goToHoleOne();
       }
+
+      window.setTimeout(updateHazardLanguage, 0);
     }
 
     addStartNewRoundButton();
-    const observer = new MutationObserver(addStartNewRoundButton);
+    updateHazardLanguage();
+    const observer = new MutationObserver(() => {
+      addStartNewRoundButton();
+      updateHazardLanguage();
+    });
     observer.observe(document.body, { childList: true, subtree: true });
     document.addEventListener('click', handleClick, true);
 
