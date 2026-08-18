@@ -13,19 +13,11 @@ function goToHoleOne() {
   }, 0);
 }
 
-function updateHazardLanguage() {
+function updateHazardOptions() {
   document.querySelectorAll('option').forEach(option => {
-    if (option.textContent.trim() === 'On-board miss / bull') option.textContent = 'Safe on-board miss';
-    if (option.textContent.trim() === 'Off the board') option.textContent = 'Hazard / off-board miss';
-  });
-
-  document.querySelectorAll('.rule-answer p').forEach(paragraph => {
-    paragraph.textContent = paragraph.textContent
-      .replaceAll('one on-board miss', 'one safe on-board miss')
-      .replaceAll('plus one on-board miss', 'plus one safe on-board miss')
-      .replaceAll('one off-board dart', 'one hazard/off-board miss')
-      .replaceAll('at least one off-board dart', 'at least one hazard/off-board miss')
-      .replaceAll('Bulls count for nothing - ever. A bull is still an on-board miss.', 'Bulls, 19s, and 20s are hazards. Treat them the same as a complete board miss.');
+    const text = option.textContent.trim();
+    if (text === 'On-board miss / bull') option.textContent = 'Safe on-board miss';
+    if (text === 'Off the board') option.textContent = 'Hazard / off-board miss';
   });
 }
 
@@ -76,20 +68,24 @@ export default function RoundFlowEnhancer() {
         goToHoleOne();
       }
 
-      window.setTimeout(updateHazardLanguage, 0);
+      window.setTimeout(() => {
+        addStartNewRoundButton();
+        updateHazardOptions();
+      }, 0);
     }
 
     addStartNewRoundButton();
-    updateHazardLanguage();
-    const observer = new MutationObserver(() => {
+    updateHazardOptions();
+
+    const intervalId = window.setInterval(() => {
       addStartNewRoundButton();
-      updateHazardLanguage();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+      updateHazardOptions();
+    }, 750);
+
     document.addEventListener('click', handleClick, true);
 
     return () => {
-      observer.disconnect();
+      window.clearInterval(intervalId);
       document.removeEventListener('click', handleClick, true);
     };
   }, []);
