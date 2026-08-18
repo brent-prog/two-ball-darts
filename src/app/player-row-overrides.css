@@ -1,0 +1,27 @@
+.tbd-player-name-line{
+  grid-template-columns:auto minmax(0,1fr)!important;
+}
+
+.tbd-player-total-score{
+  grid-column:1!important;
+  grid-row:1!important;
+}
+
+.tbd-player-name-input{
+  grid-column:2!important;
+  grid-row:1!important;
+}
+
+.tbd-player-name-line::before{
+  left:76px!important;
+}
+
+@media(max-width:390px){
+  .tbd-player-name-line{
+    grid-template-columns:auto minmax(0,1fr)!important;
+  }
+
+  .tbd-player-name-line::before{
+    left:76px!important;
+  }
+}
