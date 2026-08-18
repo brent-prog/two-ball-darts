@@ -2,8 +2,12 @@
 
 import { useEffect } from 'react';
 
+function normalizeText(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
 function getText(node) {
-  return node?.textContent?.trim() || '';
+  return normalizeText(node?.textContent || '');
 }
 
 function hideElement(element) {
@@ -12,19 +16,32 @@ function hideElement(element) {
   element.setAttribute('aria-hidden', 'true');
 }
 
+function hideActionControl(control) {
+  if (!control || control.closest('.tbd-score-modal')) return;
+
+  const menuItem = control.closest('li, .menu-item, .nav-item');
+  hideElement(menuItem || control);
+}
+
 function renameLiveModeButton() {
-  document.querySelectorAll('button').forEach(button => {
-    if (getText(button) === 'Enter Live Mode') {
-      button.textContent = 'Start New Round';
+  document.querySelectorAll('button, a').forEach(control => {
+    if (getText(control) === 'Enter Live Mode') {
+      control.textContent = 'Start New Round';
     }
   });
 }
 
 function hideOldActionButtons() {
-  document.querySelectorAll('button').forEach(button => {
-    const text = getText(button);
-    if (text === 'Start Scoring') hideElement(button);
-    if (text === 'Score by Darts') hideElement(button);
+  document.querySelectorAll('button, a').forEach(control => {
+    const text = getText(control);
+    const href = control.getAttribute('href') || '';
+    const ariaLabel = normalizeText(control.getAttribute('aria-label') || '');
+    const combined = `${text} ${ariaLabel} ${href}`.toLowerCase();
+
+    if (text === 'Start Scoring') hideActionControl(control);
+    if (text === 'Score by Darts') hideActionControl(control);
+    if (combined.includes('score by darts')) hideActionControl(control);
+    if (combined.includes('start scoring')) hideActionControl(control);
   });
 }
 
@@ -53,7 +70,7 @@ export default function StructuralCleanupEnhancer() {
   useEffect(() => {
     refreshStructuralCleanup();
 
-    const intervalId = window.setInterval(refreshStructuralCleanup, 1000);
+    const intervalId = window.setInterval(refreshStructuralCleanup, 750);
     document.addEventListener('click', refreshStructuralCleanup, true);
 
     return () => {
