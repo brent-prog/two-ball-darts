@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+const SCORE_MEMORY_KEY = 'tbdCompactScoreMemory';
+
 function findButtonByText(text) {
   return [...document.querySelectorAll('button')].find(button => button.textContent.trim() === text);
 }
@@ -27,6 +29,92 @@ function updateReactInput(input, value) {
   setter?.call(input, value);
   input.dispatchEvent(new Event('input', { bubbles: true }));
   input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function getActiveHoleLabel() {
+  const heading = document.querySelector('.active-hole-panel h3');
+  return heading?.textContent.trim() || 'Current Hole';
+}
+
+function getActiveHoleNumber() {
+  const match = getActiveHoleLabel().match(/hole\s+(\d+)/i);
+  return match ? Number(match[1]) : 1;
+}
+
+function scoreTextToNumber(scoreText) {
+  const text = String(scoreText || '').trim();
+  if (!text || text === 'E') return 0;
+  const parsed = Number.parseInt(text.replace('+', ''), 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatScore(value) {
+  if (!value) return 'E';
+  return value > 0 ? `+${value}` : String(value);
+}
+
+function getScoreMemory() {
+  try {
+    return JSON.parse(window.localStorage.getItem(SCORE_MEMORY_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function setScoreMemory(memory) {
+  try {
+    window.localStorage.setItem(SCORE_MEMORY_KEY, JSON.stringify(memory));
+  } catch {
+    // Ignore storage failures. The app state still holds the true score.
+  }
+}
+
+function scoreMemoryKey(playerIndex, holeNumber = getActiveHoleNumber()) {
+  return `p${playerIndex}-h${holeNumber}`;
+}
+
+function recordHoleScore(playerIndex, scoreText) {
+  const memory = getScoreMemory();
+  memory[scoreMemoryKey(playerIndex)] = scoreTextToNumber(scoreText);
+  setScoreMemory(memory);
+}
+
+function clearHoleScore(playerIndex) {
+  const memory = getScoreMemory();
+  delete memory[scoreMemoryKey(playerIndex)];
+  setScoreMemory(memory);
+}
+
+function clearScoreMemory() {
+  try {
+    window.localStorage.removeItem(SCORE_MEMORY_KEY);
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+function getStoredTotal(playerIndex) {
+  const memory = getScoreMemory();
+  const prefix = `p${playerIndex}-h`;
+  return Object.entries(memory)
+    .filter(([key]) => key.startsWith(prefix))
+    .reduce((total, [, value]) => total + Number(value || 0), 0);
+}
+
+function getScorecardTotal(playerIndex) {
+  const tables = [...document.querySelectorAll('.scorecard-table')];
+  for (const table of tables) {
+    const bodyRows = [...table.querySelectorAll('tbody tr')];
+    const playerRow = bodyRows[playerIndex];
+    const scoreCell = playerRow?.querySelector('.total-score');
+    const score = scoreCell?.textContent.trim();
+    if (score) return score;
+  }
+  return '';
+}
+
+function getCurrentTotalScore(playerIndex) {
+  return getScorecardTotal(playerIndex) || formatScore(getStoredTotal(playerIndex));
 }
 
 function updateHazardOptions() {
@@ -85,11 +173,6 @@ function updateLiveScorecardText() {
   });
 }
 
-function getActiveHoleLabel() {
-  const heading = document.querySelector('.active-hole-panel h3');
-  return heading?.textContent.trim() || 'Current Hole';
-}
-
 function getPlayerCardData(card, index) {
   const input = card.querySelector('input');
   const selected = card.querySelector('.score-buttons button.selected');
@@ -99,6 +182,7 @@ function getPlayerCardData(card, index) {
     name: input?.value?.trim() || `Player ${index + 1}`,
     result: selectedLabel,
     score: selectedScore,
+    total: getCurrentTotalScore(index),
     scored: Boolean(selected)
   };
 }
@@ -126,14 +210,24 @@ function getButtonLabel(button) {
   return button.querySelector('span')?.textContent.trim() || button.textContent.trim();
 }
 
-function applyResultByLabel(resultButtons, resultLabel) {
-  const sourceButton = resultButtons.find(button => getButtonLabel(button) === resultLabel);
-  sourceButton?.click();
+function getButtonScore(button) {
+  return button?.querySelector('strong')?.textContent.trim() || '';
+}
+
+function applySourceButton(sourceButton, playerIndex) {
+  if (!sourceButton) return;
+  recordHoleScore(playerIndex, getButtonScore(sourceButton));
+  sourceButton.click();
   closeMobileScoreModal();
   window.setTimeout(refreshEnhancements, 0);
 }
 
-function openMobileScoreModal(card, playerName) {
+function applyResultByLabel(resultButtons, resultLabel, playerIndex) {
+  const sourceButton = resultButtons.find(button => getButtonLabel(button) === resultLabel);
+  applySourceButton(sourceButton, playerIndex);
+}
+
+function openMobileScoreModal(card, playerName, playerIndex) {
   closeMobileScoreModal();
 
   const modal = document.createElement('div');
@@ -145,7 +239,7 @@ function openMobileScoreModal(card, playerName) {
 
   const resultMarkup = resultButtons.map((button, index) => {
     const label = getButtonLabel(button);
-    const score = button.querySelector('strong')?.textContent.trim() || '';
+    const score = getButtonScore(button);
     const selected = button.classList.contains('selected') ? ' selected' : '';
     return `<button type="button" class="tbd-score-choice${selected}" data-score-index="${index}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(score)}</strong></button>`;
   }).join('');
@@ -205,7 +299,7 @@ function openMobileScoreModal(card, playerName) {
 
     const resultLabel = calculateDartResult(dartOne, dartTwo);
     const resultButton = resultButtons.find(button => getButtonLabel(button) === resultLabel);
-    const score = resultButton?.querySelector('strong')?.textContent.trim() || '';
+    const score = getButtonScore(resultButton);
     resultBox.textContent = `${resultLabel} ${score}`;
     applyButton.disabled = false;
     applyButton.dataset.resultLabel = resultLabel;
@@ -221,18 +315,17 @@ function openMobileScoreModal(card, playerName) {
   modal.querySelectorAll('[data-score-index]').forEach(button => {
     button.addEventListener('click', () => {
       const sourceButton = resultButtons[Number(button.dataset.scoreIndex)];
-      sourceButton?.click();
-      closeMobileScoreModal();
-      window.setTimeout(refreshEnhancements, 0);
+      applySourceButton(sourceButton, playerIndex);
     });
   });
 
   applyButton.addEventListener('click', () => {
     if (!applyButton.dataset.resultLabel) return;
-    applyResultByLabel(resultButtons, applyButton.dataset.resultLabel);
+    applyResultByLabel(resultButtons, applyButton.dataset.resultLabel, playerIndex);
   });
 
   modal.querySelector('.tbd-clear-score')?.addEventListener('click', () => {
+    clearHoleScore(playerIndex);
     clearButton?.click();
     closeMobileScoreModal();
     window.setTimeout(refreshEnhancements, 0);
@@ -242,6 +335,8 @@ function openMobileScoreModal(card, playerName) {
 }
 
 function buildCompactLiveScoring() {
+  if (document.activeElement?.classList?.contains('tbd-player-name-input')) return;
+
   const panel = document.querySelector('.active-hole-panel');
   const grid = panel?.querySelector('.player-score-grid');
   if (!panel || !grid) return;
@@ -262,8 +357,11 @@ function buildCompactLiveScoring() {
     return `
       <div class="tbd-player-score-row${scoredClass}" data-player-index="${index}">
         <div class="tbd-player-score-main">
-          <input class="tbd-player-name-input" type="text" value="${escapeHtml(player.name)}" aria-label="Player name" />
-          <span>${escapeHtml(status)}</span>
+          <div class="tbd-player-name-line">
+            <input class="tbd-player-name-input" type="text" value="${escapeHtml(player.name)}" aria-label="Player name" />
+            <span class="tbd-player-total-score">${escapeHtml(player.total)}</span>
+          </div>
+          <span class="tbd-hole-status">${escapeHtml(status)}</span>
         </div>
         <button type="button">${action}</button>
       </div>
@@ -272,12 +370,14 @@ function buildCompactLiveScoring() {
 
   list.querySelectorAll('.tbd-player-name-input').forEach(input => {
     input.addEventListener('click', event => event.stopPropagation());
+    input.addEventListener('keydown', event => event.stopPropagation());
     input.addEventListener('input', event => {
       const row = event.target.closest('.tbd-player-score-row');
       const index = Number(row?.dataset.playerIndex);
       const sourceInput = cards[index]?.querySelector('input');
       if (sourceInput) updateReactInput(sourceInput, event.target.value);
     });
+    input.addEventListener('blur', () => window.setTimeout(refreshEnhancements, 0));
   });
 
   list.querySelectorAll('.tbd-player-score-row button').forEach(button => {
@@ -286,7 +386,7 @@ function buildCompactLiveScoring() {
       const index = Number(row?.dataset.playerIndex);
       const card = cards[index];
       const player = getPlayerCardData(card, index);
-      if (card) openMobileScoreModal(card, player.name);
+      if (card) openMobileScoreModal(card, player.name, index);
     });
   });
 }
@@ -307,6 +407,7 @@ export default function RoundFlowEnhancer() {
       closeButton?.click();
 
       window.setTimeout(() => {
+        clearScoreMemory();
         const resetButton = findButtonByText('Reset');
         resetButton?.click();
         goToHoleOne();
@@ -344,6 +445,7 @@ export default function RoundFlowEnhancer() {
       if (!button) return;
 
       if (button.textContent.trim() === 'Reset') {
+        clearScoreMemory();
         goToHoleOne();
       }
 
