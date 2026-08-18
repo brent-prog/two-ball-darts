@@ -59,23 +59,39 @@ function getHonoursIndex() {
   return honoursIndex;
 }
 
-function applyHonoursBadge() {
-  document.querySelectorAll('.tbd-honours-chip').forEach(chip => chip.remove());
-  document.querySelectorAll('.tbd-player-score-row.has-honours').forEach(row => row.classList.remove('has-honours'));
+function clearHonoursBadges(exceptIndex = null) {
+  document.querySelectorAll('.active-hole-panel .tbd-player-score-row').forEach(row => {
+    const rowIndex = Number(row.dataset.playerIndex);
+    if (exceptIndex !== null && rowIndex === exceptIndex) return;
 
+    row.classList.remove('has-honours');
+    row.querySelector('.tbd-honours-chip')?.remove();
+  });
+}
+
+function applyHonoursBadge() {
   const honoursIndex = getHonoursIndex();
-  if (honoursIndex === null) return;
+
+  if (honoursIndex === null) {
+    clearHonoursBadges();
+    return;
+  }
 
   const row = document.querySelector(`.active-hole-panel .tbd-player-score-row[data-player-index="${honoursIndex}"]`);
   const nameLine = row?.querySelector('.tbd-player-name-line');
   if (!row || !nameLine) return;
+
+  clearHonoursBadges(honoursIndex);
+
+  row.classList.add('has-honours');
+
+  if (nameLine.querySelector('.tbd-honours-chip')) return;
 
   const chip = document.createElement('span');
   chip.className = 'tbd-honours-chip';
   chip.textContent = 'H';
   chip.setAttribute('aria-label', 'Honours');
 
-  row.classList.add('has-honours');
   nameLine.appendChild(chip);
 }
 
@@ -83,7 +99,7 @@ export default function HonoursEnhancer() {
   useEffect(() => {
     applyHonoursBadge();
 
-    const intervalId = window.setInterval(applyHonoursBadge, 750);
+    const intervalId = window.setInterval(applyHonoursBadge, 1500);
     document.addEventListener('click', applyHonoursBadge, true);
 
     return () => {
