@@ -1,0 +1,51 @@
+/* Move honours badge beside the player name instead of between score and name. */
+.tbd-player-name-line{
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+}
+
+.tbd-player-total-score{
+  grid-column:1!important;
+  grid-row:1!important;
+}
+
+.tbd-player-name-input{
+  grid-column:2!important;
+  grid-row:1!important;
+}
+
+.tbd-honours-chip{
+  grid-column:3!important;
+  grid-row:1!important;
+  margin-left:2px!important;
+  width:30px!important;
+  height:30px!important;
+  align-self:center!important;
+}
+
+.tbd-player-score-row.has-honours .tbd-player-name-input{
+  grid-column:2!important;
+}
+
+.tbd-player-score-row:not(.has-honours) .tbd-player-name-input{
+  grid-column:2 / 4!important;
+}
+
+.tbd-player-name-line::before{
+  left:61px!important;
+}
+
+.tbd-player-score-row.has-honours .tbd-player-name-line::before{
+  left:61px!important;
+}
+
+@media(max-width:520px){
+  .tbd-honours-chip{
+    width:28px!important;
+    height:28px!important;
+    font-size:.82rem!important;
+  }
+
+  .tbd-player-name-line{
+    gap:7px!important;
+  }
+}
