@@ -71,6 +71,20 @@ function selectedScoreForCard(card) {
   return scoreValueFromText(scoreText);
 }
 
+function selectedScoreFromCompactRow(playerIndex) {
+  const row = document.querySelector(`.tbd-player-score-row[data-player-index="${playerIndex}"]`);
+  const status = getText(row?.querySelector('.tbd-hole-status'));
+  const match = status.match(/([+-]\d+|\bE\b)$/);
+  if (!match) return null;
+  return scoreValueFromText(match[1]);
+}
+
+function scoreValueForPlayer(card, playerIndex) {
+  const sourceScore = selectedScoreForCard(card);
+  if (sourceScore !== null) return sourceScore;
+  return selectedScoreFromCompactRow(playerIndex);
+}
+
 function paintScoreCell(cell, scoreValue) {
   const strokes = strokesFromScore(scoreValue);
   const scoreClass = scoreClassFromValue(scoreValue);
@@ -107,7 +121,7 @@ function syncVisibleScorecard() {
   if (!cards.length || !playerRows.length) return;
 
   cards.forEach((card, playerIndex) => {
-    const scoreValue = selectedScoreForCard(card);
+    const scoreValue = scoreValueForPlayer(card, playerIndex);
     if (scoreValue === null) return;
 
     const row = playerRows[playerIndex];
@@ -123,15 +137,19 @@ function syncVisibleScorecard() {
 export default function ScorecardVisualSyncEnhancer() {
   useEffect(() => {
     function scheduleSync() {
-      window.setTimeout(syncVisibleScorecard, 60);
-      window.setTimeout(syncVisibleScorecard, 240);
+      window.setTimeout(syncVisibleScorecard, 40);
+      window.setTimeout(syncVisibleScorecard, 180);
+      window.setTimeout(syncVisibleScorecard, 500);
+      window.setTimeout(syncVisibleScorecard, 1000);
     }
 
     syncVisibleScorecard();
+    const intervalId = window.setInterval(syncVisibleScorecard, 900);
     document.addEventListener('click', scheduleSync, true);
     document.addEventListener('change', scheduleSync, true);
 
     return () => {
+      window.clearInterval(intervalId);
       document.removeEventListener('click', scheduleSync, true);
       document.removeEventListener('change', scheduleSync, true);
     };
