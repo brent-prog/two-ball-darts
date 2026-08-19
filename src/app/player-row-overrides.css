@@ -28,11 +28,21 @@
   color:#fff4d6!important;
 }
 
-.tbd-player-total-score.is-empty-round{
+.tbd-player-total-score.is-empty-round,
+.tbd-player-score-row:not(.scored) .tbd-player-total-score{
   background:#102017!important;
   border-color:rgba(208,169,72,.55)!important;
   color:rgba(255,244,214,.7)!important;
   box-shadow:none!important;
+  font-size:0!important;
+}
+
+.tbd-player-total-score.is-empty-round::before,
+.tbd-player-score-row:not(.scored) .tbd-player-total-score::before{
+  content:'-'!important;
+  display:block!important;
+  font-size:1rem!important;
+  line-height:1!important;
 }
 
 .tbd-player-total-score.is-leader{
@@ -51,7 +61,9 @@
   margin-top:2px;
 }
 
-.tbd-player-total-score.is-empty-round::after{
+.tbd-player-total-score.is-empty-round::after,
+.tbd-player-score-row:not(.scored) .tbd-player-total-score::after,
+.tbd-player-score-row:not(.scored) .tbd-player-total-score.is-leader::after{
   content:''!important;
   display:none!important;
 }
