@@ -12,7 +12,6 @@ import HoleTransitionEnhancer from '@/components/HoleTransitionEnhancer';
 import NextHoleNavEnhancer from '@/components/NextHoleNavEnhancer';
 import ScorecardVisualSyncEnhancer from '@/components/ScorecardVisualSyncEnhancer';
 import CompactScoreStateGuardEnhancer from '@/components/CompactScoreStateGuardEnhancer';
-import MobileLeaderSummaryCleanupEnhancer from '@/components/MobileLeaderSummaryCleanupEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -35,7 +34,6 @@ export default function RootLayout({ children }) {
         <NextHoleNavEnhancer />
         <ScorecardVisualSyncEnhancer />
         <CompactScoreStateGuardEnhancer />
-        <MobileLeaderSummaryCleanupEnhancer />
         {children}
       </body>
     </html>
