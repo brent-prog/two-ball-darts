@@ -116,16 +116,31 @@ function addFooterButton() {
 function scoreTextToNumber(text) {
   const cleaned = normalizeText(text);
   if (!cleaned || cleaned === 'E') return 0;
-  const match = cleaned.match(/[+-]?\d+/);
-  return match ? Number(match[0]) : 0;
+  const match = cleaned.match(/[+-]\d+/);
+  return match ? Number(match[0]) : null;
+}
+
+function scoreValueFromCell(cell) {
+  const symbol = cell.querySelector('.score-symbol') || cell;
+  const classes = [...(symbol.classList || [])].join(' ').toLowerCase();
+  const text = getText(symbol).toLowerCase();
+
+  if (classes.includes('eagle') || text.includes('eagle')) return -2;
+  if (classes.includes('birdie') || text.includes('birdie')) return -1;
+  if (classes.includes('double-bogey') || classes.includes('double_bogey') || text.includes('double bogey')) return 2;
+  if (classes.includes('triple-bogey') || classes.includes('triple_bogey') || text.includes('triple bogey')) return 3;
+  if (classes.includes('bogey') || text.includes('bogey')) return 1;
+  if (classes.includes('par') || text === 'par') return 0;
+
+  return scoreTextToNumber(getText(cell));
 }
 
 function scoreKeyFromValue(value) {
   if (value === -2) return 'eagle';
   if (value === -1) return 'birdie';
   if (value === 1) return 'bogey';
-  if (value === 2) return 'double_bogey';
-  if (value === 3) return 'triple_bogey';
+  if (value === 2) return 'double bogey';
+  if (value === 3) return 'triple bogey';
   return 'par';
 }
 
@@ -179,15 +194,64 @@ function parseSavedRound(card) {
     const scores = {};
 
     cells.slice(1, 19).forEach((cell, index) => {
-      const text = normalizeText(cell.textContent);
-      if (!text) return;
-
-      const value = scoreTextToNumber(text);
+      const value = scoreValueFromCell(cell);
+      if (typeof value !== 'number') return;
       scores[index + 1] = value;
     });
 
     return { name, scores };
   });
+}
+
+function getScoredHoles(players) {
+  const holes = new Set();
+  players.forEach(player => {
+    Object.keys(player.scores).forEach(hole => holes.add(Number(hole)));
+  });
+  return [...holes].filter(Number.isFinite).sort((a, b) => a - b);
+}
+
+function getResumeHole(players) {
+  for (let hole = 1; hole <= 18; hole += 1) {
+    const isComplete = players.every(player => typeof player.scores[hole] === 'number');
+    if (!isComplete) return hole;
+  }
+
+  return 18;
+}
+
+function clickHole(hole) {
+  const holeButton = [...document.querySelectorAll('.hole-picker button')].find(button => getText(button) === String(hole));
+  holeButton?.click();
+}
+
+function applyScoresForHole(players, hole) {
+  const holeCards = [...document.querySelectorAll('.active-hole-panel .player-score-grid .player-hole-card')];
+
+  players.forEach((player, playerIndex) => {
+    const value = player.scores[hole];
+    if (typeof value !== 'number') return;
+
+    const label = scoreKeyFromValue(value);
+    const button = [...(holeCards[playerIndex]?.querySelectorAll('.score-buttons button') || [])]
+      .find(scoreButton => getText(scoreButton).toLowerCase().includes(label));
+    button?.click();
+  });
+}
+
+function restoreScoredHolesSequentially(players, holes, index, resumeHole) {
+  if (index >= holes.length) {
+    window.setTimeout(() => clickHole(resumeHole), 120);
+    return;
+  }
+
+  const hole = holes[index];
+  clickHole(hole);
+
+  window.setTimeout(() => {
+    applyScoresForHole(players, hole);
+    window.setTimeout(() => restoreScoredHolesSequentially(players, holes, index + 1, resumeHole), 90);
+  }, 90);
 }
 
 function resumeSavedRound(card) {
@@ -196,6 +260,9 @@ function resumeSavedRound(card) {
     window.alert('Could not read this saved round.');
     return;
   }
+
+  const scoredHoles = getScoredHoles(players);
+  const resumeHole = getResumeHole(players);
 
   const closeButton = [...card.querySelectorAll('button')].find(button => getText(button) === 'Close');
   closeButton?.click();
@@ -214,38 +281,25 @@ function resumeSavedRound(card) {
         if (sourceInput) updateReactInput(sourceInput, player.name);
       });
 
-      Object.entries(players[0]?.scores || {}).forEach(([hole]) => {
-        const holeButton = [...document.querySelectorAll('.hole-picker button')].find(button => getText(button) === String(hole));
-        holeButton?.click();
-
-        window.setTimeout(() => {
-          const holeCards = [...document.querySelectorAll('.active-hole-panel .player-score-grid .player-hole-card')];
-          players.forEach((player, playerIndex) => {
-            const value = player.scores[hole];
-            if (typeof value !== 'number') return;
-
-            const key = scoreKeyFromValue(value);
-            const button = [...(holeCards[playerIndex]?.querySelectorAll('.score-buttons button') || [])]
-              .find(scoreButton => scoreButton.textContent.toLowerCase().includes(key.replace('_', ' ')));
-            button?.click();
-          });
-        }, 50);
-      });
-
-      const nextHole = Math.min(18, Math.max(1, Math.max(...players.map(player => Object.keys(player.scores).length)) + 1));
-      window.setTimeout(() => {
-        const holeButton = [...document.querySelectorAll('.hole-picker button')].find(button => getText(button) === String(nextHole));
-        holeButton?.click();
-      }, 500);
-    }, 150);
+      restoreScoredHolesSequentially(players, scoredHoles, 0, resumeHole);
+    }, 180);
   }, 100);
+}
+
+function isIncompleteSavedRound(card) {
+  const text = getText(card).toLowerCase();
+  if (text.includes('incomplete round')) return true;
+  if (text.includes('in progress')) return true;
+
+  const players = parseSavedRound(card);
+  return players.length > 0 && getResumeHole(players) < 18;
 }
 
 function addResumeButtons() {
   document.querySelectorAll('.card').forEach(card => {
     if (card.dataset.resumeSavedRoundReady === 'true') return;
-    if (!getText(card).includes('Incomplete round')) return;
     if (!card.querySelector('.scorecard-table')) return;
+    if (!isIncompleteSavedRound(card)) return;
 
     const closeButton = [...card.querySelectorAll('button')].find(button => getText(button) === 'Close');
     const resumeButton = document.createElement('button');
