@@ -45,6 +45,14 @@ function hideOldActionButtons() {
   });
 }
 
+function removeHiddenScorecardMessage() {
+  document.querySelectorAll('p, div, span').forEach(element => {
+    if (getText(element) === 'Scorecard is hidden during live scoring to keep entry fast.') {
+      element.remove();
+    }
+  });
+}
+
 function hideOldScoreByDartsSection() {
   document.querySelectorAll('.card, section, article').forEach(element => {
     if (element.closest('.tbd-score-modal')) return;
@@ -63,6 +71,7 @@ function hideOldScoreByDartsSection() {
 function refreshStructuralCleanup() {
   renameLiveModeButton();
   hideOldActionButtons();
+  removeHiddenScorecardMessage();
   hideOldScoreByDartsSection();
 }
 
