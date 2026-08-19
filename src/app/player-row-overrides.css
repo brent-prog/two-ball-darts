@@ -158,7 +158,7 @@
 .tbd-saved-rounds-modal{
   position:fixed!important;
   inset:0!important;
-  z-index:900!important;
+  z-index:500!important;
   display:grid!important;
   place-items:center!important;
   padding:18px!important;
@@ -166,70 +166,247 @@
 }
 
 .tbd-saved-rounds-card{
-  width:min(980px,96vw)!important;
+  width:min(900px,96vw)!important;
   max-height:90vh!important;
   overflow:auto!important;
   border:2px solid #d0a948!important;
-  border-radius:22px!important;
+  border-radius:24px!important;
   background:#02140f!important;
   color:#fff4d6!important;
-  padding:20px!important;
-  box-shadow:0 18px 50px rgba(0,0,0,.5)!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.65)!important;
+  padding:18px!important;
 }
 
 .tbd-saved-rounds-head,
 .tbd-saved-round-title-row,
 .tbd-saved-round-actions{
   display:flex!important;
-  align-items:flex-start!important;
+  align-items:center!important;
   justify-content:space-between!important;
-  gap:14px!important;
-}
-
-.tbd-saved-rounds-head{
-  margin-bottom:16px!important;
-}
-
-.tbd-saved-rounds-head h2,
-.tbd-saved-round-item h3{
-  margin:0!important;
-  color:#fff4d6!important;
+  gap:12px!important;
+  flex-wrap:wrap!important;
 }
 
 .tbd-saved-rounds-list{
   display:grid!important;
   gap:14px!important;
+  margin-top:16px!important;
 }
 
 .tbd-saved-round-item{
-  border:1px solid rgba(208,169,72,.5)!important;
+  border:1px solid rgba(208,169,72,.45)!important;
   border-radius:18px!important;
-  background:rgba(6,57,39,.55)!important;
+  background:#042f23!important;
   padding:14px!important;
 }
 
+.tbd-saved-round-item h3{
+  margin:0 0 4px!important;
+  color:#fff4d6!important;
+}
+
 .tbd-saved-round-item p{
-  margin:5px 0 0!important;
+  margin:2px 0!important;
   color:rgba(255,244,214,.78)!important;
   font-weight:800!important;
 }
 
-.tbd-saved-round-actions{
-  flex-wrap:wrap!important;
-  justify-content:flex-end!important;
-}
-
 .tbd-local-round-detail{
-  margin-top:14px!important;
+  margin-top:12px!important;
+  overflow:auto!important;
 }
 
-.tbd-saved-round-table-wrap{
-  overflow-x:auto!important;
+.tbd-local-saved-table th,
+.tbd-local-saved-table td{
+  min-width:46px!important;
+  text-align:center!important;
+}
+
+/* Grint-style live scoring tightening */
+.active-hole-panel{
+  padding:10px 12px 14px!important;
+}
+
+.active-hole-panel h3{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0 0 10px!important;
+  padding:6px 12px!important;
+  border:2px solid rgba(208,169,72,.7)!important;
+  border-radius:999px!important;
+  background:linear-gradient(135deg,#f9ee0c 0%,#d0a948 100%)!important;
+  color:#02140f!important;
+  font-size:clamp(1.05rem,3.2vw,1.45rem)!important;
+  line-height:1!important;
+  letter-spacing:.02em!important;
+  box-shadow:0 0 0 3px rgba(249,238,12,.14),0 10px 26px rgba(0,0,0,.28)!important;
+  animation:tbd-hole-title-pop .42s ease-out both!important;
+}
+
+.tbd-live-score-list{
+  display:grid!important;
+  gap:8px!important;
+}
+
+.tbd-player-score-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-height:0!important;
+  padding:8px 10px!important;
+  border-radius:18px!important;
+  border-color:rgba(208,169,72,.48)!important;
+  background:rgba(2,20,15,.78)!important;
+}
+
+.tbd-player-score-main{
+  min-width:0!important;
+}
+
+.tbd-player-name-line{
+  align-items:center!important;
+  gap:8px!important;
+  grid-template-columns:auto auto minmax(0,1fr)!important;
+}
+
+.tbd-player-total-score{
+  width:46px!important;
+  min-width:46px!important;
+  height:46px!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border-width:2px!important;
+  border-radius:999px!important;
+  font-size:.95rem!important;
+  line-height:1!important;
+}
+
+.tbd-player-total-score.is-leader::after{
+  font-size:.38rem!important;
+  letter-spacing:.04em!important;
+  margin-top:-4px!important;
+}
+
+.tbd-honours-chip{
+  width:30px!important;
+  height:30px!important;
+  border-width:2px!important;
+  font-size:.9rem!important;
+  box-shadow:inset 0 0 0 2px #02140f,0 0 10px rgba(208,169,72,.28)!important;
+}
+
+.tbd-player-name-input{
+  height:42px!important;
+  min-height:42px!important;
+  padding:13px 11px 5px!important;
+  border-width:2px!important;
   border-radius:12px!important;
+  font-size:1rem!important;
+  line-height:1!important;
 }
 
-.tbd-local-saved-table{
-  min-width:920px!important;
+.tbd-player-name-line::before{
+  top:6px!important;
+  left:98px!important;
+  font-size:.48rem!important;
+}
+
+.tbd-player-score-row:not(.has-honours) .tbd-player-name-line::before{
+  left:61px!important;
+}
+
+.tbd-hole-status{
+  display:block!important;
+  margin:4px 0 0!important;
+  padding-left:2px!important;
+  font-size:.86rem!important;
+  line-height:1.1!important;
+}
+
+.tbd-player-score-row > button{
+  min-width:84px!important;
+  padding:9px 10px!important;
+  border-radius:999px!important;
+  font-size:.86rem!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+
+.hole-picker{
+  gap:6px!important;
+  margin:8px 0!important;
+}
+
+.hole-picker button{
+  min-height:38px!important;
+  border-radius:10px!important;
+  font-size:.92rem!important;
+}
+
+.hole-picker button.active{
+  animation:tbd-hole-advance-pulse .58s ease-out both!important;
+  box-shadow:0 0 0 3px rgba(249,238,12,.24),0 0 22px rgba(249,238,12,.34)!important;
+}
+
+@keyframes tbd-hole-title-pop{
+  0%{ transform:translateY(-8px) scale(.94); filter:brightness(1.35); }
+  60%{ transform:translateY(0) scale(1.04); filter:brightness(1.08); }
+  100%{ transform:translateY(0) scale(1); filter:brightness(1); }
+}
+
+@keyframes tbd-hole-advance-pulse{
+  0%{ transform:scale(.9); filter:brightness(1.55); }
+  55%{ transform:scale(1.08); filter:brightness(1.18); }
+  100%{ transform:scale(1); filter:brightness(1); }
+}
+
+@media(max-width:520px){
+  .active-hole-panel{
+    padding:8px 8px 12px!important;
+  }
+
+  .tbd-player-score-row{
+    gap:8px!important;
+    padding:7px 8px!important;
+    border-radius:16px!important;
+  }
+
+  .tbd-player-total-score{
+    width:42px!important;
+    min-width:42px!important;
+    height:42px!important;
+    font-size:.88rem!important;
+  }
+
+  .tbd-honours-chip{
+    width:28px!important;
+    height:28px!important;
+    font-size:.82rem!important;
+  }
+
+  .tbd-player-name-input{
+    height:38px!important;
+    min-height:38px!important;
+    font-size:.96rem!important;
+  }
+
+  .tbd-player-score-row > button{
+    min-width:74px!important;
+    padding:8px 8px!important;
+    font-size:.78rem!important;
+  }
+
+  .tbd-hole-status{
+    font-size:.8rem!important;
+  }
+
+  .hole-picker button{
+    min-height:34px!important;
+    font-size:.82rem!important;
+  }
 }
 
 @media(max-width:390px){
@@ -238,19 +415,21 @@
   }
 
   .tbd-player-total-score{
-    min-width:58px!important;
+    width:40px!important;
+    min-width:40px!important;
+    height:40px!important;
   }
 
   .tbd-honours-chip{
-    width:36px!important;
-    height:36px!important;
+    width:26px!important;
+    height:26px!important;
   }
 
   .tbd-player-name-line::before{
-    left:126px!important;
+    left:90px!important;
   }
 
   .tbd-player-score-row:not(.has-honours) .tbd-player-name-line::before{
-    left:80px!important;
+    left:57px!important;
   }
 }
