@@ -5,6 +5,7 @@ import './player-row-overrides.css';
 import './honours-position-fix.css';
 import './hole-spin-animation.css';
 import './next-hole-nav.css';
+import './mobile-leader-summary.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 import HoleTransitionEnhancer from '@/components/HoleTransitionEnhancer';
