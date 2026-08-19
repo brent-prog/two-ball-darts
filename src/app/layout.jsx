@@ -3,7 +3,6 @@ import './mobile-fixes.css';
 import './rule-result-polish.css';
 import './player-row-overrides.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
-import HonoursEnhancer from '@/components/HonoursEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 import SavedRoundsAccessEnhancer from '@/components/SavedRoundsAccessEnhancer';
 import AutoAdvanceGuardEnhancer from '@/components/AutoAdvanceGuardEnhancer';
@@ -24,7 +23,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <RoundFlowEnhancer />
-        <HonoursEnhancer />
         <StructuralCleanupEnhancer />
         <SavedRoundsAccessEnhancer />
         <AutoAdvanceGuardEnhancer />
