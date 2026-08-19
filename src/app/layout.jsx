@@ -6,7 +6,6 @@ import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 import SavedRoundsAccessEnhancer from '@/components/SavedRoundsAccessEnhancer';
 import HoleTransitionEnhancer from '@/components/HoleTransitionEnhancer';
-import ScorecardSyncEnhancer from '@/components/ScorecardSyncEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -27,7 +26,6 @@ export default function RootLayout({ children }) {
         <StructuralCleanupEnhancer />
         <SavedRoundsAccessEnhancer />
         <HoleTransitionEnhancer />
-        <ScorecardSyncEnhancer />
         {children}
       </body>
     </html>
