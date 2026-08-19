@@ -2,28 +2,6 @@
 
 import { useEffect } from 'react';
 
-const SCORE_MEMORY_KEY = 'tbdCompactScoreMemory';
-
-function getScoreMemory() {
-  try {
-    return JSON.parse(window.localStorage.getItem(SCORE_MEMORY_KEY) || '{}');
-  } catch {
-    return {};
-  }
-}
-
-function clearScoreMemory() {
-  try {
-    window.localStorage.removeItem(SCORE_MEMORY_KEY);
-  } catch {
-    // Ignore storage failures.
-  }
-}
-
-function hasAnyRecordedScore() {
-  return Object.keys(getScoreMemory()).length > 0;
-}
-
 function visibleRowsAreAllUnscored() {
   const rows = [...document.querySelectorAll('.active-hole-panel .tbd-player-score-row')];
   if (!rows.length) return false;
@@ -43,14 +21,8 @@ function resetBadge(badge) {
 function resetUnstartedBadges() {
   const visibleRoundIsEmpty = visibleRowsAreAllUnscored();
 
-  if (visibleRoundIsEmpty && hasAnyRecordedScore()) {
-    clearScoreMemory();
-  }
-
-  const hasScores = hasAnyRecordedScore();
-
   document.querySelectorAll('.active-hole-panel .tbd-player-total-score').forEach(badge => {
-    if (visibleRoundIsEmpty || !hasScores) {
+    if (visibleRoundIsEmpty) {
       resetBadge(badge);
       return;
     }
@@ -63,7 +35,7 @@ export default function ScoreBadgeCleanupEnhancer() {
   useEffect(() => {
     resetUnstartedBadges();
 
-    const intervalId = window.setInterval(resetUnstartedBadges, 300);
+    const intervalId = window.setInterval(resetUnstartedBadges, 500);
     document.addEventListener('click', resetUnstartedBadges, true);
 
     return () => {
