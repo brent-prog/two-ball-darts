@@ -60,11 +60,39 @@ function makeButton(location) {
   return button;
 }
 
-function addHeaderButton() {
-  if (document.querySelector('.tbd-saved-rounds-header')) return;
+function findHeaderActionsTarget() {
+  const header = document.querySelector('header');
+  if (!header) return null;
 
-  const target = document.querySelector('header nav') || document.querySelector('header .hero-actions') || document.querySelector('header');
+  const candidates = [
+    header.querySelector('.hero-actions'),
+    header.querySelector('.actions'),
+    header.querySelector('.button-row'),
+    header.querySelector('nav')
+  ].filter(Boolean);
+
+  const existingActionArea = candidates.find(candidate => candidate.querySelector('button, a'));
+  if (existingActionArea) return existingActionArea;
+
+  let row = header.querySelector('.tbd-header-actions-row');
+  if (!row) {
+    row = document.createElement('div');
+    row.className = 'tbd-header-actions-row';
+    header.appendChild(row);
+  }
+
+  return row;
+}
+
+function addHeaderButton() {
+  const existing = document.querySelector('.tbd-saved-rounds-header');
+  const target = findHeaderActionsTarget();
   if (!target) return;
+
+  if (existing) {
+    if (existing.parentNode !== target) target.appendChild(existing);
+    return;
+  }
 
   target.appendChild(makeButton('header'));
 }
@@ -75,7 +103,13 @@ function addFooterButton() {
   const footer = document.querySelector('footer');
   if (!footer) return;
 
-  const target = footer.querySelector('div') || footer;
+  let target = footer.querySelector('.tbd-footer-actions-row');
+  if (!target) {
+    target = document.createElement('div');
+    target.className = 'tbd-footer-actions-row';
+    footer.appendChild(target);
+  }
+
   target.appendChild(makeButton('footer'));
 }
 
