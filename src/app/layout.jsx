@@ -6,7 +6,6 @@ import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 import HonoursEnhancer from '@/components/HonoursEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 import SavedRoundsAccessEnhancer from '@/components/SavedRoundsAccessEnhancer';
-import ScoreBadgeCleanupEnhancer from '@/components/ScoreBadgeCleanupEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -27,7 +26,6 @@ export default function RootLayout({ children }) {
         <HonoursEnhancer />
         <StructuralCleanupEnhancer />
         <SavedRoundsAccessEnhancer />
-        <ScoreBadgeCleanupEnhancer />
         {children}
       </body>
     </html>
