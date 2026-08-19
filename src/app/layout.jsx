@@ -5,6 +5,7 @@ import './player-row-overrides.css';
 import './honours-position-fix.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
+import HoleTransitionEnhancer from '@/components/HoleTransitionEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
       <body>
         <RoundFlowEnhancer />
         <StructuralCleanupEnhancer />
+        <HoleTransitionEnhancer />
         {children}
       </body>
     </html>
