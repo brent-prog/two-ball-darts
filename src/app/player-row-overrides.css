@@ -28,6 +28,13 @@
   color:#fff4d6!important;
 }
 
+.tbd-player-total-score.is-empty-round{
+  background:#102017!important;
+  border-color:rgba(208,169,72,.55)!important;
+  color:rgba(255,244,214,.7)!important;
+  box-shadow:none!important;
+}
+
 .tbd-player-total-score.is-leader{
   background:#f9ee0c!important;
   border-color:#fff4d6!important;
@@ -42,6 +49,11 @@
   line-height:1;
   letter-spacing:.08em;
   margin-top:2px;
+}
+
+.tbd-player-total-score.is-empty-round::after{
+  content:''!important;
+  display:none!important;
 }
 
 .tbd-honours-chip{
