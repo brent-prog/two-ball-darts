@@ -1,7 +1,6 @@
 import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
-import './player-row-overrides.css';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
