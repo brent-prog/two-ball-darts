@@ -1,20 +1,5 @@
-/* Mobile-first scoring flow: remove the oversized leader summary card on small screens. */
+/* Mobile-first scoring flow: keep the header intact. Do not hide broad card/header containers here. */
 @media(max-width:760px){
-  .hero-card,
-  .leader-card,
-  .score-summary-card,
-  .current-leader-card,
-  .summary-card{
-    display:none!important;
-  }
-
-  header .card:has(.leader),
-  header .card:has(.score),
-  header .card:has(.strokes),
-  header .card:has(.hole){
-    display:none!important;
-  }
-
   .live-mode-card,
   .active-hole-panel{
     margin-top:14px!important;
