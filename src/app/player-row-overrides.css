@@ -91,15 +91,44 @@
   opacity:.85!important;
 }
 
+.tbd-header-actions-row,
+.tbd-footer-actions-row{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:10px!important;
+  margin-top:14px!important;
+}
+
 .tbd-saved-rounds-access{
-  margin:6px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:auto!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
   border:2px solid #d0a948!important;
   background:#102017!important;
   color:#fff4d6!important;
   border-radius:999px!important;
-  padding:10px 14px!important;
+  padding:9px 14px!important;
+  font-size:.9rem!important;
+  line-height:1!important;
   font-weight:1000!important;
+  white-space:nowrap!important;
+  text-transform:uppercase!important;
+  letter-spacing:.04em!important;
   cursor:pointer!important;
+}
+
+.tbd-saved-rounds-header{
+  margin-top:0!important;
+}
+
+.tbd-saved-rounds-footer{
+  margin-top:10px!important;
 }
 
 .tbd-resume-saved-round{
