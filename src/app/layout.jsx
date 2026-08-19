@@ -1,6 +1,9 @@
 import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
+import './player-row-overrides.css';
+import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
+import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -16,7 +19,11 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <RoundFlowEnhancer />
+        <StructuralCleanupEnhancer />
+        {children}
+      </body>
     </html>
   );
 }
