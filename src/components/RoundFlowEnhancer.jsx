@@ -104,7 +104,7 @@ function getStoredTotal(playerIndex) {
 function getScorecardTotal(playerIndex) {
   const tables = [...document.querySelectorAll('.scorecard-table')];
   for (const table of tables) {
-    const bodyRows = [...table.querySelectorAll('tbody tr')];
+    const bodyRows = [...table.querySelectorAll('tbody tr')].filter(row => !row.classList.contains('par-row'));
     const playerRow = bodyRows[playerIndex];
     const scoreCell = playerRow?.querySelector('.total-score');
     const score = scoreCell?.textContent.trim();
@@ -117,26 +117,24 @@ function getCurrentTotalScore(playerIndex) {
   return getScorecardTotal(playerIndex) || formatScore(getStoredTotal(playerIndex));
 }
 
-function getScoreBadgeClass(totalValue, leaderValue) {
+function getScoreBadgeClass(totalValue, leaderValue, hasAnyScores) {
   const classes = ['tbd-player-total-score'];
-  if (totalValue === leaderValue) classes.push('is-leader');
-  if (totalValue < 0) classes.push('is-under');
-  if (totalValue > 0) classes.push('is-over');
-  if (totalValue === 0) classes.push('is-even');
+  if (!hasAnyScores) classes.push('is-empty-round');
+  if (hasAnyScores && totalValue === leaderValue) classes.push('is-leader');
+  if (hasAnyScores && totalValue < 0) classes.push('is-under');
+  if (hasAnyScores && totalValue > 0) classes.push('is-over');
+  if (hasAnyScores && totalValue === 0) classes.push('is-even');
   return classes.join(' ');
 }
 
-function getPlayerCount() {
-  return document.querySelectorAll('.active-hole-panel .player-score-grid .player-hole-card').length;
+function getPlayerCards() {
+  return [...document.querySelectorAll('.active-hole-panel .player-score-grid .player-hole-card')];
 }
 
-function isHoleComplete(holeNumber = getActiveHoleNumber()) {
-  const playerCount = getPlayerCount();
-  if (!playerCount) return false;
-
-  const memory = getScoreMemory();
-  return Array.from({ length: playerCount }, (_, index) => scoreMemoryKey(index, holeNumber))
-    .every(key => Object.prototype.hasOwnProperty.call(memory, key));
+function currentHoleIsActuallyComplete() {
+  const cards = getPlayerCards();
+  if (!cards.length) return false;
+  return cards.every(card => Boolean(card.querySelector('.score-buttons button.selected')));
 }
 
 function clickNextHole() {
@@ -158,9 +156,41 @@ function clickNextHole() {
 function autoAdvanceIfComplete(scoredHoleNumber) {
   window.setTimeout(() => {
     if (getActiveHoleNumber() !== scoredHoleNumber) return;
-    if (!isHoleComplete(scoredHoleNumber)) return;
+    if (!currentHoleIsActuallyComplete()) return;
     clickNextHole();
   }, 500);
+}
+
+function getHonoursIndex(playerCount) {
+  const currentHole = getActiveHoleNumber();
+  if (currentHole <= 1 || playerCount < 1) return null;
+
+  const memory = getScoreMemory();
+  let honoursIndex = null;
+
+  for (let hole = 2; hole <= currentHole; hole += 1) {
+    const priorHole = hole - 1;
+    const scores = Array.from({ length: playerCount }, (_, playerIndex) => memory[scoreMemoryKey(playerIndex, priorHole)]);
+
+    if (scores.some(score => typeof score !== 'number')) break;
+
+    const bestScore = Math.min(...scores);
+    const bestPlayers = scores
+      .map((score, index) => ({ score, index }))
+      .filter(player => player.score === bestScore)
+      .map(player => player.index);
+
+    if (bestPlayers.length === 1) {
+      honoursIndex = bestPlayers[0];
+      continue;
+    }
+
+    if (honoursIndex !== null && bestPlayers.includes(honoursIndex)) {
+      continue;
+    }
+  }
+
+  return honoursIndex;
 }
 
 function hideNextHoleCompletionAction() {
@@ -409,19 +439,26 @@ function buildCompactLiveScoring() {
 
   const cards = [...grid.querySelectorAll('.player-hole-card')];
   const players = cards.map((card, index) => getPlayerCardData(card, index));
-  const leaderValue = Math.min(...players.map(player => player.totalValue));
+  const hasAnyScores = players.some(player => player.scored) || Object.keys(getScoreMemory()).length > 0;
+  const leaderValue = hasAnyScores ? Math.min(...players.map(player => player.totalValue)) : null;
+  const honoursIndex = getHonoursIndex(players.length);
 
   list.innerHTML = players.map((player, index) => {
     const action = player.scored ? 'Edit Score' : 'Add Score';
     const status = player.scored ? `${player.result} ${player.score}` : 'No score yet';
     const scoredClass = player.scored ? ' scored' : '';
-    const badgeClass = getScoreBadgeClass(player.totalValue, leaderValue);
+    const honoursClass = honoursIndex === index ? ' has-honours' : '';
+    const badgeClass = getScoreBadgeClass(player.totalValue, leaderValue, hasAnyScores);
+    const honoursChip = honoursIndex === index ? '<span class="tbd-honours-chip" aria-label="Honours">H</span>' : '';
+    const totalText = hasAnyScores ? player.total : '-';
+
     return `
-      <div class="tbd-player-score-row${scoredClass}" data-player-index="${index}">
+      <div class="tbd-player-score-row${scoredClass}${honoursClass}" data-player-index="${index}">
         <div class="tbd-player-score-main">
           <div class="tbd-player-name-line">
+            <span class="${badgeClass}">${escapeHtml(totalText)}</span>
+            ${honoursChip}
             <input class="tbd-player-name-input" type="text" value="${escapeHtml(player.name)}" aria-label="Player name" />
-            <span class="${badgeClass}">${escapeHtml(player.total)}</span>
           </div>
           <span class="tbd-hole-status">${escapeHtml(status)}</span>
         </div>
