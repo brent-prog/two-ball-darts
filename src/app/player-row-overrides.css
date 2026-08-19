@@ -498,3 +498,50 @@ body.tbd-hole-advancing-page .hole-picker button.active{
     left:57px!important;
   }
 }
+
+/* Mobile hole navigation cleanup */
+@media(max-width:760px){
+  .hole-picker{
+    display:none!important;
+  }
+
+  .hole-nav,
+  .hole-navigation,
+  [class*="hole-nav"]{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+    align-items:center!important;
+    margin:8px 0 10px!important;
+  }
+
+  .hole-nav button,
+  .hole-navigation button,
+  [class*="hole-nav"] button{
+    width:100%!important;
+    min-height:44px!important;
+    padding:10px 12px!important;
+    border:2px solid #d0a948!important;
+    border-radius:999px!important;
+    background:#063927!important;
+    color:#fff4d6!important;
+    font-size:.92rem!important;
+    font-weight:1000!important;
+    line-height:1!important;
+    text-transform:uppercase!important;
+    letter-spacing:.02em!important;
+    box-shadow:none!important;
+  }
+
+  .hole-nav button:disabled,
+  .hole-navigation button:disabled,
+  [class*="hole-nav"] button:disabled{
+    opacity:.38!important;
+  }
+
+  .section-heading.compact,
+  .active-hole-panel + .hole-picker,
+  .hole-picker + .active-hole-panel{
+    margin-top:8px!important;
+  }
+}
