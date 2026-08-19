@@ -224,7 +224,35 @@
 
 /* Grint-style live scoring tightening */
 .active-hole-panel{
+  position:relative!important;
+  overflow:hidden!important;
   padding:10px 12px 14px!important;
+}
+
+.active-hole-panel::after{
+  content:''!important;
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+  opacity:0!important;
+  background:linear-gradient(110deg,transparent 0%,rgba(249,238,12,.08) 24%,rgba(208,169,72,.28) 46%,rgba(255,244,214,.16) 52%,rgba(249,238,12,.08) 66%,transparent 100%)!important;
+  transform:translateX(-115%)!important;
+}
+
+.active-hole-panel.tbd-hole-advancing{
+  animation:tbd-hole-card-breathe .72s ease-out both!important;
+}
+
+.active-hole-panel.tbd-hole-advancing::after{
+  animation:tbd-hole-light-sweep .72s ease-out both!important;
+}
+
+.active-hole-panel.tbd-hole-advancing .tbd-player-score-row{
+  animation:tbd-row-settle .42s ease-out both!important;
+}
+
+.active-hole-panel.tbd-hole-advancing .tbd-player-score-row:nth-child(2){
+  animation-delay:.04s!important;
 }
 
 .active-hole-panel h3{
@@ -242,6 +270,10 @@
   letter-spacing:.02em!important;
   box-shadow:0 0 0 3px rgba(249,238,12,.14),0 10px 26px rgba(0,0,0,.28)!important;
   animation:tbd-hole-title-pop .42s ease-out both!important;
+}
+
+.active-hole-panel.tbd-hole-advancing h3{
+  animation:tbd-hole-title-advance .72s ease-out both!important;
 }
 
 .tbd-live-score-list{
@@ -351,16 +383,49 @@
   box-shadow:0 0 0 3px rgba(249,238,12,.24),0 0 22px rgba(249,238,12,.34)!important;
 }
 
+body.tbd-hole-advancing-page .hole-picker button.active{
+  animation:tbd-active-hole-flare .72s ease-out both!important;
+}
+
 @keyframes tbd-hole-title-pop{
   0%{ transform:translateY(-8px) scale(.94); filter:brightness(1.35); }
   60%{ transform:translateY(0) scale(1.04); filter:brightness(1.08); }
   100%{ transform:translateY(0) scale(1); filter:brightness(1); }
 }
 
+@keyframes tbd-hole-title-advance{
+  0%{ transform:translateX(-10px) scale(.94); filter:brightness(1.45); }
+  45%{ transform:translateX(0) scale(1.09); filter:brightness(1.18); }
+  100%{ transform:translateX(0) scale(1); filter:brightness(1); }
+}
+
 @keyframes tbd-hole-advance-pulse{
   0%{ transform:scale(.9); filter:brightness(1.55); }
   55%{ transform:scale(1.08); filter:brightness(1.18); }
   100%{ transform:scale(1); filter:brightness(1); }
+}
+
+@keyframes tbd-active-hole-flare{
+  0%{ transform:scale(.92); box-shadow:0 0 0 0 rgba(249,238,12,.45),0 0 0 rgba(249,238,12,0); filter:brightness(1.55); }
+  50%{ transform:scale(1.1); box-shadow:0 0 0 5px rgba(249,238,12,.2),0 0 24px rgba(249,238,12,.5); filter:brightness(1.2); }
+  100%{ transform:scale(1); box-shadow:0 0 0 3px rgba(249,238,12,.24),0 0 22px rgba(249,238,12,.34); filter:brightness(1); }
+}
+
+@keyframes tbd-hole-light-sweep{
+  0%{ opacity:0; transform:translateX(-115%); }
+  15%{ opacity:1; }
+  100%{ opacity:0; transform:translateX(115%); }
+}
+
+@keyframes tbd-hole-card-breathe{
+  0%{ box-shadow:0 0 0 rgba(249,238,12,0); }
+  35%{ box-shadow:0 0 0 2px rgba(249,238,12,.2),0 0 30px rgba(208,169,72,.2); }
+  100%{ box-shadow:0 0 0 rgba(249,238,12,0); }
+}
+
+@keyframes tbd-row-settle{
+  0%{ opacity:.55; transform:translateY(5px); }
+  100%{ opacity:1; transform:translateY(0); }
 }
 
 @media(max-width:520px){
