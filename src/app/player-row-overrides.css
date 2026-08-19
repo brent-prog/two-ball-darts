@@ -91,6 +91,21 @@
   opacity:.85!important;
 }
 
+.tbd-saved-rounds-access{
+  margin:6px!important;
+  border:2px solid #d0a948!important;
+  background:#102017!important;
+  color:#fff4d6!important;
+  border-radius:999px!important;
+  padding:10px 14px!important;
+  font-weight:1000!important;
+  cursor:pointer!important;
+}
+
+.tbd-resume-saved-round{
+  margin-right:10px!important;
+}
+
 @media(max-width:390px){
   .tbd-player-name-line{
     grid-template-columns:auto auto minmax(0,1fr)!important;
