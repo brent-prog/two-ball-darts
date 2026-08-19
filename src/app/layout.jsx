@@ -5,7 +5,6 @@ import './player-row-overrides.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 import SavedRoundsAccessEnhancer from '@/components/SavedRoundsAccessEnhancer';
-import AutoAdvanceGuardEnhancer from '@/components/AutoAdvanceGuardEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -25,7 +24,6 @@ export default function RootLayout({ children }) {
         <RoundFlowEnhancer />
         <StructuralCleanupEnhancer />
         <SavedRoundsAccessEnhancer />
-        <AutoAdvanceGuardEnhancer />
         {children}
       </body>
     </html>
