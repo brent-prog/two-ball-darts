@@ -69,6 +69,11 @@
 }
 
 .tbd-honours-chip{
+  display:none!important;
+}
+
+.tbd-player-score-row.has-honours .tbd-player-name-line::after{
+  content:'H'!important;
   grid-column:2!important;
   grid-row:1!important;
   display:grid!important;
@@ -168,7 +173,7 @@
     min-width:58px!important;
   }
 
-  .tbd-honours-chip{
+  .tbd-player-score-row.has-honours .tbd-player-name-line::after{
     width:36px!important;
     height:36px!important;
   }
