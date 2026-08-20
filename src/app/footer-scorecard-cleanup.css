@@ -1,0 +1,17 @@
+/* Hide redundant footer Scorecard button. The live scoring panel already has the real scorecard toggle. */
+footer button,
+footer a{
+  &:is(button, a){
+    /* kept intentionally narrow by the structural helper below where CSS text matching is not available */
+  }
+}
+
+@media(max-width:760px){
+  footer .scorecard-button,
+  footer .scorecard-link,
+  footer a[href*="scorecard"],
+  footer button[aria-label*="Scorecard"],
+  footer a[aria-label*="Scorecard"]{
+    display:none!important;
+  }
+}
