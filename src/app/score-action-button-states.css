@@ -1,0 +1,25 @@
+/* Visual distinction for compact scoring action buttons. */
+.tbd-player-score-row:not(.scored) > button{
+  background:#d0a948!important;
+  border-color:#fff4d6!important;
+  color:#02140f!important;
+  box-shadow:0 0 0 3px rgba(208,169,72,.2),0 0 16px rgba(208,169,72,.22)!important;
+}
+
+.tbd-player-score-row.scored > button{
+  background:#063927!important;
+  border-color:rgba(208,169,72,.72)!important;
+  color:#fff4d6!important;
+  box-shadow:none!important;
+}
+
+.tbd-player-score-row.scored > button::before{
+  content:'✎ ';
+  font-weight:900;
+}
+
+@media(max-width:520px){
+  .tbd-player-score-row.scored > button::before{
+    content:'';
+  }
+}
