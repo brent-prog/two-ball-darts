@@ -10,38 +10,50 @@ function isMobileViewport() {
   return window.matchMedia('(max-width: 760px)').matches;
 }
 
-function hasLeaderSummaryText(element) {
+function isUnsafeContainer(element) {
+  const tag = element.tagName?.toLowerCase();
+  return ['html', 'body', 'main', 'header', 'footer'].includes(tag) || element.id === '__next';
+}
+
+function isVisible(element) {
+  const rect = element.getBoundingClientRect();
+  const style = window.getComputedStyle(element);
+  return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+}
+
+function hasSummaryLabels(element) {
   const text = normalizeText(element.textContent);
   return text.includes('leader')
     && text.includes('score')
     && text.includes('strokes')
     && text.includes('hole')
-    && !text.includes('live round')
-    && !text.includes('live mode');
+    && !text.includes('choose the current hole')
+    && !text.includes('live round');
 }
 
-function isUnsafeContainer(element) {
-  const tag = element.tagName?.toLowerCase();
-  if (['html', 'body', 'main', 'header', 'footer'].includes(tag)) return true;
-  if (element.id === '__next') return true;
-  return false;
-}
-
-function getVisibleArea(element) {
+function looksLikeSummaryCard(element) {
   const rect = element.getBoundingClientRect();
-  return Math.max(0, rect.width) * Math.max(0, rect.height);
+  if (!isVisible(element)) return false;
+  if (rect.width < window.innerWidth * 0.65) return false;
+  if (rect.height < 260) return false;
+  if (rect.height > window.innerHeight * 0.75) return false;
+  return hasSummaryLabels(element);
 }
 
-function findSmallestLeaderSummaryCard() {
-  const candidates = [...document.querySelectorAll('section, article, div, aside')]
-    .filter(element => !isUnsafeContainer(element))
-    .filter(element => hasLeaderSummaryText(element))
-    .filter(element => !normalizeText(element.textContent).includes('choose the current hole'))
-    .map(element => ({ element, area: getVisibleArea(element), textLength: normalizeText(element.textContent).length }))
-    .filter(candidate => candidate.area > 0)
-    .sort((a, b) => a.area - b.area || a.textLength - b.textLength);
+function findSummaryCardFromLeaderLabel() {
+  const labels = [...document.querySelectorAll('*')]
+    .filter(element => normalizeText(element.textContent) === 'leader');
 
-  return candidates[0]?.element || null;
+  for (const label of labels) {
+    let current = label.parentElement;
+
+    while (current && !isUnsafeContainer(current)) {
+      if (looksLikeSummaryCard(current)) return current;
+      current = current.parentElement;
+    }
+  }
+
+  return null;
 }
 
 function resetPreviouslyHidden() {
@@ -56,7 +68,7 @@ function hideMobileLeaderSummary() {
 
   if (!isMobileViewport()) return;
 
-  const card = findSmallestLeaderSummaryCard();
+  const card = findSummaryCardFromLeaderLabel();
   if (!card) return;
 
   card.dataset.tbdMobileLeaderHidden = 'true';
@@ -67,7 +79,7 @@ export default function MobileLeaderSummaryCleanupEnhancer() {
   useEffect(() => {
     hideMobileLeaderSummary();
 
-    const intervalId = window.setInterval(hideMobileLeaderSummary, 800);
+    const intervalId = window.setInterval(hideMobileLeaderSummary, 500);
     window.addEventListener('resize', hideMobileLeaderSummary);
     document.addEventListener('click', hideMobileLeaderSummary, true);
 
