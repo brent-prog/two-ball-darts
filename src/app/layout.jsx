@@ -13,6 +13,7 @@ import NextHoleNavEnhancer from '@/components/NextHoleNavEnhancer';
 import ScorecardVisualSyncEnhancer from '@/components/ScorecardVisualSyncEnhancer';
 import CompactScoreStateGuardEnhancer from '@/components/CompactScoreStateGuardEnhancer';
 import MobileLeaderSummaryCleanupEnhancer from '@/components/MobileLeaderSummaryCleanupEnhancer';
+import FooterScorecardCleanupEnhancer from '@/components/FooterScorecardCleanupEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
         <ScorecardVisualSyncEnhancer />
         <CompactScoreStateGuardEnhancer />
         <MobileLeaderSummaryCleanupEnhancer />
+        <FooterScorecardCleanupEnhancer />
         {children}
       </body>
     </html>
