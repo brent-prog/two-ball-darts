@@ -5,6 +5,7 @@ import './player-row-overrides.css';
 import './honours-position-fix.css';
 import './hole-spin-animation.css';
 import './score-action-button-states.css';
+import './scoring-mode-react-polish.css';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
