@@ -1,0 +1,45 @@
+/* Small-mark usage for favicon/menu contexts. */
+
+#scorecard [aria-label='Scoring menu']{
+  position:relative!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  color:transparent!important;
+  overflow:hidden!important;
+}
+
+#scorecard [aria-label='Scoring menu']::before{
+  content:'';
+  display:block;
+  width:30px;
+  height:30px;
+  border-radius:9px;
+  background:url('/two-ball-darts-icon.svg') center/contain no-repeat;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.35));
+}
+
+#scorecard [aria-label='Scoring menu']::after{
+  content:'☰';
+  position:absolute;
+  right:4px;
+  bottom:2px;
+  display:grid;
+  place-items:center;
+  width:15px;
+  height:15px;
+  border-radius:999px;
+  background:#d0a948;
+  color:#02140f;
+  font-size:.55rem;
+  font-weight:1000;
+  line-height:1;
+  box-shadow:0 0 0 2px #02140f;
+}
+
+@media(max-width:760px){
+  #scorecard [aria-label='Scoring menu']::before{
+    width:28px;
+    height:28px;
+  }
+}
