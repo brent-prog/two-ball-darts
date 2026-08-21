@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import LogoMark from '@/components/LogoMark';
 import { holes, scoreResults } from '@/lib/brand';
 import { supabase } from '@/lib/supabase';
@@ -24,7 +24,6 @@ const fmt = score => score === 0 ? 'E' : score > 0 ? `+${score}` : `${score}`;
 const total = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
 const strokes = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
 const sideScore = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
-const sideStrokes = (player, list) => list.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
 const scoredHoleCount = player => holes.filter(hole => scoreByKey.has(player.scores[hole])).length;
 const currentRoundComplete = players => players.length > 0 && players.every(player => scoredHoleCount(player) === 18);
 const hasRoundScores = players => players.some(player => scoredHoleCount(player) > 0);
@@ -93,6 +92,21 @@ function SavedScoreCell({ score }) {
   return <td style={{ padding: '6px 4px' }}><span className={`score-symbol ${symbolClass(relativeScore)}`} style={symbolStyle(relativeScore)}>{score.strokes}</span></td>;
 }
 
+function getHonoursIndex(players, activeHole) {
+  if (activeHole <= 1) return -1;
+  let honoursIndex = -1;
+  for (let hole = 2; hole <= activeHole; hole += 1) {
+    const priorHole = hole - 1;
+    const scored = players.map((player, index) => ({ index, score: scoreByKey.get(player.scores[priorHole])?.score })).filter(item => Number.isFinite(item.score));
+    if (scored.length !== players.length) continue;
+    const best = Math.min(...scored.map(item => item.score));
+    const tied = scored.filter(item => item.score === best).map(item => item.index);
+    if (tied.length === 1) honoursIndex = tied[0];
+    else if (!tied.includes(honoursIndex)) honoursIndex = -1;
+  }
+  return honoursIndex;
+}
+
 function AllRulesPanel() {
   return <div className="rule-answer" style={{ marginTop: '14px' }}>
     <h3>All Official Rules</h3>
@@ -150,12 +164,11 @@ function LiveScorecard({ players }) {
   return <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th><th>Score</th>{holes.map(h => <th key={h}>{h}</th>)}</tr><tr className="par-row"><th>Par</th><td>E</td>{holes.map(h => <td key={h}>3</td>)}</tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th><td className="total-score">{fmt(total(player))}</td>{holes.map(h => <ScoreCell key={h} result={scoreByKey.get(player.scores[h])} />)}</tr>)}</tbody></table></div>;
 }
 
-function ScoringMenu({ isOpen, setIsOpen, addPlayer, resetRound, saveRound, saveDisabled, saveLabel, exitScoring, openRules }) {
+function ScoringMenu({ isOpen, setIsOpen, addPlayer, resetRound, saveRound, saveDisabled, saveLabel, exitScoring }) {
   return <div style={{ position: 'relative' }}>
     <button className="button secondary" aria-label="Scoring menu" aria-expanded={isOpen} onClick={() => setIsOpen(current => !current)} style={{ minWidth: '58px', padding: '11px 14px', fontSize: '1.35rem', lineHeight: 1 }}>☰</button>
     {isOpen && <div style={{ position: 'absolute', zIndex: 280, top: 'calc(100% + 8px)', left: 0, width: 'min(290px, 82vw)', border: '2px solid #d0a948', borderRadius: '18px', background: '#02140f', boxShadow: '0 18px 40px rgba(0,0,0,.46)', padding: '8px', display: 'grid', gap: '8px' }}>
       <button className="button secondary" onClick={() => { setIsOpen(false); addPlayer(); }}>Add Player</button>
-      <button className="button secondary" onClick={() => { setIsOpen(false); openRules(); }}>Score by Darts</button>
       <button className="button secondary" disabled={saveDisabled} onClick={() => { setIsOpen(false); saveRound(); }}>{saveLabel}</button>
       <button className="button ghost" onClick={() => { setIsOpen(false); resetRound(); }}>Reset Round</button>
       <button className="button primary" onClick={() => { setIsOpen(false); exitScoring(); }}>Exit Scoring</button>
@@ -163,7 +176,7 @@ function ScoringMenu({ isOpen, setIsOpen, addPlayer, resetRound, saveRound, save
   </div>;
 }
 
-function PlayerScoringRow({ player, activeHole, result, totalScore, isLeader, openScore, updateName }) {
+function PlayerScoringRow({ player, activeHole, result, totalScore, isLeader, hasHonours, openScore, updateName }) {
   const scored = Boolean(result);
   const scoreLabel = scored ? `${result.label} ${fmt(result.score)}` : 'No score yet';
   const buttonLabel = scored ? `${result.label} ${fmt(result.score)}` : 'Add Score';
@@ -174,10 +187,11 @@ function PlayerScoringRow({ player, activeHole, result, totalScore, isLeader, op
   if (totalScore > 0) badgeClasses.push('is-over');
   if (totalScore === 0 && scored) badgeClasses.push('is-even');
 
-  return <div className={`tbd-player-score-row ${scored ? 'scored' : ''}`}>
+  return <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`}>
     <div className="tbd-player-score-main">
       <div className="tbd-player-name-line">
         <span className={badgeClasses.join(' ')}>{scored || totalScore !== 0 ? fmt(totalScore) : '-'}</span>
+        {hasHonours && <span className="tbd-honours-chip">H</span>}
         <input className="tbd-player-name-input" aria-label={`${player.name} name`} value={player.name} onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} />
       </div>
       <span className="tbd-hole-status">{scoreLabel}</span>
@@ -192,20 +206,20 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
   const dartResult = scoreTwoDarts(dartOne, dartTwo);
   const canApply = Boolean(dartResult.scoreKey);
 
-  return <div style={{ position: 'fixed', inset: 0, zIndex: 350, background: 'rgba(0,0,0,.78)', padding: '18px', display: 'grid', placeItems: 'center' }}>
-    <div className="card" style={{ width: 'min(680px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
-      <div className="section-heading compact" style={{ alignItems: 'flex-start', marginBottom: '14px' }}>
-        <div><p className="eyebrow">Hole {activeHole}</p><h2 style={{ fontSize: 'clamp(2rem, 6vw, 3rem)' }}>{player.name}</h2></div>
+  return <div className="tbd-score-modal-shell">
+    <div className="card tbd-score-modal-card">
+      <div className="tbd-score-modal-title-row">
+        <div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div>
         <button className="button secondary" onClick={onClose}>Close</button>
       </div>
-      <div style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))' }}>
-        {scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)} style={{ minHeight: '58px' }}>{result.label} {fmt(result.score)}</button>)}
+      <div className="tbd-quick-score-grid">
+        {scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}>{result.label} {fmt(result.score)}</button>)}
       </div>
-      <div style={{ marginTop: '16px', border: '1px solid rgba(208,169,72,.45)', borderRadius: '16px', padding: '14px', background: 'rgba(0,0,0,.18)' }}>
+      <div className="tbd-dart-score-card">
         <p className="eyebrow">Score by Darts</p>
-        <div style={{ display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-          <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 1<select value={dartOne} onChange={e => setDartOne(e.target.value)}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-          <label style={{ display: 'grid', gap: '8px', fontWeight: 900, color: '#d0a948', textTransform: 'uppercase', letterSpacing: '.06em' }}>Dart 2<select value={dartTwo} onChange={e => setDartTwo(e.target.value)}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+        <div className="tbd-dart-select-grid">
+          <label>Dart 1<select value={dartOne} onChange={e => setDartOne(e.target.value)}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+          <label>Dart 2<select value={dartTwo} onChange={e => setDartTwo(e.target.value)}>{dartOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
         </div>
         <div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div>
         <button className="button primary" style={{ marginTop: '12px', width: '100%' }} disabled={!canApply} onClick={() => onScore(dartResult.scoreKey)}>Apply Dart Result</button>
@@ -240,6 +254,8 @@ export default function Home() {
   const [isSaving, setIsSaving] = useState(false);
   const [scoringMenuOpen, setScoringMenuOpen] = useState(false);
   const [scoringPlayerId, setScoringPlayerId] = useState(null);
+  const [isAdvancing, setIsAdvancing] = useState(false);
+  const lastAutoAdvanceHoleRef = useRef(null);
 
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
   const leaderScore = total(leader);
@@ -247,6 +263,7 @@ export default function Home() {
   const answerResult = scoreByKey.get(answer.scoreKey);
   const answerDescription = answer.scoreKey ? answer.answer.split(' Score: ')[0] : answer.answer;
   const isActiveHoleComplete = players.length > 0 && players.every(player => scoreByKey.has(player.scores[activeHole]));
+  const honoursIndex = useMemo(() => getHonoursIndex(players, activeHole), [players, activeHole]);
   const checkerProps = { dartOne, dartTwo, updateRuleDart, showAllRules, setShowAllRules, answer, answerDescription, answerResult, canAddRuleResult, openAddToScore };
   const scoringPlayer = players.find(player => player.id === scoringPlayerId);
 
@@ -255,15 +272,23 @@ export default function Home() {
   function updateScore(playerId, score) { updateScoreForHole(playerId, score, activeHole); }
   function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, name } : player)); }
   function addPlayer() { markRoundDirty(); setPlayers(current => [...current, { id: crypto.randomUUID(), name: `Player ${current.length + 1}`, scores: {} }]); }
-  function resetRound() { setSavedGameId(null); setIsRoundDirty(true); setStatus(''); setShowScorecard(false); setActiveHole(1); setPlayers(current => current.map(player => ({ ...player, scores: {} }))); }
-  function goToPreviousHole() { setActiveHole(current => Math.max(1, current - 1)); }
-  function goToNextHole() { setActiveHole(current => Math.min(18, current + 1)); }
+  function resetRound() { lastAutoAdvanceHoleRef.current = null; setSavedGameId(null); setIsRoundDirty(true); setStatus(''); setShowScorecard(false); setActiveHole(1); setPlayers(current => current.map(player => ({ ...player, scores: {} }))); }
+  function changeHole(nextHole) { setIsAdvancing(true); window.setTimeout(() => { setActiveHole(nextHole); window.setTimeout(() => setIsAdvancing(false), 620); }, 120); }
+  function goToPreviousHole() { if (activeHole > 1) changeHole(activeHole - 1); }
+  function goToNextHole() { if (activeHole < 18) changeHole(activeHole + 1); }
   function saveButtonLabel() { if (isSaving) return 'Saving...'; if (savedGameId && !isRoundDirty) return 'Saved'; if (savedGameId && isRoundDirty) return 'Save changes'; return 'Save round'; }
   function updateRuleDart(which, value) { const nextDartOne = which === 'one' ? value : dartOne; const nextDartTwo = which === 'two' ? value : dartTwo; const response = scoreTwoDarts(nextDartOne, nextDartTwo); if (which === 'one') setDartOne(value); if (which === 'two') setDartTwo(value); setAnswer(response); setShowAllRules(false); setShowAddToScore(false); setShowRuleHolePicker(false); setRulePlayerId(''); setRuleHole(activeHole); }
   function openAddToScore() { setRuleHole(activeHole); setShowRuleHolePicker(false); setShowAddToScore(true); }
   function addRuleResultToScore() { if (!rulePlayerId || !answer.scoreKey) return; updateScoreForHole(rulePlayerId, answer.scoreKey, ruleHole); setActiveHole(ruleHole); const playerName = players.find(player => player.id === rulePlayerId)?.name || 'Player'; setStatus(`${answer.title} added to ${playerName} on hole ${ruleHole}.`); setShowAddToScore(false); setShowRuleHolePicker(false); setShowLiveRules(false); setRulePlayerId(''); }
   function applyScore(playerId, scoreKey) { updateScore(playerId, scoreKey); setScoringPlayerId(null); }
   function clearScore(playerId) { updateScore(playerId, ''); setScoringPlayerId(null); }
+
+  useEffect(() => {
+    if (!showScoringMode || !isActiveHoleComplete || activeHole >= 18 || lastAutoAdvanceHoleRef.current === activeHole) return;
+    lastAutoAdvanceHoleRef.current = activeHole;
+    const timeoutId = window.setTimeout(() => goToNextHole(), 760);
+    return () => window.clearTimeout(timeoutId);
+  }, [showScoringMode, isActiveHoleComplete, activeHole]);
 
   async function cleanupFailedGame(gameId) { if (!gameId) return; await supabase.from('games').delete().eq('id', gameId); }
   async function writeRoundRows(gameId) {
@@ -358,7 +383,7 @@ export default function Home() {
 
       {showScoringMode && <div style={{ display: 'grid', gap: '10px', marginBottom: '12px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr) minmax(0,1fr)', gap: '10px', alignItems: 'stretch' }}>
-          <ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} resetRound={resetRound} saveRound={saveRound} saveDisabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} saveLabel={saveButtonLabel()} exitScoring={() => setShowScoringMode(false)} openRules={() => setShowLiveRules(true)} />
+          <ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} resetRound={resetRound} saveRound={saveRound} saveDisabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} saveLabel={saveButtonLabel()} exitScoring={() => setShowScoringMode(false)} />
           <button className="button secondary" disabled={activeHole === 1} onClick={goToPreviousHole} style={{ opacity: activeHole === 1 ? .45 : 1 }}>Previous Hole</button>
           <button className="button primary" disabled={activeHole === 18} onClick={goToNextHole} style={{ opacity: activeHole === 18 ? .45 : 1 }}>Next Hole</button>
         </div>
@@ -367,14 +392,14 @@ export default function Home() {
 
       {!showScoringMode && <div className="hole-picker" style={{ marginBottom: '12px' }}>{holes.map(hole => <button key={hole} className={hole === activeHole ? 'active' : ''} onClick={() => setActiveHole(hole)}>{hole}</button>)}</div>}
 
-      <div className="active-hole-panel" style={{ padding: '14px', marginBottom: '16px' }}>
+      <div className={`active-hole-panel ${isAdvancing ? 'tbd-hole-advancing' : ''}`} style={{ padding: '14px', marginBottom: '16px' }}>
         <h3 style={{ fontSize: '1.55rem', marginBottom: '10px' }}>Hole {activeHole}</h3>
         <div className="tbd-live-score-list">
-          {players.map(player => {
+          {players.map((player, index) => {
             const result = scoreByKey.get(player.scores[activeHole]);
             const playerTotal = total(player);
             const isLeader = playerTotal === leaderScore;
-            return <PlayerScoringRow key={player.id} player={player} activeHole={activeHole} result={result} totalScore={playerTotal} isLeader={isLeader} openScore={setScoringPlayerId} updateName={updateName} />;
+            return <PlayerScoringRow key={player.id} player={player} activeHole={activeHole} result={result} totalScore={playerTotal} isLeader={isLeader} hasHonours={index === honoursIndex} openScore={setScoringPlayerId} updateName={updateName} />;
           })}
         </div>
         {isActiveHoleComplete && <div style={{ marginTop: '16px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '16px', padding: '14px', background: 'linear-gradient(135deg, rgba(208,169,72,.18), rgba(6,57,39,.62))' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#fff4d6' }}>{activeHole === 18 ? 'Round complete' : `Hole ${activeHole} complete`}</strong><span style={{ display: 'block', marginTop: '4px', color: '#d0a948', fontWeight: 900 }}>{activeHole === 18 ? 'Every player has a score for 18.' : 'Every player has a score for this hole.'}</span></div>}
