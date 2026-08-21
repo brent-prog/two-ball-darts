@@ -19,6 +19,7 @@ const dartOptions = [
 ];
 
 const scoreByKey = new Map(scoreResults.map(result => [result.key, result]));
+const scoreKeyByRelative = new Map(scoreResults.map(result => [result.score, result.key]));
 const fmt = score => score === 0 ? 'E' : score > 0 ? `+${score}` : `${score}`;
 const total = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.score ?? 0), 0);
 const strokes = player => holes.reduce((sum, hole) => sum + (scoreByKey.get(player.scores[hole])?.strokes ?? 0), 0);
@@ -42,6 +43,29 @@ const savedRoundSummary = game => {
   const names = savedRoundPlayerNames(game);
   const playerCount = names.length || savedRoundPlayers(game).length;
   return names.length ? `${playerCount} player${playerCount === 1 ? '' : 's'}: ${names.join(', ')}` : `${playerCount} player${playerCount === 1 ? '' : 's'}: names unavailable`;
+};
+const firstUnscoredHole = players => holes.find(hole => players.some(player => !scoreByKey.has(player.scores[hole]))) ?? 18;
+const scoreKeyFromSavedScore = score => {
+  if (!score) return '';
+  if (score.result && scoreByKey.has(score.result)) return score.result;
+  const relative = Number(score.relative_score);
+  return scoreKeyByRelative.get(relative) ?? '';
+};
+const playersFromSavedRows = rows => {
+  const restored = (rows ?? []).map((row, index) => {
+    const scores = {};
+    (row.hole_scores ?? []).forEach(score => {
+      const key = scoreKeyFromSavedScore(score);
+      const holeNumber = Number(score.hole_number);
+      if (key && holes.includes(holeNumber)) scores[holeNumber] = key;
+    });
+    return {
+      id: `saved-${row.id || index}`,
+      name: row.players?.display_name || `Player ${index + 1}`,
+      scores
+    };
+  });
+  return restored.length ? restored : defaults;
 };
 
 function scoreTwoDarts(dart1, dart2) {
@@ -127,7 +151,6 @@ function HowToPlayModal({ onClose }) {
 
 function ScoringMenu({ isOpen, setIsOpen, addPlayer, removePlayer, canRemovePlayer, resetRound, saveRound, saveDisabled, saveLabel, exitScoring }) {
   const menuRef = useRef(null);
-
   useEffect(() => {
     if (!isOpen) return;
     function closeOnOutside(event) {
@@ -175,12 +198,7 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
 }
 
 function DartChoiceGroup({ label, value, setValue }) {
-  return <div className="tbd-custom-dart-picker">
-    <div className="tbd-custom-dart-picker-heading">{label}</div>
-    <div className="tbd-custom-dart-options">
-      {dartOptions.map(option => <button key={option.value} type="button" className={`tbd-custom-dart-option is-${option.tone} ${value === option.value ? 'is-selected' : ''}`} onClick={() => setValue(option.value)}>{option.label}</button>)}
-    </div>
-  </div>;
+  return <div className="tbd-custom-dart-picker"><div className="tbd-custom-dart-picker-heading">{label}</div><div className="tbd-custom-dart-options">{dartOptions.map(option => <button key={option.value} type="button" className={`tbd-custom-dart-option is-${option.tone} ${value === option.value ? 'is-selected' : ''}`} onClick={() => setValue(option.value)}>{option.label}</button>)}</div></div>;
 }
 
 function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose }) {
@@ -188,28 +206,7 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
   const [dartTwo, setDartTwo] = useState('');
   const dartResult = scoreTwoDarts(dartOne, dartTwo);
   const canApply = Boolean(dartResult.scoreKey);
-
-  return <div className="tbd-score-modal-shell">
-    <div className="card tbd-score-modal-card">
-      <div className="tbd-score-modal-title-row">
-        <div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div>
-        <button className="button secondary" onClick={onClose}>Close</button>
-      </div>
-      <div className="tbd-quick-score-grid">
-        {scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}>{result.label} {fmt(result.score)}</button>)}
-      </div>
-      <div className="tbd-dart-score-card">
-        <p className="eyebrow">Score by Darts</p>
-        <div className="tbd-dart-select-grid has-custom-dart-pickers">
-          <DartChoiceGroup label="Dart 1" value={dartOne} setValue={setDartOne} />
-          <DartChoiceGroup label="Dart 2" value={dartTwo} setValue={setDartTwo} />
-        </div>
-        <div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div>
-        <button className="button primary" style={{ marginTop: '12px', width: '100%' }} disabled={!canApply} onClick={() => onScore(dartResult.scoreKey)}>Apply Dart Result</button>
-      </div>
-      <button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button>
-    </div>
-  </div>;
+  return <div className="tbd-score-modal-shell"><div className="card tbd-score-modal-card"><div className="tbd-score-modal-title-row"><div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div><button className="button secondary" onClick={onClose}>Close</button></div><div className="tbd-quick-score-grid">{scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}>{result.label} {fmt(result.score)}</button>)}</div><div className="tbd-dart-score-card"><p className="eyebrow">Score by Darts</p><div className="tbd-dart-select-grid has-custom-dart-pickers"><DartChoiceGroup label="Dart 1" value={dartOne} setValue={setDartOne} /><DartChoiceGroup label="Dart 2" value={dartTwo} setValue={setDartTwo} /></div><div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div><button className="button primary" style={{ marginTop: '12px', width: '100%' }} disabled={!canApply} onClick={() => onScore(dartResult.scoreKey)}>Apply Dart Result</button></div><button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button></div></div>;
 }
 
 export default function Home() {
@@ -280,6 +277,24 @@ export default function Home() {
   async function enrichGamesWithPlayers(games) { if (!games?.length) return []; const gameIds = games.map(game => game.id); const { data: rows, error } = await supabase.from('game_players').select('id,game_id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number)').in('game_id', gameIds).order('display_order', { ascending: true }); if (error) { setHistoryStatus(error.message); return games; } return games.map(game => ({ ...game, game_players: (rows ?? []).filter(row => row.game_id === game.id) })); }
   async function loadHistory(gameIdToOpen) { setHistoryStatus('Loading saved rounds...'); const ownerKey = getOwnerKey(); const { data, error } = await supabase.from('games').select('id,title,played_at,course_name').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(12); if (error) { setHistoryStatus(error.message); return; } const enriched = await enrichGamesWithPlayers(data ?? []); const visible = enriched.filter(game => savedRoundPlayers(game).length > 0); setHistory(visible); setHistoryStatus(visible.length ? `${visible.length} saved round${visible.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.'); if (gameIdToOpen) { const game = visible.find(item => item.id === gameIdToOpen); if (game) await viewSavedGame(game); } }
   async function viewSavedGame(game) { setHistoryStatus('Opening saved scorecard...'); const { data, error } = await supabase.from('game_players').select('id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number,relative_score,strokes,result)').eq('game_id', game.id).order('display_order', { ascending: true }); if (error) { setHistoryStatus(error.message); return; } setSelectedGame(game); setSelectedRows(data ?? []); setHistoryStatus(data?.length ? 'Saved scorecard opened.' : 'Saved round found, but no player score rows were returned.'); }
+  async function resumeSavedGame(game) {
+    setHistoryStatus('Resuming saved round...');
+    const { data, error } = await supabase.from('game_players').select('id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number,relative_score,strokes,result)').eq('game_id', game.id).order('display_order', { ascending: true });
+    if (error) { setHistoryStatus(error.message); return; }
+    const restoredPlayers = playersFromSavedRows(data ?? []);
+    setPlayers(restoredPlayers);
+    setActiveHole(firstUnscoredHole(restoredPlayers));
+    setSavedGameId(game.id);
+    setIsRoundDirty(false);
+    setShowScorecard(false);
+    setShowScoringMode(true);
+    setScoringPlayerId(null);
+    setSelectedGame(null);
+    setSelectedRows([]);
+    lastAutoAdvanceHoleRef.current = null;
+    setStatus('Incomplete round resumed.');
+    setHistoryStatus('Incomplete round resumed.');
+  }
 
   return <main className="app-shell">
     {!showScoringMode && <section className="hero-card"><LogoMark /><div className="hero-copy"><p className="eyebrow">18 holes · 2 darts per hole · all holes par 3</p><h1>No gimmes. Just throw.</h1><p>Golf-course scoring for the dartboard. Play holes 1 through 18 by throwing two darts at each number. Lowest score wins.</p><div className="hero-actions"><button className="button primary" onClick={() => setShowScoringMode(true)}>{hasRoundScores(players) ? 'Resume Scoring' : 'Start New Round'}</button><button className="button secondary" onClick={() => setShowHowToPlay(true)}>How to Play</button><button className="button secondary" onClick={() => loadHistory()}>Saved Rounds</button></div></div></section>}
@@ -291,7 +306,7 @@ export default function Home() {
       <div className={`active-hole-panel ${isAdvancing ? 'tbd-hole-advancing' : ''}`} style={{ padding: '14px', marginBottom: '16px' }}><h3 style={{ fontSize: '1.55rem', marginBottom: '10px' }}>Hole {activeHole}</h3><div className="tbd-live-score-list">{players.map((player, index) => { const result = scoreByKey.get(player.scores[activeHole]); const playerTotal = total(player); const isLeader = playerTotal === leaderScore; return <PlayerScoringRow key={player.id} player={player} result={result} totalScore={playerTotal} isLeader={isLeader} hasHonours={index === honoursIndex} openScore={setScoringPlayerId} updateName={updateName} />; })}</div>{isActiveHoleComplete && <div style={{ marginTop: '16px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '16px', padding: '14px', background: 'linear-gradient(135deg, rgba(208,169,72,.18), rgba(6,57,39,.62))' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#fff4d6' }}>{activeHole === 18 ? 'Round complete' : `Hole ${activeHole} complete`}</strong><span style={{ display: 'block', marginTop: '4px', color: '#d0a948', fontWeight: 900 }}>{activeHole === 18 ? 'Every player has a score for 18.' : 'Every player has a score for this hole.'}</span></div>}</div>
       <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: showScorecard ? '12px' : 0 }}><button className="button secondary" onClick={() => setShowScorecard(current => !current)}>{showScorecard ? 'Hide Scorecard' : 'Show Scorecard'}</button></div>{showScorecard && <LiveScorecard players={players} />}{status && <p className="status-line">{status}</p>}
     </section>
-    {!showScoringMode && <section className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>{historyStatus && <p className="status-line">{historyStatus}</p>}<div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span><button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}</div></section>}
+    {!showScoringMode && <section className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>{historyStatus && <p className="status-line">{historyStatus}</p>}<div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span>{!isSavedRoundComplete(game) && <button className="button secondary" style={{ marginTop: '10px', marginRight: '8px' }} onClick={() => resumeSavedGame(game)}>Resume Round</button>}<button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}</div></section>}
     {!showScoringMode && <footer style={{ marginTop: '22px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '22px', padding: '18px', background: 'linear-gradient(180deg, rgba(6,57,39,.88), rgba(2,20,15,.96))', boxShadow: '0 18px 44px rgba(0,0,0,.35)' }}><div style={{ display: 'grid', gridTemplateColumns: '72px 1fr', gap: '16px', alignItems: 'center' }}><img src="/two-ball-darts-logo.png" alt="TWO BALL DARTS" style={{ width: '64px', height: '64px', objectFit: 'contain', display: 'block' }} /><div><strong style={{ display: 'block', fontSize: '1.35rem', letterSpacing: '.03em' }}>TWO BALL DARTS</strong><span style={{ color: '#d0a948', fontWeight: 900 }}>No gimmes. Just throw.</span><p style={{ margin: '6px 0 0', color: '#f5e8c6' }}>18 holes. Two darts per hole. Bulls, 19s, and 20s are hazards.</p></div></div></footer>}
     {scoringPlayer && <ScoreModal player={scoringPlayer} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />
   </main>;
