@@ -1,45 +1,43 @@
-/* Small-mark usage for favicon/menu contexts. */
+/* Keep the simplified icon for favicon/app icon only.
+   The scoring menu needs a clean text/icon control at phone size. */
 
 #scorecard [aria-label='Scoring menu']{
   position:relative!important;
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
-  color:transparent!important;
-  overflow:hidden!important;
+  color:#fff4d6!important;
+  overflow:visible!important;
+  min-width:50px!important;
+  width:50px!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  font-size:1.35rem!important;
+  line-height:1!important;
+  z-index:2!important;
 }
 
-#scorecard [aria-label='Scoring menu']::before{
-  content:'';
-  display:block;
-  width:30px;
-  height:30px;
-  border-radius:9px;
-  background:url('/two-ball-darts-icon.svg') center/contain no-repeat;
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.35));
-}
-
+#scorecard [aria-label='Scoring menu']::before,
 #scorecard [aria-label='Scoring menu']::after{
-  content:'☰';
-  position:absolute;
-  right:4px;
-  bottom:2px;
-  display:grid;
-  place-items:center;
-  width:15px;
-  height:15px;
-  border-radius:999px;
-  background:#d0a948;
-  color:#02140f;
-  font-size:.55rem;
-  font-weight:1000;
-  line-height:1;
-  box-shadow:0 0 0 2px #02140f;
+  content:none!important;
+  display:none!important;
 }
 
 @media(max-width:760px){
-  #scorecard [aria-label='Scoring menu']::before{
-    width:28px;
-    height:28px;
+  #scorecard > div:nth-of-type(2) > div:first-child{
+    grid-template-columns:50px minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px!important;
+    align-items:stretch!important;
+  }
+
+  #scorecard [aria-label='Scoring menu']{
+    min-width:50px!important;
+    width:50px!important;
+    height:48px!important;
+  }
+
+  #scorecard > div:nth-of-type(2) > div:first-child > button,
+  #scorecard > div:nth-of-type(2) > div:first-child > div > button{
+    min-height:48px!important;
   }
 }
