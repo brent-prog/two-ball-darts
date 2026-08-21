@@ -18,6 +18,7 @@ import MobileLeaderSummaryCleanupEnhancer from '@/components/MobileLeaderSummary
 import FooterScorecardCleanupEnhancer from '@/components/FooterScorecardCleanupEnhancer';
 import ScoringModeMenuEnhancer from '@/components/ScoringModeMenuEnhancer';
 import ScoringModeHeaderCleanupEnhancer from '@/components/ScoringModeHeaderCleanupEnhancer';
+import StartupPositionGuardEnhancer from '@/components/StartupPositionGuardEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <StartupPositionGuardEnhancer />
         <RoundFlowEnhancer />
         <StructuralCleanupEnhancer />
         <HoleTransitionEnhancer />
