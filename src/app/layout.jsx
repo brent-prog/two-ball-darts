@@ -7,6 +7,7 @@ import './hole-spin-animation.css';
 import './next-hole-nav.css';
 import './mobile-leader-summary.css';
 import './score-action-button-states.css';
+import './scoring-mode-menu.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 import HoleTransitionEnhancer from '@/components/HoleTransitionEnhancer';
@@ -15,6 +16,7 @@ import ScorecardVisualSyncEnhancer from '@/components/ScorecardVisualSyncEnhance
 import CompactScoreStateGuardEnhancer from '@/components/CompactScoreStateGuardEnhancer';
 import MobileLeaderSummaryCleanupEnhancer from '@/components/MobileLeaderSummaryCleanupEnhancer';
 import FooterScorecardCleanupEnhancer from '@/components/FooterScorecardCleanupEnhancer';
+import ScoringModeMenuEnhancer from '@/components/ScoringModeMenuEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -39,6 +41,7 @@ export default function RootLayout({ children }) {
         <CompactScoreStateGuardEnhancer />
         <MobileLeaderSummaryCleanupEnhancer />
         <FooterScorecardCleanupEnhancer />
+        <ScoringModeMenuEnhancer />
         {children}
       </body>
     </html>
