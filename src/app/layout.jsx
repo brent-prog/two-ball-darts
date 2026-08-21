@@ -19,6 +19,7 @@ import FooterScorecardCleanupEnhancer from '@/components/FooterScorecardCleanupE
 import ScoringModeMenuEnhancer from '@/components/ScoringModeMenuEnhancer';
 import ScoringModeHeaderCleanupEnhancer from '@/components/ScoringModeHeaderCleanupEnhancer';
 import StartupPositionGuardEnhancer from '@/components/StartupPositionGuardEnhancer';
+import ScoreButtonLabelEnhancer from '@/components/ScoreButtonLabelEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -46,6 +47,7 @@ export default function RootLayout({ children }) {
         <FooterScorecardCleanupEnhancer />
         <ScoringModeMenuEnhancer />
         <ScoringModeHeaderCleanupEnhancer />
+        <ScoreButtonLabelEnhancer />
         {children}
       </body>
     </html>
