@@ -10,41 +10,65 @@ function parseScore(text) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function setLeaderState(badge, shouldBeLeader) {
+  if (!badge) return;
+  if (shouldBeLeader && !badge.classList.contains('is-leader')) {
+    badge.classList.add('is-leader');
+    return;
+  }
+  if (!shouldBeLeader && badge.classList.contains('is-leader')) {
+    badge.classList.remove('is-leader');
+  }
+}
+
 function refreshLeaderBadges() {
   const rows = [...document.querySelectorAll('.tbd-player-score-row')];
   if (!rows.length) return;
 
   const parsedRows = rows.map(row => {
     const badge = row.querySelector('.tbd-player-total-score');
-    return { row, badge, score: parseScore(badge?.textContent) };
+    return { badge, score: parseScore(badge?.textContent) };
   });
 
-  parsedRows.forEach(item => item.badge?.classList.remove('is-leader'));
-
   const scoredRows = parsedRows.filter(item => item.badge && item.score !== null);
-  if (!scoredRows.length) return;
+
+  if (!scoredRows.length) {
+    parsedRows.forEach(item => setLeaderState(item.badge, false));
+    return;
+  }
 
   const bestScore = Math.min(...scoredRows.map(item => item.score));
 
-  scoredRows.forEach(item => {
-    if (item.score === bestScore) item.badge.classList.add('is-leader');
+  parsedRows.forEach(item => {
+    setLeaderState(item.badge, item.score !== null && item.score === bestScore);
   });
 }
 
 export default function PersistentLeaderBadgeEnhancer() {
   useEffect(() => {
-    refreshLeaderBadges();
+    let frameId = null;
 
-    const observer = new MutationObserver(refreshLeaderBadges);
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true });
+    function scheduleRefresh() {
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(() => {
+        frameId = null;
+        refreshLeaderBadges();
+      });
+    }
 
-    document.addEventListener('click', refreshLeaderBadges, true);
-    document.addEventListener('change', refreshLeaderBadges, true);
+    scheduleRefresh();
+
+    const observer = new MutationObserver(scheduleRefresh);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+    document.addEventListener('click', scheduleRefresh, true);
+    document.addEventListener('change', scheduleRefresh, true);
 
     return () => {
+      if (frameId) window.cancelAnimationFrame(frameId);
       observer.disconnect();
-      document.removeEventListener('click', refreshLeaderBadges, true);
-      document.removeEventListener('change', refreshLeaderBadges, true);
+      document.removeEventListener('click', scheduleRefresh, true);
+      document.removeEventListener('change', scheduleRefresh, true);
     };
   }, []);
 
