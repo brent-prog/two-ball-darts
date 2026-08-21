@@ -71,49 +71,104 @@
 .tbd-quick-score-grid{
   display:grid!important;
   grid-template-columns:repeat(auto-fit,minmax(140px,1fr))!important;
-  gap:10px!important;
+  gap:12px!important;
 }
 
 .tbd-quick-score-grid .button{
-  min-height:62px!important;
-  border-radius:18px!important;
-  font-size:1.05rem!important;
+  position:relative!important;
+  isolation:isolate!important;
+  min-height:76px!important;
+  overflow:hidden!important;
+  border-radius:20px!important;
   border-width:3px!important;
-  box-shadow:0 10px 22px rgba(0,0,0,.22)!important;
+  padding:13px 14px!important;
+  font-size:1.08rem!important;
+  font-weight:1000!important;
+  letter-spacing:.01em!important;
+  text-shadow:0 2px 0 rgba(0,0,0,.28)!important;
+  box-shadow:inset 0 1px 0 rgba(255,244,214,.14),0 12px 24px rgba(0,0,0,.26)!important;
+  transform:translateZ(0)!important;
 }
 
-.tbd-quick-score-grid .button:nth-child(1),
+.tbd-quick-score-grid .button::before{
+  content:'';
+  position:absolute;
+  inset:0 auto 0 0;
+  width:9px;
+  background:#d0a948;
+  opacity:.95;
+  z-index:-1;
+}
+
+.tbd-quick-score-grid .button::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 18% 12%,rgba(255,244,214,.24),transparent 32%),linear-gradient(135deg,rgba(255,255,255,.08),transparent 46%);
+  z-index:-2;
+}
+
+.tbd-quick-score-grid .button:nth-child(1){
+  background:linear-gradient(135deg,#0f7b47,#063927 68%)!important;
+  border-color:#18a461!important;
+  color:#fff4d6!important;
+  box-shadow:inset 0 1px 0 rgba(255,244,214,.16),0 0 0 2px rgba(24,164,97,.22),0 14px 26px rgba(0,0,0,.3)!important;
+}
+
+.tbd-quick-score-grid .button:nth-child(1)::before{background:#f9ee0c;}
+
 .tbd-quick-score-grid .button:nth-child(2){
-  background:#0d5e38!important;
+  background:linear-gradient(135deg,#0d5e38,#05291e 72%)!important;
   border-color:#18a461!important;
   color:#fff4d6!important;
 }
 
+.tbd-quick-score-grid .button:nth-child(2)::before{background:#18a461;}
+
 .tbd-quick-score-grid .button:nth-child(3){
-  background:#102017!important;
+  background:linear-gradient(135deg,#1c311e,#071711 72%)!important;
   border-color:#d0a948!important;
   color:#f9ee0c!important;
 }
 
+.tbd-quick-score-grid .button:nth-child(3)::before{background:#d0a948;}
+
 .tbd-quick-score-grid .button:nth-child(4){
-  background:#7f1713!important;
+  background:linear-gradient(135deg,#8f1b16,#3d0a08 76%)!important;
   border-color:#be1412!important;
   color:#fff4d6!important;
 }
 
-.tbd-quick-score-grid .button:nth-child(5),
-.tbd-quick-score-grid .button:nth-child(6){
-  background:#5f100d!important;
+.tbd-quick-score-grid .button:nth-child(4)::before{background:#ff6b4a;}
+
+.tbd-quick-score-grid .button:nth-child(5){
+  background:linear-gradient(135deg,#761411,#270504 78%)!important;
   border-color:#be1412!important;
   color:#fff4d6!important;
-  box-shadow:0 0 0 2px rgba(190,20,18,.24),0 10px 22px rgba(0,0,0,.26)!important;
+  box-shadow:inset 0 1px 0 rgba(255,244,214,.12),0 0 0 2px rgba(190,20,18,.26),0 14px 28px rgba(0,0,0,.32)!important;
 }
+
+.tbd-quick-score-grid .button:nth-child(5)::before{background:#be1412;}
+
+.tbd-quick-score-grid .button:nth-child(6){
+  background:linear-gradient(135deg,#5d0d0a,#170202 80%)!important;
+  border-color:#be1412!important;
+  color:#fff4d6!important;
+  box-shadow:inset 0 1px 0 rgba(255,244,214,.1),0 0 0 2px rgba(190,20,18,.34),0 14px 30px rgba(0,0,0,.36)!important;
+}
+
+.tbd-quick-score-grid .button:nth-child(6)::before{background:#910f0d;}
 
 .tbd-quick-score-grid .button.primary{
-  background:#f9ee0c!important;
+  background:linear-gradient(135deg,#f9ee0c,#d0a948 70%)!important;
   border-color:#fff4d6!important;
   color:#02140f!important;
-  box-shadow:0 0 0 4px rgba(249,238,12,.22),0 0 18px rgba(249,238,12,.38)!important;
+  text-shadow:none!important;
+  box-shadow:0 0 0 4px rgba(249,238,12,.24),0 0 22px rgba(249,238,12,.46),0 16px 30px rgba(0,0,0,.34)!important;
+}
+
+.tbd-quick-score-grid .button.primary::before{
+  background:#02140f!important;
 }
 
 .tbd-dart-score-card{
