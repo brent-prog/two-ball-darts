@@ -6,6 +6,10 @@
     padding-bottom:10px!important;
   }
 
+  .quick-stats{
+    display:none!important;
+  }
+
   #scorecard.card{
     padding:14px!important;
     margin-top:8px!important;
