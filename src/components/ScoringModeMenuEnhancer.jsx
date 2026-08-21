@@ -1,0 +1,157 @@
+'use client';
+
+import { useEffect } from 'react';
+
+function getText(node) {
+  return String(node?.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function isMobileViewport() {
+  return window.matchMedia('(max-width: 760px)').matches;
+}
+
+function hasRoundScores() {
+  return Boolean(
+    document.querySelector('.score-symbol')
+    || document.querySelector('.score-buttons button.selected')
+    || document.querySelector('.tbd-player-score-row.scored')
+  );
+}
+
+function findButtonByTexts(texts) {
+  return [...document.querySelectorAll('button')].find(button => texts.includes(getText(button)));
+}
+
+function findVisibleButtonByTexts(texts) {
+  return [...document.querySelectorAll('button')].find(button => {
+    if (!texts.includes(getText(button))) return false;
+    const style = window.getComputedStyle(button);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  });
+}
+
+function isScoringActive() {
+  return Boolean(document.querySelector('.active-hole-panel'))
+    && Boolean(findButtonByTexts(['Exit Live Mode', 'Exit Scoring']));
+}
+
+function renameScoringLanguage() {
+  document.querySelectorAll('button, h1, h2, h3, p, .eyebrow').forEach(node => {
+    const text = getText(node);
+
+    if (text === 'Live Mode') node.textContent = 'Scoring Mode';
+    if (text === 'LIVE MODE') node.textContent = 'SCORING MODE';
+    if (text === 'Live Round') node.textContent = 'Scoring Mode';
+    if (text === 'LIVE ROUND') node.textContent = 'SCORING MODE';
+    if (text === 'Exit Live Mode') node.textContent = 'Exit Scoring';
+    if (text === 'Enter Live Mode') node.textContent = hasRoundScores() ? 'Resume Scoring' : 'Start New Round';
+    if (text === 'Start New Round' && hasRoundScores() && !isScoringActive()) node.textContent = 'Resume Scoring';
+  });
+}
+
+function getScoringCard() {
+  const heading = [...document.querySelectorAll('.eyebrow, h2, h3, p')]
+    .find(node => ['scoring mode', 'live mode', 'live round'].includes(getText(node).toLowerCase()));
+
+  return heading?.closest('.card, section, article, div') || null;
+}
+
+function clickRealAction(action) {
+  const textMap = {
+    exit: ['Exit Scoring', 'Exit Live Mode'],
+    addPlayer: ['Add player', 'Add Player'],
+    reset: ['Reset'],
+    save: ['Save round', 'Save Round']
+  };
+
+  const button = findButtonByTexts(textMap[action] || []);
+  if (button) button.click();
+}
+
+function closeMenu(menu) {
+  menu?.classList.remove('is-open');
+  const button = menu?.querySelector('.tbd-scoring-menu-trigger');
+  button?.setAttribute('aria-expanded', 'false');
+}
+
+function ensureScoringMenu() {
+  if (!isScoringActive()) {
+    document.querySelector('.tbd-scoring-mode-menu')?.remove();
+    document.body.classList.remove('tbd-scoring-menu-active');
+    return;
+  }
+
+  const card = getScoringCard();
+  if (!card) return;
+
+  let menu = card.querySelector('.tbd-scoring-mode-menu');
+  if (!menu) {
+    menu = document.createElement('div');
+    menu.className = 'tbd-scoring-mode-menu';
+    menu.innerHTML = `
+      <button type="button" class="tbd-scoring-menu-trigger" aria-expanded="false" aria-label="Scoring menu">☰ Menu</button>
+      <div class="tbd-scoring-menu-panel">
+        <button type="button" data-menu-action="addPlayer">Add Player</button>
+        <button type="button" data-menu-action="save">Save Round</button>
+        <button type="button" data-menu-action="reset">Reset Round</button>
+        <button type="button" data-menu-action="exit">Exit Scoring</button>
+      </div>
+    `;
+
+    const firstAction = [...card.querySelectorAll('button')]
+      .find(button => ['Exit Scoring', 'Exit Live Mode', 'Add player', 'Add Player', 'Reset', 'Save round', 'Save Round'].includes(getText(button)));
+    firstAction?.parentElement?.insertBefore(menu, firstAction);
+
+    menu.querySelector('.tbd-scoring-menu-trigger')?.addEventListener('click', event => {
+      event.stopPropagation();
+      const isOpen = menu.classList.toggle('is-open');
+      event.currentTarget.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    menu.querySelectorAll('[data-menu-action]').forEach(button => {
+      button.addEventListener('click', event => {
+        const action = event.currentTarget.dataset.menuAction;
+        closeMenu(menu);
+        window.setTimeout(() => clickRealAction(action), 0);
+      });
+    });
+  }
+
+  document.body.classList.toggle('tbd-scoring-menu-active', isMobileViewport());
+}
+
+function markUtilityButtons() {
+  const labels = ['Exit Scoring', 'Exit Live Mode', 'Add player', 'Add Player', 'Reset', 'Save round', 'Save Round'];
+  document.querySelectorAll('button').forEach(button => {
+    if (button.closest('.tbd-scoring-mode-menu')) return;
+    if (labels.includes(getText(button))) button.classList.add('tbd-scoring-menu-hidden-action');
+  });
+}
+
+export default function ScoringModeMenuEnhancer() {
+  useEffect(() => {
+    function refresh() {
+      renameScoringLanguage();
+      ensureScoringMenu();
+      markUtilityButtons();
+    }
+
+    refresh();
+    const intervalId = window.setInterval(refresh, 700);
+    document.addEventListener('click', refresh, true);
+    window.addEventListener('resize', refresh);
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.tbd-scoring-mode-menu')) {
+        closeMenu(document.querySelector('.tbd-scoring-mode-menu'));
+      }
+    });
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('click', refresh, true);
+      window.removeEventListener('resize', refresh);
+    };
+  }, []);
+
+  return null;
+}
