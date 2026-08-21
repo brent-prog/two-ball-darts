@@ -23,22 +23,32 @@ function findButtonByTexts(texts) {
 }
 
 function isScoringActive() {
-  return Boolean(document.querySelector('.active-hole-panel'))
-    && Boolean(findButtonByTexts(['Exit Live Mode', 'Exit Scoring']));
+  return Boolean(document.querySelector('.active-hole-panel'));
+}
+
+function replaceTextNodeValue(node) {
+  let value = node.nodeValue || '';
+  const original = value;
+
+  value = value.replaceAll('LIVE MODE', 'SCORING MODE');
+  value = value.replaceAll('Live Mode', 'Scoring Mode');
+  value = value.replaceAll('LIVE ROUND', 'SCORING MODE');
+  value = value.replaceAll('Live Round', 'Scoring Mode');
+  value = value.replaceAll('Exit Live Mode', 'Exit Scoring');
+  value = value.replaceAll('Enter Live Mode', hasRoundScores() ? 'Resume Scoring' : 'Start New Round');
+
+  if (value !== original) node.nodeValue = value;
 }
 
 function renameScoringLanguage() {
-  document.querySelectorAll('button, h1, h2, h3, p, span, div, .eyebrow').forEach(node => {
-    const text = getText(node);
-    if (!text || text.length > 60) return;
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+  textNodes.forEach(replaceTextNodeValue);
 
-    if (text === 'Live Mode') node.textContent = 'Scoring Mode';
-    if (text === 'LIVE MODE') node.textContent = 'SCORING MODE';
-    if (text === 'Live Round') node.textContent = 'Scoring Mode';
-    if (text === 'LIVE ROUND') node.textContent = 'SCORING MODE';
-    if (text === 'Exit Live Mode') node.textContent = 'Exit Scoring';
-    if (text === 'Enter Live Mode') node.textContent = hasRoundScores() ? 'Resume Scoring' : 'Start New Round';
-    if (text === 'Start New Round' && hasRoundScores() && !isScoringActive()) node.textContent = 'Resume Scoring';
+  document.querySelectorAll('button').forEach(button => {
+    const text = getText(button);
+    if (text === 'Start New Round' && hasRoundScores() && !isScoringActive()) button.textContent = 'Resume Scoring';
   });
 }
 
@@ -94,6 +104,9 @@ function getMenuAnchor() {
   const previousButton = findButtonByTexts(['Previous Hole']);
   if (previousButton?.parentElement) return previousButton.parentElement;
 
+  const nextButton = findButtonByTexts(['Next Hole', 'NEXT HOLE']);
+  if (nextButton?.parentElement) return nextButton.parentElement;
+
   const activePanel = document.querySelector('.active-hole-panel');
   return activePanel?.parentElement || activePanel || null;
 }
@@ -147,7 +160,7 @@ export default function ScoringModeMenuEnhancer() {
     }
 
     refresh();
-    const intervalId = window.setInterval(refresh, 500);
+    const intervalId = window.setInterval(refresh, 350);
     document.addEventListener('click', refresh, true);
     document.addEventListener('click', closeOpenMenus);
     window.addEventListener('resize', refresh);
