@@ -12,14 +12,3 @@
   color:#fff4d6!important;
   box-shadow:none!important;
 }
-
-.tbd-player-score-row.scored > button::before{
-  content:'✎ ';
-  font-weight:900;
-}
-
-@media(max-width:520px){
-  .tbd-player-score-row.scored > button::before{
-    content:'';
-  }
-}
