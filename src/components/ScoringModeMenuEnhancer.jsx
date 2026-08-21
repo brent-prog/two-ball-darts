@@ -22,14 +22,6 @@ function findButtonByTexts(texts) {
   return [...document.querySelectorAll('button')].find(button => texts.includes(getText(button)));
 }
 
-function findVisibleButtonByTexts(texts) {
-  return [...document.querySelectorAll('button')].find(button => {
-    if (!texts.includes(getText(button))) return false;
-    const style = window.getComputedStyle(button);
-    return style.display !== 'none' && style.visibility !== 'hidden';
-  });
-}
-
 function isScoringActive() {
   return Boolean(document.querySelector('.active-hole-panel'))
     && Boolean(findButtonByTexts(['Exit Live Mode', 'Exit Scoring']));
@@ -47,13 +39,6 @@ function renameScoringLanguage() {
     if (text === 'Enter Live Mode') node.textContent = hasRoundScores() ? 'Resume Scoring' : 'Start New Round';
     if (text === 'Start New Round' && hasRoundScores() && !isScoringActive()) node.textContent = 'Resume Scoring';
   });
-}
-
-function getScoringCard() {
-  const heading = [...document.querySelectorAll('.eyebrow, h2, h3, p')]
-    .find(node => ['scoring mode', 'live mode', 'live round'].includes(getText(node).toLowerCase()));
-
-  return heading?.closest('.card, section, article, div') || null;
 }
 
 function clickRealAction(action) {
@@ -74,6 +59,44 @@ function closeMenu(menu) {
   button?.setAttribute('aria-expanded', 'false');
 }
 
+function createMenu() {
+  const menu = document.createElement('div');
+  menu.className = 'tbd-scoring-mode-menu';
+  menu.innerHTML = `
+    <button type="button" class="tbd-scoring-menu-trigger" aria-expanded="false" aria-label="Scoring menu">☰ Menu</button>
+    <div class="tbd-scoring-menu-panel">
+      <button type="button" data-menu-action="addPlayer">Add Player</button>
+      <button type="button" data-menu-action="save">Save Round</button>
+      <button type="button" data-menu-action="reset">Reset Round</button>
+      <button type="button" data-menu-action="exit">Exit Scoring</button>
+    </div>
+  `;
+
+  menu.querySelector('.tbd-scoring-menu-trigger')?.addEventListener('click', event => {
+    event.stopPropagation();
+    const isOpen = menu.classList.toggle('is-open');
+    event.currentTarget.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  menu.querySelectorAll('[data-menu-action]').forEach(button => {
+    button.addEventListener('click', event => {
+      const action = event.currentTarget.dataset.menuAction;
+      closeMenu(menu);
+      window.setTimeout(() => clickRealAction(action), 0);
+    });
+  });
+
+  return menu;
+}
+
+function getMenuAnchor() {
+  const previousButton = findButtonByTexts(['Previous Hole']);
+  if (previousButton?.parentElement) return previousButton.parentElement;
+
+  const activePanel = document.querySelector('.active-hole-panel');
+  return activePanel?.parentElement || activePanel || null;
+}
+
 function ensureScoringMenu() {
   if (!isScoringActive()) {
     document.querySelector('.tbd-scoring-mode-menu')?.remove();
@@ -81,40 +104,14 @@ function ensureScoringMenu() {
     return;
   }
 
-  const card = getScoringCard();
-  if (!card) return;
+  const anchor = getMenuAnchor();
+  if (!anchor) return;
 
-  let menu = card.querySelector('.tbd-scoring-mode-menu');
-  if (!menu) {
-    menu = document.createElement('div');
-    menu.className = 'tbd-scoring-mode-menu';
-    menu.innerHTML = `
-      <button type="button" class="tbd-scoring-menu-trigger" aria-expanded="false" aria-label="Scoring menu">☰ Menu</button>
-      <div class="tbd-scoring-menu-panel">
-        <button type="button" data-menu-action="addPlayer">Add Player</button>
-        <button type="button" data-menu-action="save">Save Round</button>
-        <button type="button" data-menu-action="reset">Reset Round</button>
-        <button type="button" data-menu-action="exit">Exit Scoring</button>
-      </div>
-    `;
+  let menu = document.querySelector('.tbd-scoring-mode-menu');
+  if (!menu) menu = createMenu();
 
-    const firstAction = [...card.querySelectorAll('button')]
-      .find(button => ['Exit Scoring', 'Exit Live Mode', 'Add player', 'Add Player', 'Reset', 'Save round', 'Save Round'].includes(getText(button)));
-    firstAction?.parentElement?.insertBefore(menu, firstAction);
-
-    menu.querySelector('.tbd-scoring-menu-trigger')?.addEventListener('click', event => {
-      event.stopPropagation();
-      const isOpen = menu.classList.toggle('is-open');
-      event.currentTarget.setAttribute('aria-expanded', String(isOpen));
-    });
-
-    menu.querySelectorAll('[data-menu-action]').forEach(button => {
-      button.addEventListener('click', event => {
-        const action = event.currentTarget.dataset.menuAction;
-        closeMenu(menu);
-        window.setTimeout(() => clickRealAction(action), 0);
-      });
-    });
+  if (menu.parentElement !== anchor) {
+    anchor.insertBefore(menu, anchor.firstElementChild);
   }
 
   document.body.classList.toggle('tbd-scoring-menu-active', isMobileViewport());
@@ -136,19 +133,22 @@ export default function ScoringModeMenuEnhancer() {
       markUtilityButtons();
     }
 
-    refresh();
-    const intervalId = window.setInterval(refresh, 700);
-    document.addEventListener('click', refresh, true);
-    window.addEventListener('resize', refresh);
-    document.addEventListener('click', event => {
+    function closeOpenMenus(event) {
       if (!event.target.closest('.tbd-scoring-mode-menu')) {
         closeMenu(document.querySelector('.tbd-scoring-mode-menu'));
       }
-    });
+    }
+
+    refresh();
+    const intervalId = window.setInterval(refresh, 500);
+    document.addEventListener('click', refresh, true);
+    document.addEventListener('click', closeOpenMenus);
+    window.addEventListener('resize', refresh);
 
     return () => {
       window.clearInterval(intervalId);
       document.removeEventListener('click', refresh, true);
+      document.removeEventListener('click', closeOpenMenus);
       window.removeEventListener('resize', refresh);
     };
   }, []);
