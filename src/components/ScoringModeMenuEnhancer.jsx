@@ -28,8 +28,9 @@ function isScoringActive() {
 }
 
 function renameScoringLanguage() {
-  document.querySelectorAll('button, h1, h2, h3, p, .eyebrow').forEach(node => {
+  document.querySelectorAll('button, h1, h2, h3, p, span, div, .eyebrow').forEach(node => {
     const text = getText(node);
+    if (!text || text.length > 60) return;
 
     if (text === 'Live Mode') node.textContent = 'Scoring Mode';
     if (text === 'LIVE MODE') node.textContent = 'SCORING MODE';
@@ -63,7 +64,7 @@ function createMenu() {
   const menu = document.createElement('div');
   menu.className = 'tbd-scoring-mode-menu';
   menu.innerHTML = `
-    <button type="button" class="tbd-scoring-menu-trigger" aria-expanded="false" aria-label="Scoring menu">☰ Menu</button>
+    <button type="button" class="tbd-scoring-menu-trigger" aria-expanded="false" aria-label="Scoring menu">☰</button>
     <div class="tbd-scoring-menu-panel">
       <button type="button" data-menu-action="addPlayer">Add Player</button>
       <button type="button" data-menu-action="save">Save Round</button>
@@ -101,14 +102,20 @@ function ensureScoringMenu() {
   if (!isScoringActive()) {
     document.querySelector('.tbd-scoring-mode-menu')?.remove();
     document.body.classList.remove('tbd-scoring-menu-active');
+    document.querySelectorAll('.tbd-scoring-nav-actions').forEach(node => node.classList.remove('tbd-scoring-nav-actions'));
     return;
   }
 
   const anchor = getMenuAnchor();
   if (!anchor) return;
 
+  anchor.classList.add('tbd-scoring-nav-actions');
+
   let menu = document.querySelector('.tbd-scoring-mode-menu');
   if (!menu) menu = createMenu();
+
+  const trigger = menu.querySelector('.tbd-scoring-menu-trigger');
+  if (trigger && getText(trigger) !== '☰') trigger.textContent = '☰';
 
   if (menu.parentElement !== anchor) {
     anchor.insertBefore(menu, anchor.firstElementChild);
