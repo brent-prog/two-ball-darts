@@ -6,6 +6,7 @@ import './honours-position-fix.css';
 import './hole-spin-animation.css';
 import './score-action-button-states.css';
 import './scoring-mode-react-polish.css';
+import DartPickerEnhancer from '@/components/DartPickerEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -21,7 +22,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <DartPickerEnhancer />
+        {children}
+      </body>
     </html>
   );
 }
