@@ -1,0 +1,73 @@
+/* Mobile scoring utility menu. Keeps scoring controls visible while moving secondary actions into a menu. */
+.tbd-scoring-mode-menu{
+  display:none;
+}
+
+@media(max-width:760px){
+  .tbd-scoring-mode-menu{
+    display:block!important;
+    position:relative!important;
+    margin:2px 0 12px!important;
+  }
+
+  .tbd-scoring-menu-trigger{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:46px!important;
+    border:2px solid #d0a948!important;
+    border-radius:999px!important;
+    background:#063927!important;
+    color:#fff4d6!important;
+    padding:10px 16px!important;
+    font-weight:1000!important;
+    letter-spacing:.03em!important;
+    text-transform:uppercase!important;
+    box-shadow:0 0 0 3px rgba(208,169,72,.14)!important;
+  }
+
+  .tbd-scoring-menu-panel{
+    display:none!important;
+    position:absolute!important;
+    z-index:260!important;
+    top:calc(100% + 8px)!important;
+    left:0!important;
+    width:min(290px,82vw)!important;
+    border:2px solid #d0a948!important;
+    border-radius:18px!important;
+    background:#02140f!important;
+    box-shadow:0 18px 40px rgba(0,0,0,.46)!important;
+    padding:8px!important;
+  }
+
+  .tbd-scoring-mode-menu.is-open .tbd-scoring-menu-panel{
+    display:grid!important;
+    gap:8px!important;
+  }
+
+  .tbd-scoring-menu-panel button{
+    width:100%!important;
+    min-height:44px!important;
+    border:1px solid rgba(208,169,72,.52)!important;
+    border-radius:12px!important;
+    background:#063927!important;
+    color:#fff4d6!important;
+    padding:10px 12px!important;
+    font-weight:1000!important;
+    text-align:left!important;
+  }
+
+  .tbd-scoring-menu-panel button:last-child{
+    background:#910f0d!important;
+    border-color:#d0a948!important;
+  }
+
+  body.tbd-scoring-menu-active .tbd-scoring-menu-hidden-action{
+    display:none!important;
+  }
+
+  body.tbd-scoring-menu-active .tbd-next-hole-action,
+  body.tbd-scoring-menu-active button.tbd-next-hole-action{
+    display:inline-flex!important;
+  }
+}
