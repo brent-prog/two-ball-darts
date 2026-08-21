@@ -7,7 +7,6 @@ import './hole-spin-animation.css';
 import './next-hole-nav.css';
 import './mobile-leader-summary.css';
 import './score-action-button-states.css';
-import './scoring-mode-menu.css';
 import RoundFlowEnhancer from '@/components/RoundFlowEnhancer';
 import StructuralCleanupEnhancer from '@/components/StructuralCleanupEnhancer';
 import HoleTransitionEnhancer from '@/components/HoleTransitionEnhancer';
@@ -16,9 +15,6 @@ import ScorecardVisualSyncEnhancer from '@/components/ScorecardVisualSyncEnhance
 import CompactScoreStateGuardEnhancer from '@/components/CompactScoreStateGuardEnhancer';
 import MobileLeaderSummaryCleanupEnhancer from '@/components/MobileLeaderSummaryCleanupEnhancer';
 import FooterScorecardCleanupEnhancer from '@/components/FooterScorecardCleanupEnhancer';
-import ScoringModeMenuEnhancer from '@/components/ScoringModeMenuEnhancer';
-import ScoringModeHeaderCleanupEnhancer from '@/components/ScoringModeHeaderCleanupEnhancer';
-import StartupPositionGuardEnhancer from '@/components/StartupPositionGuardEnhancer';
 import ScoreButtonLabelEnhancer from '@/components/ScoreButtonLabelEnhancer';
 
 export const metadata = {
@@ -36,7 +32,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <StartupPositionGuardEnhancer />
         <RoundFlowEnhancer />
         <StructuralCleanupEnhancer />
         <HoleTransitionEnhancer />
@@ -45,8 +40,6 @@ export default function RootLayout({ children }) {
         <CompactScoreStateGuardEnhancer />
         <MobileLeaderSummaryCleanupEnhancer />
         <FooterScorecardCleanupEnhancer />
-        <ScoringModeMenuEnhancer />
-        <ScoringModeHeaderCleanupEnhancer />
         <ScoreButtonLabelEnhancer />
         {children}
       </body>
