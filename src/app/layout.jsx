@@ -7,6 +7,7 @@ import './hole-spin-animation.css';
 import './score-action-button-states.css';
 import './scoring-mode-react-polish.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
+import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <FreshOpenTopGuard />
+        <PersistentLeaderBadgeEnhancer />
         {children}
       </body>
     </html>
