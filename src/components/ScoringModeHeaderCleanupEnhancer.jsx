@@ -18,11 +18,24 @@ function cleanupScoringHeader() {
   const scoringPanelExists = Boolean(document.querySelector('.active-hole-panel'));
   if (!scoringPanelExists || !isMobileViewport()) return;
 
-  document.querySelectorAll('p, h1, h2, h3, .eyebrow').forEach(node => {
-    const text = getText(node);
+  document.querySelectorAll('*').forEach(node => {
+    if (node.children.length > 0) return;
 
-    if (['LIVE MODE', 'Live Mode', 'LIVE ROUND', 'Live Round'].includes(text)) {
-      node.textContent = 'SCORING MODE';
+    const text = getText(node);
+    if (!text || text.length > 90) return;
+
+    if (text === 'LIVE MODE' || text === 'Live Mode' || text === 'LIVE ROUND' || text === 'Live Round') {
+      node.textContent = text === text.toUpperCase() ? 'SCORING MODE' : 'Scoring Mode';
+      return;
+    }
+
+    if (text.includes('Live Mode')) {
+      node.textContent = text.replaceAll('Live Mode', 'Scoring Mode');
+      return;
+    }
+
+    if (text.includes('LIVE MODE')) {
+      node.textContent = text.replaceAll('LIVE MODE', 'SCORING MODE');
       return;
     }
 
@@ -37,7 +50,7 @@ export default function ScoringModeHeaderCleanupEnhancer() {
   useEffect(() => {
     cleanupScoringHeader();
 
-    const intervalId = window.setInterval(cleanupScoringHeader, 500);
+    const intervalId = window.setInterval(cleanupScoringHeader, 350);
     document.addEventListener('click', cleanupScoringHeader, true);
     window.addEventListener('resize', cleanupScoringHeader);
 
