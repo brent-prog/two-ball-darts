@@ -33,6 +33,19 @@ function replaceLiveModeTextNodes(root = document.body) {
   });
 }
 
+function forceScoringModeHeading() {
+  const activePanel = document.querySelector('.active-hole-panel');
+  const scoringCard = activePanel?.parentElement;
+  if (!scoringCard) return;
+
+  [...scoringCard.querySelectorAll('*')].forEach(node => {
+    const text = getText(node);
+    if (text === 'LIVE MODE' || text === 'Live Mode') {
+      node.textContent = text === 'LIVE MODE' ? 'SCORING MODE' : 'Scoring Mode';
+    }
+  });
+}
+
 function hideInstructionCopy() {
   document.querySelectorAll('*').forEach(node => {
     if (node.children.length > 0) return;
@@ -48,6 +61,17 @@ function hideInstructionCopy() {
     if (isInstructionText(text)) {
       node.dataset.tbdScoringInstructionHidden = 'true';
       node.style.display = 'none';
+    }
+  });
+}
+
+function hideStandaloneExitButton() {
+  document.querySelectorAll('button').forEach(button => {
+    if (button.closest('.tbd-scoring-mode-menu')) return;
+    const text = getText(button);
+    if (text === 'Exit Scoring Mode' || text === 'Exit Scoring' || text === 'Exit Live Mode') {
+      button.classList.add('tbd-standalone-exit-hidden');
+      button.style.display = 'none';
     }
   });
 }
@@ -76,7 +100,9 @@ function cleanupScoringHeader() {
   if (!scoringPanelExists || !isMobileViewport()) return;
 
   replaceLiveModeTextNodes();
+  forceScoringModeHeading();
   hideInstructionCopy();
+  hideStandaloneExitButton();
   labelScoredActionButtons();
 }
 
@@ -84,7 +110,7 @@ export default function ScoringModeHeaderCleanupEnhancer() {
   useEffect(() => {
     cleanupScoringHeader();
 
-    const intervalId = window.setInterval(cleanupScoringHeader, 350);
+    const intervalId = window.setInterval(cleanupScoringHeader, 250);
     document.addEventListener('click', cleanupScoringHeader, true);
     document.addEventListener('change', cleanupScoringHeader, true);
     window.addEventListener('resize', cleanupScoringHeader);
