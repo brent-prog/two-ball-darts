@@ -14,6 +14,12 @@ function findButton(label) {
   return [...document.querySelectorAll('button')].find(button => textOf(button) === label);
 }
 
+function findNativeSavedRoundsButton() {
+  return [...document.querySelectorAll('button')].find(button => {
+    return textOf(button) === 'Saved Rounds' && !button.classList.contains('tbd-saved-rounds-access');
+  });
+}
+
 function findSavedRoundsSection() {
   return [...document.querySelectorAll('section.card')].find(section => {
     const heading = section.querySelector('h2');
@@ -22,8 +28,8 @@ function findSavedRoundsSection() {
 }
 
 function openNativeSavedRounds() {
-  const nativeButton = findButton('Saved Rounds');
-  if (nativeButton && !nativeButton.classList.contains('tbd-saved-rounds-access')) {
+  const nativeButton = findNativeSavedRoundsButton();
+  if (nativeButton) {
     nativeButton.click();
     window.setTimeout(() => {
       findSavedRoundsSection()?.scrollIntoView({ behavior: 'smooth', block: 'start' });
