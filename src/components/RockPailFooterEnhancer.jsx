@@ -4,17 +4,32 @@ import { useEffect } from 'react';
 
 const FOOTER_HTML = `
   <div class="tbd-rockpail-footer-inner">
-    <img
-      src="/rockpail-footer-lockup.svg"
-      alt="A RockPail Production - Keep Fun Simple"
-      class="tbd-rockpail-footer-logo"
-    />
+    <div class="tbd-footer-twoball">
+      <img
+        src="/two-ball-darts-logo.png"
+        alt="Two Ball Darts"
+        class="tbd-footer-twoball-logo"
+      />
+      <p class="tbd-footer-twoball-tagline">No gimmes. Just throw.</p>
+    </div>
+
+    <div class="tbd-footer-divider"></div>
+
+    <div class="tbd-footer-rockpail">
+      <img
+        src="/rockpail-production-white-footer.png"
+        alt="A RockPail Production"
+        class="tbd-rockpail-footer-logo"
+      />
+      <p class="tbd-footer-rockpail-purpose">KEEP FUN SIMPLE</p>
+    </div>
   </div>
 `;
 
 function applyFooterBrand() {
   const footer = document.querySelector('main footer');
   if (!footer || footer.dataset.rockpailBranded === 'true') return;
+
   footer.dataset.rockpailBranded = 'true';
   footer.classList.add('tbd-rockpail-footer');
   footer.innerHTML = FOOTER_HTML;
