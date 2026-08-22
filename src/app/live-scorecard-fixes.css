@@ -45,36 +45,123 @@
 }
 
 @media(max-width:700px){
-  #scorecard .scorecard-table th:last-child,
-  #scorecard .scorecard-table td:last-child{
-    flex-basis:44px;
+  /* iOS Safari repaint fix: keep the live scorecard as a real table on phones.
+     The old block/flex table hack could leave cells visually stale after React updates. */
+  #scorecard .scorecard-table{
+    display:table;
+    table-layout:fixed;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+
+  #scorecard .scorecard-table thead{
+    display:table-header-group;
+  }
+
+  #scorecard .scorecard-table tbody{
+    display:table-row-group;
+  }
+
+  #scorecard .scorecard-table tr{
+    display:table-row;
+    width:auto;
+  }
+
+  #scorecard .scorecard-table th,
+  #scorecard .scorecard-table td{
+    display:table-cell;
+    order:initial!important;
+    flex:none!important;
+    width:44px;
     min-width:44px;
     max-width:44px;
   }
 
+  #scorecard .scorecard-table th:first-child,
+  #scorecard .scorecard-table td:first-child{
+    position:sticky;
+    left:0;
+    z-index:6;
+    width:104px;
+    min-width:104px;
+    max-width:104px;
+    padding-left:6px;
+    padding-right:6px;
+    box-shadow:3px 0 0 #102017;
+  }
+
+  #scorecard .scorecard-table thead th:first-child{
+    z-index:9;
+    background:#0a392b;
+  }
+
+  #scorecard .scorecard-table tbody th:first-child{
+    background:#ead9aa;
+  }
+
+  #scorecard .scorecard-table .par-row th:first-child{
+    background:#d8c38a!important;
+  }
+
   #scorecard .scorecard-table th:nth-child(2),
   #scorecard .scorecard-table td:nth-child(2){
+    position:sticky;
     left:104px;
-    flex-basis:68px;
+    z-index:7;
+    width:68px;
     min-width:68px;
     max-width:68px;
     padding-left:6px;
     padding-right:6px;
+    box-shadow:3px 0 0 #102017;
+  }
+
+  #scorecard .scorecard-table thead th:nth-child(2){
+    z-index:10;
+    background:#0a392b;
+  }
+
+  #scorecard .scorecard-table .par-row td:nth-child(2){
+    z-index:8;
+    background:#d8c38a!important;
+    color:#102017!important;
+  }
+
+  #scorecard .scorecard-table tbody td:nth-child(2){
+    z-index:8;
+  }
+
+  #scorecard .scorecard-table th:last-child,
+  #scorecard .scorecard-table td:last-child{
+    position:static;
+    width:44px;
+    min-width:44px;
+    max-width:44px;
+    box-shadow:none;
   }
 }
 
 @media(max-width:390px){
+  #scorecard .scorecard-table th,
+  #scorecard .scorecard-table td,
   #scorecard .scorecard-table th:last-child,
   #scorecard .scorecard-table td:last-child{
-    flex-basis:40px;
+    width:40px;
     min-width:40px;
     max-width:40px;
+  }
+
+  #scorecard .scorecard-table th:first-child,
+  #scorecard .scorecard-table td:first-child{
+    width:96px;
+    min-width:96px;
+    max-width:96px;
   }
 
   #scorecard .scorecard-table th:nth-child(2),
   #scorecard .scorecard-table td:nth-child(2){
     left:96px;
-    flex-basis:64px;
+    width:64px;
     min-width:64px;
     max-width:64px;
   }
