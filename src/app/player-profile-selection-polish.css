@@ -1,0 +1,125 @@
+/* Player profile selection polish - branch only */
+
+.tbd-live-score-list{
+  counter-reset:tbd-player-slot!important;
+}
+
+.tbd-player-score-row:has(button.tbd-player-name-input){
+  counter-increment:tbd-player-slot!important;
+  display:block!important;
+  padding:10px 12px!important;
+  border-color:rgba(208,169,72,.62)!important;
+  background:linear-gradient(135deg,rgba(208,169,72,.08),rgba(2,20,15,.82))!important;
+}
+
+.tbd-player-score-row:has(button.tbd-player-name-input)::before{
+  content:'PLAYER ' counter(tbd-player-slot)!important;
+  display:block!important;
+  margin:0 0 7px!important;
+  color:#d0a948!important;
+  font-size:.68rem!important;
+  font-weight:1000!important;
+  letter-spacing:.12em!important;
+  line-height:1!important;
+}
+
+.tbd-player-score-row:has(button.tbd-player-name-input) .tbd-player-score-main{
+  width:100%!important;
+}
+
+.tbd-player-score-row:has(button.tbd-player-name-input) .tbd-player-name-line{
+  display:block!important;
+  width:100%!important;
+}
+
+.tbd-player-score-row:has(button.tbd-player-name-input) .tbd-player-name-line::before,
+.tbd-player-score-row:has(button.tbd-player-name-input) .tbd-player-total-score,
+.tbd-player-score-row:has(button.tbd-player-name-input) .tbd-honours-chip,
+.tbd-player-score-row:has(button.tbd-player-name-input) .tbd-hole-status,
+.tbd-player-score-row:has(button.tbd-player-name-input) > button.button{
+  display:none!important;
+}
+
+/* Saved profiles are intentionally locked during a round, so do not label them EDIT NAME. */
+.tbd-player-score-row:has(input.tbd-player-name-input[readonly]) .tbd-player-name-line::before{
+  display:none!important;
+  content:''!important;
+}
+
+button.tbd-player-name-input{
+  position:relative!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:3px!important;
+  width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:58px!important;
+  margin:0!important;
+  padding:10px 13px!important;
+  border:2px solid rgba(208,169,72,.78)!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,rgba(208,169,72,.14),rgba(2,20,15,.96))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,244,214,.04)!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:1!important;
+  text-align:left!important;
+  cursor:pointer!important;
+  overflow:hidden!important;
+}
+
+button.tbd-player-name-input::before{
+  content:'Choose Player'!important;
+  position:static!important;
+  display:block!important;
+  color:#fff4d6!important;
+  font-family:inherit!important;
+  font-size:1.08rem!important;
+  font-style:normal!important;
+  font-weight:1000!important;
+  letter-spacing:.01em!important;
+  line-height:1.05!important;
+  text-transform:none!important;
+  opacity:1!important;
+}
+
+button.tbd-player-name-input::after{
+  content:'Saved profile or guest'!important;
+  display:block!important;
+  color:rgba(255,244,214,.68)!important;
+  font-family:inherit!important;
+  font-size:.76rem!important;
+  font-style:normal!important;
+  font-weight:800!important;
+  letter-spacing:.01em!important;
+  line-height:1.1!important;
+  text-transform:none!important;
+  opacity:1!important;
+}
+
+@media(max-width:520px){
+  .tbd-player-score-row:has(button.tbd-player-name-input){
+    padding:9px 10px!important;
+  }
+
+  .tbd-player-score-row:has(button.tbd-player-name-input)::before{
+    margin-bottom:6px!important;
+    font-size:.64rem!important;
+  }
+
+  button.tbd-player-name-input{
+    min-height:54px!important;
+    padding:9px 11px!important;
+  }
+
+  button.tbd-player-name-input::before{
+    font-size:1rem!important;
+  }
+
+  button.tbd-player-name-input::after{
+    font-size:.72rem!important;
+  }
+}
