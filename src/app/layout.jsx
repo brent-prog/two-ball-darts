@@ -9,6 +9,7 @@ import './scoring-mode-react-polish.css';
 import './app-icon-polish.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
+import SavedRoundsAccessEnhancer from '@/components/SavedRoundsAccessEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
       <body>
         <FreshOpenTopGuard />
         <PersistentLeaderBadgeEnhancer />
+        <SavedRoundsAccessEnhancer />
         {children}
       </body>
     </html>
