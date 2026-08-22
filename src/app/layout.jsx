@@ -10,6 +10,7 @@ import './app-icon-polish.css';
 import './live-scorecard-fixes.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
+import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }) {
       <body>
         <FreshOpenTopGuard />
         <PersistentLeaderBadgeEnhancer />
+        <RoundCompletionSaveEnhancer />
         {children}
       </body>
     </html>
