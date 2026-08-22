@@ -12,6 +12,7 @@ import './live-scorecard-fixes.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
+import LiveScoreButtonToneEnhancer from '@/components/LiveScoreButtonToneEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
         <FreshOpenTopGuard />
         <PersistentLeaderBadgeEnhancer />
         <RoundCompletionSaveEnhancer />
+        <LiveScoreButtonToneEnhancer />
         {children}
       </body>
     </html>
