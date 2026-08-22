@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import PlayerProfileStats from '@/components/PlayerProfileStats';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
 export default function PlayerProfilesModal({ open, onClose, onSelectProfile, onAddGuest, activePlayerIds = [] }) {
   const [profiles, setProfiles] = useState([]);
+  const [selectedProfile, setSelectedProfile] = useState(null);
   const [newName, setNewName] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,10 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
   }
 
   useEffect(() => {
-    if (open) loadProfiles();
+    if (open) {
+      setSelectedProfile(null);
+      loadProfiles();
+    }
   }, [open]);
 
   async function createProfile(event) {
@@ -56,32 +61,37 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
 
   return <div style={{ position: 'fixed', inset: 0, zIndex: 340, background: 'rgba(0,0,0,.8)', padding: '18px', display: 'grid', placeItems: 'center' }}>
     <div className="card" style={{ width: 'min(560px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
-      <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
-        <div><p className="eyebrow">Round players</p><h2 style={{ fontSize: 'clamp(2rem, 7vw, 3.5rem)' }}>Add Player</h2></div>
-        <button className="button secondary" onClick={onClose}>Close</button>
-      </div>
+      {selectedProfile ? <PlayerProfileStats profile={selectedProfile} onBack={() => setSelectedProfile(null)} /> : <>
+        <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
+          <div><p className="eyebrow">Round players</p><h2 style={{ fontSize: 'clamp(2rem, 7vw, 3.5rem)' }}>Add Player</h2></div>
+          <button className="button secondary" onClick={onClose}>Close</button>
+        </div>
 
-      <p style={{ margin: '0 0 10px', color: '#fff4d6', fontWeight: 900 }}>Saved Players</p>
-      <div style={{ display: 'grid', gap: '8px' }}>
-        {profiles.map(profile => {
-          const alreadyPlaying = activePlayerIds.includes(profile.id);
-          return <button key={profile.id} className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile(profile); onClose(); }} style={{ justifyContent: 'space-between', opacity: alreadyPlaying ? .5 : 1 }}>
-            <span>{profile.display_name}</span><span>{alreadyPlaying ? 'Playing' : 'Add'}</span>
-          </button>;
-        })}
-      </div>
-      {status && <p className="status-line">{status}</p>}
+        <p style={{ margin: '0 0 10px', color: '#fff4d6', fontWeight: 900 }}>Saved Players</p>
+        <div style={{ display: 'grid', gap: '8px' }}>
+          {profiles.map(profile => {
+            const alreadyPlaying = activePlayerIds.includes(profile.id);
+            return <div key={profile.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '8px' }}>
+              <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile(profile); onClose(); }} style={{ justifyContent: 'space-between', opacity: alreadyPlaying ? .5 : 1, minWidth: 0 }}>
+                <span>{profile.display_name}</span><span>{alreadyPlaying ? 'Playing' : 'Add'}</span>
+              </button>
+              <button className="button ghost" type="button" onClick={() => setSelectedProfile(profile)} aria-label={`View ${profile.display_name} profile`}>Stats</button>
+            </div>;
+          })}
+        </div>
+        {status && <p className="status-line">{status}</p>}
 
-      <form onSubmit={createProfile} style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)', display: 'grid', gap: '10px' }}>
-        <label htmlFor="new-player-profile" style={{ color: '#fff4d6', fontWeight: 900 }}>Create Saved Player</label>
-        <input id="new-player-profile" className="tbd-player-name-input" value={newName} onChange={event => setNewName(event.target.value)} placeholder="Player name" autoComplete="off" />
-        <button className="button primary" type="submit" disabled={loading || !newName.trim()}>Save & Add Player</button>
-      </form>
+        <form onSubmit={createProfile} style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)', display: 'grid', gap: '10px' }}>
+          <label htmlFor="new-player-profile" style={{ color: '#fff4d6', fontWeight: 900 }}>Create Saved Player</label>
+          <input id="new-player-profile" className="tbd-player-name-input" value={newName} onChange={event => setNewName(event.target.value)} placeholder="Player name" autoComplete="off" />
+          <button className="button primary" type="submit" disabled={loading || !newName.trim()}>Save & Add Player</button>
+        </form>
 
-      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)' }}>
-        <button className="button ghost" style={{ width: '100%' }} onClick={() => { onAddGuest(); onClose(); }}>Add Guest Instead</button>
-        <p style={{ margin: '8px 0 0', fontSize: '.86rem', opacity: .72, textAlign: 'center' }}>Guest names can be edited during this round and are not treated as saved profiles.</p>
-      </div>
+        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)' }}>
+          <button className="button ghost" style={{ width: '100%' }} onClick={() => { onAddGuest(); onClose(); }}>Add Guest Instead</button>
+          <p style={{ margin: '8px 0 0', fontSize: '.86rem', opacity: .72, textAlign: 'center' }}>Guest names can be edited during this round and are not treated as saved profiles.</p>
+        </div>
+      </>}
     </div>
   </div>;
 }
