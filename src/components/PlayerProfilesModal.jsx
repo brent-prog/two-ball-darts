@@ -5,7 +5,7 @@ import PlayerProfileStats from '@/components/PlayerProfileStats';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
-export default function PlayerProfilesModal({ open, onClose, onSelectProfile, onAddGuest, activePlayerIds = [] }) {
+export default function PlayerProfilesModal({ open, onClose, onSelectProfile, onAddGuest, activePlayerIds = [], browseOnly = false }) {
   const [profiles, setProfiles] = useState([]);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [newName, setNewName] = useState('');
@@ -53,7 +53,12 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
       return;
     }
     setNewName('');
-    onSelectProfile(data);
+    if (browseOnly) {
+      await loadProfiles();
+      setSelectedProfile(data);
+      return;
+    }
+    onSelectProfile?.(data);
     onClose();
   }
 
@@ -63,7 +68,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
     <div className="card" style={{ width: 'min(560px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
       {selectedProfile ? <PlayerProfileStats profile={selectedProfile} onBack={() => setSelectedProfile(null)} /> : <>
         <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
-          <div><p className="eyebrow">Round players</p><h2 style={{ fontSize: 'clamp(2rem, 7vw, 3.5rem)' }}>Add Player</h2></div>
+          <div><p className="eyebrow">{browseOnly ? 'Saved players' : 'Round players'}</p><h2 style={{ fontSize: 'clamp(2rem, 7vw, 3.5rem)' }}>{browseOnly ? 'Player Profiles' : 'Add Player'}</h2></div>
           <button className="button secondary" onClick={onClose}>Close</button>
         </div>
 
@@ -71,8 +76,13 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         <div style={{ display: 'grid', gap: '8px' }}>
           {profiles.map(profile => {
             const alreadyPlaying = activePlayerIds.includes(profile.id);
+            if (browseOnly) {
+              return <button key={profile.id} className="button secondary" type="button" onClick={() => setSelectedProfile(profile)} style={{ width: '100%', justifyContent: 'space-between', textAlign: 'left' }}>
+                <span>{profile.display_name}</span><span>View Profile</span>
+              </button>;
+            }
             return <div key={profile.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '8px' }}>
-              <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile(profile); onClose(); }} style={{ justifyContent: 'space-between', opacity: alreadyPlaying ? .5 : 1, minWidth: 0 }}>
+              <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile?.(profile); onClose(); }} style={{ justifyContent: 'space-between', opacity: alreadyPlaying ? .5 : 1, minWidth: 0 }}>
                 <span>{profile.display_name}</span><span>{alreadyPlaying ? 'Playing' : 'Add'}</span>
               </button>
               <button className="button ghost" type="button" onClick={() => setSelectedProfile(profile)} aria-label={`View ${profile.display_name} profile`}>Stats</button>
@@ -84,13 +94,13 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         <form onSubmit={createProfile} style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)', display: 'grid', gap: '10px' }}>
           <label htmlFor="new-player-profile" style={{ color: '#fff4d6', fontWeight: 900 }}>Create Saved Player</label>
           <input id="new-player-profile" className="tbd-player-name-input" value={newName} onChange={event => setNewName(event.target.value)} placeholder="Player name" autoComplete="off" />
-          <button className="button primary" type="submit" disabled={loading || !newName.trim()}>Save & Add Player</button>
+          <button className="button primary" type="submit" disabled={loading || !newName.trim()}>{browseOnly ? 'Create Player' : 'Save & Add Player'}</button>
         </form>
 
-        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)' }}>
-          <button className="button ghost" style={{ width: '100%' }} onClick={() => { onAddGuest(); onClose(); }}>Add Guest Instead</button>
+        {!browseOnly && <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)' }}>
+          <button className="button ghost" style={{ width: '100%' }} onClick={() => { onAddGuest?.(); onClose(); }}>Add Guest Instead</button>
           <p style={{ margin: '8px 0 0', fontSize: '.86rem', opacity: .72, textAlign: 'center' }}>Guest names can be edited during this round and are not treated as saved profiles.</p>
-        </div>
+        </div>}
       </>}
     </div>
   </div>;
