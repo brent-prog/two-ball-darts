@@ -41,6 +41,13 @@ function openNativeSavedRounds() {
   if (exitButton) {
     exitButton.click();
     window.setTimeout(openNativeSavedRounds, 160);
+    return;
+  }
+
+  const scoringMenuButton = document.querySelector('button[aria-label="Scoring menu"]');
+  if (scoringMenuButton) {
+    scoringMenuButton.click();
+    window.setTimeout(openNativeSavedRounds, 100);
   }
 }
 
