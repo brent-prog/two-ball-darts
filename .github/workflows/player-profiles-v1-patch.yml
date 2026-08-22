@@ -1,4 +1,4 @@
-name: Player Profiles V1 UX
+name: Player Selection UX Polish
 
 on:
   push:
@@ -16,42 +16,165 @@ jobs:
         with:
           ref: player-profiles-v1
 
-      - name: Improve player selection UX
+      - name: Polish player selection UI
         shell: python
         run: |
           from pathlib import Path
-          p = Path('src/app/page.jsx')
-          s = p.read_text()
+          page = Path('src/app/page.jsx')
+          s = page.read_text()
 
-          replacements = [
-            ("{ id: 'p1', playerId: null, isProfile: false, name: 'Player 1', scores: {} },\n  { id: 'p2', playerId: null, isProfile: false, name: 'Player 2', scores: {} }", "{ id: 'p1', playerId: null, isProfile: false, isGuest: false, name: 'Player 1', scores: {} },\n  { id: 'p2', playerId: null, isProfile: false, isGuest: false, name: 'Player 2', scores: {} }"),
-            ("isProfile: Boolean(row.players?.is_profile),\n      name: row.players?.display_name || `Player ${index + 1}`,", "isProfile: Boolean(row.players?.is_profile),\n      isGuest: !Boolean(row.players?.is_profile),\n      name: row.players?.display_name || `Player ${index + 1}`,"),
-            ("function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName }) {", "function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName, choosePlayer }) {"),
-            ("<input className=\"tbd-player-name-input\" aria-label={`${player.name} name`} value={player.name} readOnly={Boolean(player.isProfile)} title={player.isProfile ? 'Saved player profile' : 'Guest player'} onFocus={event => { if (!player.isProfile) event.target.select(); }} onChange={event => { if (!player.isProfile) updateName(player.id, event.target.value); }} />", "{player.isProfile ? <input className=\"tbd-player-name-input\" aria-label={`${player.name} saved profile`} value={player.name} readOnly title=\"Saved player profile\" /> : player.isGuest ? <input className=\"tbd-player-name-input\" aria-label={`${player.name} guest name`} value={player.name} title=\"Guest player\" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type=\"button\" className=\"tbd-player-name-input\" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}"),
-            ("const [showPlayerProfiles, setShowPlayerProfiles] = useState(false);", "const [showPlayerProfiles, setShowPlayerProfiles] = useState(false);\n  const [playerPickerTargetId, setPlayerPickerTargetId] = useState(null);"),
-            ("function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId && !player.isProfile ? { ...player, name, playerId: null } : player)); }\n  function addPlayer() { setShowPlayerProfiles(true); }\n  function addGuest() { markRoundDirty(); setPlayers(current => [...current, { id: crypto.randomUUID(), playerId: null, isProfile: false, name: `Player ${current.length + 1}`, scores: {} }]); }", "function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId && player.isGuest ? { ...player, name, playerId: null } : player)); }\n  function openPlayerPicker(playerId = null) { setPlayerPickerTargetId(playerId); setShowPlayerProfiles(true); }\n  function closePlayerPicker() { setShowPlayerProfiles(false); setPlayerPickerTargetId(null); }\n  function addPlayer() { openPlayerPicker(null); }\n  function choosePlayer(playerId) { openPlayerPicker(playerId); }\n  function addGuest() {\n    markRoundDirty();\n    setPlayers(current => {\n      if (playerPickerTargetId) return current.map(player => player.id === playerPickerTargetId ? { ...player, playerId: null, isProfile: false, isGuest: true, name: player.name, scores: player.scores || {} } : player);\n      return [...current, { id: crypto.randomUUID(), playerId: null, isProfile: false, isGuest: true, name: `Player ${current.length + 1}`, scores: {} }];\n    });\n    setPlayerPickerTargetId(null);\n  }"),
-            ("if (current.some(player => player.playerId === profile.id)) return current;\n      const placeholderIndex = current.findIndex(player => !player.playerId && !player.isProfile && scoredHoleCount(player) === 0 && /^Player \\d+$/.test(player.name));\n      if (placeholderIndex >= 0) return current.map((player, index) => index === placeholderIndex ? { ...player, playerId: profile.id, isProfile: true, name: profile.display_name, scores: {} } : player);\n      return [...current, { id: crypto.randomUUID(), playerId: profile.id, isProfile: true, name: profile.display_name, scores: {} }];", "if (current.some(player => player.playerId === profile.id)) return current;\n      if (playerPickerTargetId) return current.map(player => player.id === playerPickerTargetId ? { ...player, playerId: profile.id, isProfile: true, isGuest: false, name: profile.display_name, scores: player.scores || {} } : player);\n      const placeholderIndex = current.findIndex(player => !player.playerId && !player.isProfile && !player.isGuest && scoredHoleCount(player) === 0);\n      if (placeholderIndex >= 0) return current.map((player, index) => index === placeholderIndex ? { ...player, playerId: profile.id, isProfile: true, isGuest: false, name: profile.display_name, scores: {} } : player);\n      return [...current, { id: crypto.randomUUID(), playerId: profile.id, isProfile: true, isGuest: false, name: profile.display_name, scores: {} }];"),
-            ("    markRoundDirty();\n  }\n  function removePlayer()", "    markRoundDirty();\n    setPlayerPickerTargetId(null);\n  }\n  function removePlayer()"),
-            ("openScore={setScoringPlayerId} updateName={updateName} />", "openScore={setScoringPlayerId} updateName={updateName} choosePlayer={choosePlayer} />"),
-            ("<PlayerProfilesModal open={showPlayerProfiles} onClose={() => setShowPlayerProfiles(false)} onSelectProfile={addSavedProfile} onAddGuest={addGuest}", "<PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest}")
-          ]
+          old = '''function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName, choosePlayer }) {
+  const scored = Boolean(result);
+  const scoreLabel = scored ? `${result.label} ${fmt(result.score)}` : 'No score yet';
+  const buttonLabel = scored ? `${result.label} ${fmt(result.score)}` : 'Add Score';
+  const badgeClasses = ['tbd-player-total-score'];'''
+          new = '''function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName, choosePlayer }) {
+  const scored = Boolean(result);
+  const hasPlayer = Boolean(player.isProfile || player.isGuest);
+  const scoreLabel = scored ? `${result.label} ${fmt(result.score)}` : hasPlayer ? 'No score yet' : 'Select a player to begin';
+  const buttonLabel = scored ? `${result.label} ${fmt(result.score)}` : 'Add Score';
+  const badgeClasses = ['tbd-player-total-score'];'''
+          if old not in s: raise SystemExit('PlayerScoringRow header not found')
+          s = s.replace(old, new, 1)
 
-          for old, new in replacements:
-            if old not in s:
-              raise SystemExit(f'Missing expected source fragment: {old[:140]}')
-            s = s.replace(old, new)
+          old = '''return <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`}>'''
+          new = '''return <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''} ${hasPlayer ? '' : 'needs-player'}`}>'''
+          if old not in s: raise SystemExit('player row class not found')
+          s = s.replace(old, new, 1)
 
-          p.write_text(s)
+          old = '''{player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}'''
+          new = '''{player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-select-card" onClick={() => choosePlayer(player.id)} aria-label={`Choose ${player.name}`}><span className="tbd-player-select-slot">{player.name}</span><span className="tbd-player-select-title">Choose Player</span><span className="tbd-player-select-help">Saved profile or guest</span></button>}'''
+          if old not in s: raise SystemExit('player chooser markup not found')
+          s = s.replace(old, new, 1)
+
+          old = '''<button className="button secondary" onClick={() => openScore(player.id)}>{buttonLabel}</button>'''
+          new = '''<button className="button secondary" disabled={!hasPlayer} onClick={() => openScore(player.id)}>{buttonLabel}</button>'''
+          if old not in s: raise SystemExit('score button not found')
+          s = s.replace(old, new, 1)
+
+          page.write_text(s)
+
+          css = Path('src/app/player-row-overrides.css')
+          c = css.read_text()
+          marker = '/* Player profile selection polish */'
+          block = r'''
+
+/* Player profile selection polish */
+.tbd-player-score-row.needs-player .tbd-player-name-line::before{
+  display:none!important;
+}
+
+.tbd-player-select-card{
+  grid-column:2 / 4!important;
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:52px!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  column-gap:10px!important;
+  row-gap:1px!important;
+  align-items:center!important;
+  margin:0!important;
+  padding:7px 11px!important;
+  border:2px solid rgba(208,169,72,.72)!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,rgba(208,169,72,.10),rgba(2,20,15,.92))!important;
+  color:#fff4d6!important;
+  text-align:left!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+}
+
+.tbd-player-select-slot{
+  grid-column:1!important;
+  grid-row:1 / 3!important;
+  display:grid!important;
+  place-items:center!important;
+  min-width:48px!important;
+  height:34px!important;
+  padding:0 8px!important;
+  border-radius:999px!important;
+  background:#d0a948!important;
+  color:#02140f!important;
+  font-size:.7rem!important;
+  font-weight:1000!important;
+  letter-spacing:.05em!important;
+  text-transform:uppercase!important;
+  white-space:nowrap!important;
+}
+
+.tbd-player-select-title{
+  grid-column:2!important;
+  grid-row:1!important;
+  min-width:0!important;
+  color:#fff4d6!important;
+  font-size:1rem!important;
+  font-weight:1000!important;
+  line-height:1.05!important;
+}
+
+.tbd-player-select-help{
+  grid-column:2!important;
+  grid-row:2!important;
+  min-width:0!important;
+  color:rgba(255,244,214,.68)!important;
+  font-size:.72rem!important;
+  font-weight:800!important;
+  line-height:1.05!important;
+}
+
+.tbd-player-score-row.needs-player > button.button{
+  opacity:.38!important;
+  filter:saturate(.45)!important;
+  cursor:not-allowed!important;
+}
+
+.tbd-player-score-row.needs-player .tbd-hole-status{
+  color:rgba(208,169,72,.76)!important;
+  font-family:inherit!important;
+  font-style:normal!important;
+  font-size:.78rem!important;
+  font-weight:900!important;
+  letter-spacing:.02em!important;
+}
+
+@media(max-width:520px){
+  .tbd-player-select-card{
+    min-height:48px!important;
+    padding:6px 8px!important;
+    column-gap:8px!important;
+  }
+
+  .tbd-player-select-slot{
+    min-width:42px!important;
+    height:30px!important;
+    padding:0 7px!important;
+    font-size:.62rem!important;
+  }
+
+  .tbd-player-select-title{
+    font-size:.92rem!important;
+  }
+
+  .tbd-player-select-help{
+    font-size:.66rem!important;
+  }
+}
+'''
+          if marker not in c:
+            css.write_text(c + block)
 
       - name: Verify build
         run: |
           npm install --no-audit --no-fund
           npm run build
 
-      - name: Commit UX fix
+      - name: Commit polish
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/app/page.jsx
-          git commit -m "Make player slots open saved player picker"
+          git add src/app/page.jsx src/app/player-row-overrides.css
+          git commit -m "Polish player selection cards"
           git push origin player-profiles-v1
