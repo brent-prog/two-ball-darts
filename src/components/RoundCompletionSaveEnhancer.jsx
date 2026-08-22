@@ -26,25 +26,11 @@ function isRoundComplete() {
   return /^Hole\s+18$/i.test(heading) && completeLabel;
 }
 
-function savedStatusText() {
-  return [...document.querySelectorAll('.status-line')]
-    .map(textOf)
-    .find(text => /^Round saved as /i.test(text)) || '';
-}
-
-function getSavedScorecardModal() {
-  const viewingSavedRound = [...document.querySelectorAll('p')].find(node => textOf(node) === 'Viewing saved round');
-  return viewingSavedRound?.closest('[style*="position: fixed"]') || null;
-}
-
-function closeSavedScorecard() {
-  const modal = getSavedScorecardModal();
+function isSavedScorecardClose(button) {
+  if (!button || textOf(button) !== 'Close') return false;
+  const modal = button.closest('[style*="position: fixed"]');
   if (!modal) return false;
-
-  modal.style.display = 'none';
-  const closeButton = [...modal.querySelectorAll('button')].find(button => textOf(button) === 'Close');
-  closeButton?.click();
-  return true;
+  return [...modal.querySelectorAll('p')].some(node => textOf(node) === 'Viewing saved round');
 }
 
 function exitScoringToHome() {
@@ -88,30 +74,17 @@ function triggerNativeSave() {
 export default function RoundCompletionSaveEnhancer() {
   useEffect(() => {
     let autoSaveTriggered = false;
-    let handledSavedStatus = '';
     let frameId = null;
-
-    function finishSuccessfulSave(statusText) {
-      if (!statusText || handledSavedStatus === statusText) return;
-      handledSavedStatus = statusText;
-      closeSavedScorecard();
-      exitScoringToHome();
-    }
 
     function refresh() {
       frameId = null;
 
       const scoring = isScoringMode();
-      if (scoring) closeSavedScorecard();
-
       const complete = scoring && isRoundComplete();
-      const savedStatus = savedStatusText();
 
       if (!scoring || !complete) autoSaveTriggered = false;
 
-      if (savedStatus) finishSuccessfulSave(savedStatus);
-
-      if (complete && !autoSaveTriggered && !savedStatus) {
+      if (complete && !autoSaveTriggered) {
         autoSaveTriggered = triggerNativeSave();
       }
     }
@@ -121,17 +94,25 @@ export default function RoundCompletionSaveEnhancer() {
       frameId = window.requestAnimationFrame(refresh);
     }
 
+    function handleClick(event) {
+      const button = event.target?.closest?.('button');
+      if (isScoringMode() && isSavedScorecardClose(button)) {
+        window.setTimeout(exitScoringToHome, 80);
+      }
+      scheduleRefresh();
+    }
+
     scheduleRefresh();
 
     const observer = new MutationObserver(scheduleRefresh);
     observer.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['disabled'] });
 
-    document.addEventListener('click', scheduleRefresh, true);
+    document.addEventListener('click', handleClick, true);
 
     return () => {
       if (frameId) window.cancelAnimationFrame(frameId);
       observer.disconnect();
-      document.removeEventListener('click', scheduleRefresh, true);
+      document.removeEventListener('click', handleClick, true);
     };
   }, []);
 
