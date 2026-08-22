@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Two Ball Darts favicon">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="78%">
+      <stop offset="0" stop-color="#0a3025"/>
+      <stop offset="1" stop-color="#031712"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="24" fill="url(#bg)"/>
+  <path d="M28 52 C20 63 19 79 25 91 C33 108 48 115 64 115 C80 115 95 108 103 91 C109 79 108 63 100 52" fill="none" stroke="#f4ead1" stroke-width="8" stroke-linecap="square"/>
+  <path d="M43 66 C39 75 40 87 47 95 C55 103 73 103 81 95 C88 87 89 75 85 66" fill="none" stroke="#e1191d" stroke-width="6" stroke-linecap="square"/>
+  <g transform="rotate(-25 51 56)">
+    <polygon points="40,18 52,9 57,24 53,38" fill="#e1191d"/>
+    <polygon points="39,20 26,16 30,31 47,41" fill="#e1191d"/>
+    <rect x="47" y="37" width="10" height="41" fill="#e1191d"/>
+    <polygon points="47,78 57,78 52,99" fill="#e1191d"/>
+  </g>
+  <g transform="rotate(25 77 56)">
+    <polygon points="71,24 76,9 88,18 87,38" fill="#f4ead1"/>
+    <polygon points="81,41 98,31 102,16 89,20" fill="#f4ead1"/>
+    <rect x="71" y="37" width="10" height="41" fill="#f4ead1"/>
+    <polygon points="71,78 81,78 76,99" fill="#f4ead1"/>
+  </g>
+</svg>
