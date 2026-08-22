@@ -40,6 +40,12 @@
   display:none!important;
 }
 
+/* Saved profiles are intentionally locked during a round, so do not label them EDIT NAME. */
+.tbd-player-score-row:has(input.tbd-player-name-input[readonly]) .tbd-player-name-line::before{
+  display:none!important;
+  content:''!important;
+}
+
 button.tbd-player-name-input{
   position:relative!important;
   display:flex!important;
