@@ -6,6 +6,7 @@ import './honours-position-fix.css';
 import './hole-spin-animation.css';
 import './score-action-button-states.css';
 import './scoring-mode-react-polish.css';
+import './score-tile-cleanup.css';
 import './app-icon-polish.css';
 import './live-scorecard-fixes.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
