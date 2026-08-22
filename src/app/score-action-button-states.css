@@ -7,8 +7,36 @@
 }
 
 .tbd-player-score-row.scored > button{
-  background:#063927!important;
-  border-color:rgba(208,169,72,.72)!important;
   color:#fff4d6!important;
   box-shadow:none!important;
+}
+
+.tbd-player-score-row.scored > button.is-eagle{
+  background:linear-gradient(135deg,#168f54,#063927 72%)!important;
+  border-color:#35d27d!important;
+}
+
+.tbd-player-score-row.scored > button.is-birdie{
+  background:linear-gradient(135deg,#08765f,#04372c 74%)!important;
+  border-color:#25c9aa!important;
+}
+
+.tbd-player-score-row.scored > button.is-par{
+  background:linear-gradient(135deg,#62551c,#211d0b 74%)!important;
+  border-color:#d0a948!important;
+}
+
+.tbd-player-score-row.scored > button.is-bogey{
+  background:linear-gradient(135deg,#a64616,#4a1808 76%)!important;
+  border-color:#e78337!important;
+}
+
+.tbd-player-score-row.scored > button.is-double-bogey{
+  background:linear-gradient(135deg,#a71b17,#3e0807 78%)!important;
+  border-color:#e13a33!important;
+}
+
+.tbd-player-score-row.scored > button.is-triple-bogey{
+  background:linear-gradient(135deg,#65100d,#160202 80%)!important;
+  border-color:#9c1915!important;
 }
