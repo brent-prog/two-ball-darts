@@ -16,11 +16,13 @@ const FOOTER_HTML = `
     <div class="tbd-footer-divider"></div>
 
     <div class="tbd-footer-rockpail">
-      <img
-        src="/rockpail-production-white-footer.png"
-        alt="A RockPail Production"
-        class="tbd-rockpail-footer-logo"
-      />
+      <a href="https://rockpail.com" aria-label="Visit RockPail.com">
+        <img
+          src="/rockpail-production-white-footer.png"
+          alt="A RockPail Production"
+          class="tbd-rockpail-footer-logo"
+        />
+      </a>
       <p class="tbd-footer-rockpail-purpose">KEEP FUN SIMPLE</p>
     </div>
   </div>
