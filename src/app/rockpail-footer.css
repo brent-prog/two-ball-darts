@@ -2,31 +2,117 @@
   margin-top:22px!important;
   border:1px solid rgba(208,169,72,.38)!important;
   border-radius:22px!important;
-  padding:12px 16px!important;
+  padding:16px 18px!important;
   background:#02140f!important;
   box-shadow:0 18px 44px rgba(0,0,0,.28)!important;
 }
 
 .tbd-rockpail-footer-inner{
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:space-between;
+  gap:20px;
   width:100%;
+}
+
+.tbd-footer-twoball{
+  flex:1 1 0;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+}
+
+.tbd-footer-twoball-logo{
+  display:block;
+  width:min(260px,100%);
+  height:auto;
+}
+
+.tbd-footer-twoball-tagline{
+  margin:8px 0 0;
+  color:#fff4d6;
+  font-size:.98rem;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+
+.tbd-footer-divider{
+  width:1px;
+  align-self:stretch;
+  background:rgba(208,169,72,.28);
+  min-height:72px;
+}
+
+.tbd-footer-rockpail{
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  text-align:right;
 }
 
 .tbd-rockpail-footer-logo{
   display:block;
-  width:min(520px,100%);
+  width:min(220px,100%);
   height:auto;
+}
+
+.tbd-footer-rockpail-purpose{
+  margin:8px 0 0;
+  color:#d0a948;
+  font-size:.8rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
 }
 
 @media(max-width:700px){
   .tbd-rockpail-footer{
-    padding:8px 10px!important;
+    padding:14px 12px!important;
     border-radius:18px!important;
   }
 
+  .tbd-rockpail-footer-inner{
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    text-align:center;
+  }
+
+  .tbd-footer-twoball{
+    align-items:center;
+    text-align:center;
+  }
+
+  .tbd-footer-twoball-logo{
+    width:min(240px,100%);
+  }
+
+  .tbd-footer-twoball-tagline{
+    font-size:.92rem;
+  }
+
+  .tbd-footer-divider{
+    width:100%;
+    height:1px;
+    min-height:1px;
+  }
+
+  .tbd-footer-rockpail{
+    align-items:center;
+    text-align:center;
+  }
+
   .tbd-rockpail-footer-logo{
-    width:min(420px,100%);
+    width:min(200px,100%);
+  }
+
+  .tbd-footer-rockpail-purpose{
+    font-size:.76rem;
+    letter-spacing:.14em;
   }
 }
