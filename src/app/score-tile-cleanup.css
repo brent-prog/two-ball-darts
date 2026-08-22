@@ -1,0 +1,10 @@
+/* Keep the stronger score-tile color hierarchy, but remove duplicate score bubbles. */
+.tbd-quick-score-grid .button{
+  padding-right:14px!important;
+  text-align:center!important;
+}
+
+.tbd-quick-score-grid .button::after{
+  display:none!important;
+  content:none!important;
+}
