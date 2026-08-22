@@ -5,6 +5,8 @@
   padding:16px 18px!important;
   background:#02140f!important;
   box-shadow:0 18px 44px rgba(0,0,0,.28)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
 }
 
 .tbd-rockpail-footer-inner{
@@ -13,6 +15,8 @@
   justify-content:space-between;
   gap:20px;
   width:100%;
+  max-width:100%;
+  box-sizing:border-box;
 }
 
 .tbd-footer-twoball{
@@ -25,9 +29,11 @@
 }
 
 .tbd-footer-twoball-logo{
-  display:block;
-  width:min(260px,100%);
-  height:auto;
+  display:block!important;
+  width:260px!important;
+  max-width:100%!important;
+  height:auto!important;
+  object-fit:contain!important;
 }
 
 .tbd-footer-twoball-tagline{
@@ -36,6 +42,7 @@
   font-size:.98rem;
   font-weight:900;
   letter-spacing:.02em;
+  max-width:100%;
 }
 
 .tbd-footer-divider{
@@ -46,7 +53,8 @@
 }
 
 .tbd-footer-rockpail{
-  flex:0 0 auto;
+  flex:0 1 220px;
+  min-width:0;
   display:flex;
   flex-direction:column;
   align-items:flex-end;
@@ -55,9 +63,11 @@
 }
 
 .tbd-rockpail-footer-logo{
-  display:block;
-  width:min(220px,100%);
-  height:auto;
+  display:block!important;
+  width:220px!important;
+  max-width:100%!important;
+  height:auto!important;
+  object-fit:contain!important;
 }
 
 .tbd-footer-rockpail-purpose{
@@ -67,12 +77,15 @@
   font-weight:900;
   letter-spacing:.16em;
   text-transform:uppercase;
+  white-space:nowrap;
 }
 
 @media(max-width:700px){
   .tbd-rockpail-footer{
-    padding:14px 12px!important;
+    padding:18px 14px!important;
     border-radius:18px!important;
+    width:100%!important;
+    max-width:100%!important;
   }
 
   .tbd-rockpail-footer-inner{
@@ -84,16 +97,22 @@
   }
 
   .tbd-footer-twoball{
+    flex:none;
+    width:100%;
     align-items:center;
     text-align:center;
   }
 
   .tbd-footer-twoball-logo{
-    width:min(240px,100%);
+    width:180px!important;
+    max-width:70vw!important;
   }
 
   .tbd-footer-twoball-tagline{
-    font-size:.92rem;
+    margin-top:8px;
+    font-size:.92rem!important;
+    line-height:1.25;
+    white-space:normal!important;
   }
 
   .tbd-footer-divider{
@@ -103,16 +122,23 @@
   }
 
   .tbd-footer-rockpail{
+    flex:none;
+    width:100%;
     align-items:center;
     text-align:center;
   }
 
   .tbd-rockpail-footer-logo{
-    width:min(200px,100%);
+    width:150px!important;
+    max-width:62vw!important;
   }
 
   .tbd-footer-rockpail-purpose{
-    font-size:.76rem;
-    letter-spacing:.14em;
+    margin-top:7px;
+    font-size:.7rem!important;
+    line-height:1.2;
+    letter-spacing:.12em!important;
+    white-space:normal!important;
+    max-width:100%;
   }
 }
