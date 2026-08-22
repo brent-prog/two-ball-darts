@@ -9,10 +9,12 @@ import './scoring-mode-react-polish.css';
 import './score-tile-cleanup.css';
 import './app-icon-polish.css';
 import './live-scorecard-fixes.css';
+import './rockpail-footer.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
 import LiveScoreButtonToneEnhancer from '@/components/LiveScoreButtonToneEnhancer';
+import RockPailFooterEnhancer from '@/components/RockPailFooterEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -38,6 +40,7 @@ export default function RootLayout({ children }) {
         <PersistentLeaderBadgeEnhancer />
         <RoundCompletionSaveEnhancer />
         <LiveScoreButtonToneEnhancer />
+        <RockPailFooterEnhancer />
         {children}
       </body>
     </html>
