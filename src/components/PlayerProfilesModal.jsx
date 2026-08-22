@@ -77,13 +77,13 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
           {profiles.map(profile => {
             const alreadyPlaying = activePlayerIds.includes(profile.id);
             if (browseOnly) {
-              return <button key={profile.id} className="button secondary" type="button" onClick={() => setSelectedProfile(profile)} style={{ width: '100%', justifyContent: 'space-between', textAlign: 'left' }}>
-                <span>{profile.display_name}</span><span>View Profile</span>
+              return <button key={profile.id} className="button secondary" type="button" onClick={() => setSelectedProfile(profile)} style={{ width: '100%', textAlign: 'left' }}>
+                {profile.display_name}
               </button>;
             }
             return <div key={profile.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '8px' }}>
-              <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile?.(profile); onClose(); }} style={{ justifyContent: 'space-between', opacity: alreadyPlaying ? .5 : 1, minWidth: 0 }}>
-                <span>{profile.display_name}</span><span>{alreadyPlaying ? 'Playing' : 'Add'}</span>
+              <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile?.(profile); onClose(); }} style={{ opacity: alreadyPlaying ? .5 : 1, minWidth: 0, textAlign: 'left' }}>
+                {profile.display_name}{alreadyPlaying ? ' · Playing' : ''}
               </button>
               <button className="button ghost" type="button" onClick={() => setSelectedProfile(profile)} aria-label={`View ${profile.display_name} profile`}>Stats</button>
             </div>;
