@@ -490,6 +490,34 @@ body{
     padding-left:6px;
     padding-right:6px;
   }
+
+  /* How to Play scoring cheat sheet: keep result + score together,
+     then give the rule description the full row width. */
+  .card [style*="grid-template-columns: minmax(110px, 150px) 1fr 58px"]{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:6px 12px!important;
+    align-items:center!important;
+    padding:12px 14px!important;
+  }
+
+  .card [style*="grid-template-columns: minmax(110px, 150px) 1fr 58px"] > strong:first-child{
+    grid-column:1;
+    grid-row:1;
+    font-size:1.08rem;
+  }
+
+  .card [style*="grid-template-columns: minmax(110px, 150px) 1fr 58px"] > strong:last-child{
+    grid-column:2;
+    grid-row:1;
+    align-self:center;
+  }
+
+  .card [style*="grid-template-columns: minmax(110px, 150px) 1fr 58px"] > span{
+    grid-column:1 / -1;
+    grid-row:2;
+    line-height:1.35!important;
+    padding-top:2px;
+  }
 }
 
 @media(max-width:390px){
