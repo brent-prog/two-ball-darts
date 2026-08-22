@@ -8,8 +8,8 @@ import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
 const defaults = [
-  { id: 'p1', playerId: null, isProfile: false, name: 'Player 1', scores: {} },
-  { id: 'p2', playerId: null, isProfile: false, name: 'Player 2', scores: {} }
+  { id: 'p1', playerId: null, isProfile: false, isGuest: false, name: 'Player 1', scores: {} },
+  { id: 'p2', playerId: null, isProfile: false, isGuest: false, name: 'Player 2', scores: {} }
 ];
 
 const dartOptions = [
@@ -64,6 +64,7 @@ const playersFromSavedRows = rows => {
       id: `saved-${row.id || index}`,
       playerId: row.player_id || row.players?.id || null,
       isProfile: Boolean(row.players?.is_profile),
+      isGuest: !Boolean(row.players?.is_profile),
       name: row.players?.display_name || `Player ${index + 1}`,
       scores
     };
@@ -176,7 +177,7 @@ function ScoringMenu({ isOpen, setIsOpen, addPlayer, removePlayer, canRemovePlay
   </div>;
 }
 
-function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName }) {
+function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName, choosePlayer }) {
   const scored = Boolean(result);
   const scoreLabel = scored ? `${result.label} ${fmt(result.score)}` : 'No score yet';
   const buttonLabel = scored ? `${result.label} ${fmt(result.score)}` : 'Add Score';
@@ -192,7 +193,7 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
       <div className="tbd-player-name-line">
         <span className={badgeClasses.join(' ')}>{scored || totalScore !== 0 ? fmt(totalScore) : '-'}</span>
         {hasHonours && <span className="tbd-honours-chip">H</span>}
-        <input className="tbd-player-name-input" aria-label={`${player.name} name`} value={player.name} readOnly={Boolean(player.isProfile)} title={player.isProfile ? 'Saved player profile' : 'Guest player'} onFocus={event => { if (!player.isProfile) event.target.select(); }} onChange={event => { if (!player.isProfile) updateName(player.id, event.target.value); }} />
+        {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
       </div>
       <span className="tbd-hole-status">{scoreLabel}</span>
     </div>
@@ -223,6 +224,7 @@ export default function Home() {
   const [showScorecard, setShowScorecard] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showPlayerProfiles, setShowPlayerProfiles] = useState(false);
+  const [playerPickerTargetId, setPlayerPickerTargetId] = useState(null);
   const [showScoringMode, setShowScoringMode] = useState(false);
   const [savedGameId, setSavedGameId] = useState(null);
   const [isRoundDirty, setIsRoundDirty] = useState(true);
@@ -241,18 +243,30 @@ export default function Home() {
   function markRoundDirty() { setIsRoundDirty(true); setStatus(''); }
   function updateScoreForHole(playerId, score, hole) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
   function updateScore(playerId, score) { updateScoreForHole(playerId, score, activeHole); }
-  function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId && !player.isProfile ? { ...player, name, playerId: null } : player)); }
-  function addPlayer() { setShowPlayerProfiles(true); }
-  function addGuest() { markRoundDirty(); setPlayers(current => [...current, { id: crypto.randomUUID(), playerId: null, isProfile: false, name: `Player ${current.length + 1}`, scores: {} }]); }
+  function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId && player.isGuest ? { ...player, name, playerId: null } : player)); }
+  function openPlayerPicker(playerId = null) { setPlayerPickerTargetId(playerId); setShowPlayerProfiles(true); }
+  function closePlayerPicker() { setShowPlayerProfiles(false); setPlayerPickerTargetId(null); }
+  function addPlayer() { openPlayerPicker(null); }
+  function choosePlayer(playerId) { openPlayerPicker(playerId); }
+  function addGuest() {
+    markRoundDirty();
+    setPlayers(current => {
+      if (playerPickerTargetId) return current.map(player => player.id === playerPickerTargetId ? { ...player, playerId: null, isProfile: false, isGuest: true, name: player.name, scores: player.scores || {} } : player);
+      return [...current, { id: crypto.randomUUID(), playerId: null, isProfile: false, isGuest: true, name: `Player ${current.length + 1}`, scores: {} }];
+    });
+    setPlayerPickerTargetId(null);
+  }
   function addSavedProfile(profile) {
     if (!profile?.id) return;
     setPlayers(current => {
       if (current.some(player => player.playerId === profile.id)) return current;
-      const placeholderIndex = current.findIndex(player => !player.playerId && !player.isProfile && scoredHoleCount(player) === 0 && /^Player \d+$/.test(player.name));
-      if (placeholderIndex >= 0) return current.map((player, index) => index === placeholderIndex ? { ...player, playerId: profile.id, isProfile: true, name: profile.display_name, scores: {} } : player);
-      return [...current, { id: crypto.randomUUID(), playerId: profile.id, isProfile: true, name: profile.display_name, scores: {} }];
+      if (playerPickerTargetId) return current.map(player => player.id === playerPickerTargetId ? { ...player, playerId: profile.id, isProfile: true, isGuest: false, name: profile.display_name, scores: player.scores || {} } : player);
+      const placeholderIndex = current.findIndex(player => !player.playerId && !player.isProfile && !player.isGuest && scoredHoleCount(player) === 0);
+      if (placeholderIndex >= 0) return current.map((player, index) => index === placeholderIndex ? { ...player, playerId: profile.id, isProfile: true, isGuest: false, name: profile.display_name, scores: {} } : player);
+      return [...current, { id: crypto.randomUUID(), playerId: profile.id, isProfile: true, isGuest: false, name: profile.display_name, scores: {} }];
     });
     markRoundDirty();
+    setPlayerPickerTargetId(null);
   }
   function removePlayer() { setPlayers(current => { if (current.length <= 1) return current; const next = current.slice(0, -1); if (!next.some(player => player.id === scoringPlayerId)) setScoringPlayerId(null); return next; }); markRoundDirty(); }
   function resetRound() { lastAutoAdvanceHoleRef.current = null; setSavedGameId(null); setIsRoundDirty(true); setStatus(''); setShowScorecard(false); setActiveHole(1); setPlayers(current => current.map(player => ({ ...player, scores: {} }))); }
@@ -322,11 +336,11 @@ export default function Home() {
       <div className="section-heading" style={{ marginBottom: '12px', alignItems: 'center' }}><div><p className="eyebrow" style={{ margin: 0 }}>{showScoringMode ? 'Scoring Mode' : 'Live round'}</p>{!showScoringMode && <p style={{ margin: '6px 0 0', color: '#fff4d6', fontWeight: 900 }}>Start or resume a round to enter scores.</p>}</div>{!showScoringMode && <div className="actions-inline"><button className="button secondary" onClick={() => setShowScoringMode(true)}>{hasRoundScores(players) ? 'Resume Scoring' : 'Start New Round'}</button><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button></div>}</div>
       {showScoringMode && <div style={{ display: 'grid', gap: '10px', marginBottom: '12px' }}><div style={{ display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr) minmax(0,1fr)', gap: '10px', alignItems: 'stretch' }}><ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} removePlayer={removePlayer} canRemovePlayer={players.length > 1} resetRound={resetRound} saveRound={saveRound} saveDisabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} saveLabel={saveButtonLabel()} exitScoring={() => setShowScoringMode(false)} /><button className="button secondary" disabled={activeHole === 1} onClick={goToPreviousHole} style={{ opacity: activeHole === 1 ? .45 : 1 }}>Previous Hole</button><button className="button primary" disabled={activeHole === 18} onClick={goToNextHole} style={{ opacity: activeHole === 18 ? .45 : 1 }}>Next Hole</button></div><div style={{ border: '1px solid rgba(208,169,72,.55)', borderRadius: '14px', padding: '10px 14px', background: 'rgba(0,0,0,.18)', textAlign: 'center' }}><span style={{ display: 'block', color: '#d0a948', fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.08em' }}>Current hole</span><strong style={{ display: 'block', marginTop: '3px', fontSize: '1.35rem' }}>Hole {activeHole} of 18</strong></div></div>}
       {!showScoringMode && <div className="hole-picker" style={{ marginBottom: '12px' }}>{holes.map(hole => <button key={hole} className={hole === activeHole ? 'active' : ''} onClick={() => setActiveHole(hole)}>{hole}</button>)}</div>}
-      <div className={`active-hole-panel ${isAdvancing ? 'tbd-hole-advancing' : ''}`} style={{ padding: '14px', marginBottom: '16px' }}><h3 style={{ fontSize: '1.55rem', marginBottom: '10px' }}>Hole {activeHole}</h3><div className="tbd-live-score-list">{players.map((player, index) => { const result = scoreByKey.get(player.scores[activeHole]); const playerTotal = total(player); const isLeader = playerTotal === leaderScore; return <PlayerScoringRow key={player.id} player={player} result={result} totalScore={playerTotal} isLeader={isLeader} hasHonours={index === honoursIndex} openScore={setScoringPlayerId} updateName={updateName} />; })}</div>{isActiveHoleComplete && <div style={{ marginTop: '16px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '16px', padding: '14px', background: 'linear-gradient(135deg, rgba(208,169,72,.18), rgba(6,57,39,.62))' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#fff4d6' }}>{activeHole === 18 ? 'Round complete' : `Hole ${activeHole} complete`}</strong><span style={{ display: 'block', marginTop: '4px', color: '#d0a948', fontWeight: 900 }}>{activeHole === 18 ? 'Every player has a score for 18.' : 'Every player has a score for this hole.'}</span></div>}</div>
+      <div className={`active-hole-panel ${isAdvancing ? 'tbd-hole-advancing' : ''}`} style={{ padding: '14px', marginBottom: '16px' }}><h3 style={{ fontSize: '1.55rem', marginBottom: '10px' }}>Hole {activeHole}</h3><div className="tbd-live-score-list">{players.map((player, index) => { const result = scoreByKey.get(player.scores[activeHole]); const playerTotal = total(player); const isLeader = playerTotal === leaderScore; return <PlayerScoringRow key={player.id} player={player} result={result} totalScore={playerTotal} isLeader={isLeader} hasHonours={index === honoursIndex} openScore={setScoringPlayerId} updateName={updateName} choosePlayer={choosePlayer} />; })}</div>{isActiveHoleComplete && <div style={{ marginTop: '16px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '16px', padding: '14px', background: 'linear-gradient(135deg, rgba(208,169,72,.18), rgba(6,57,39,.62))' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#fff4d6' }}>{activeHole === 18 ? 'Round complete' : `Hole ${activeHole} complete`}</strong><span style={{ display: 'block', marginTop: '4px', color: '#d0a948', fontWeight: 900 }}>{activeHole === 18 ? 'Every player has a score for 18.' : 'Every player has a score for this hole.'}</span></div>}</div>
       <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: showScorecard ? '12px' : 0 }}><button className="button secondary" onClick={() => setShowScorecard(current => !current)}>{showScorecard ? 'Hide Scorecard' : 'Show Scorecard'}</button></div>{showScorecard && <LiveScorecard players={players} />}{status && <p className="status-line">{status}</p>}
     </section>
     {!showScoringMode && <section className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>{historyStatus && <p className="status-line">{historyStatus}</p>}<div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span>{!isSavedRoundComplete(game) && <button className="button secondary" style={{ marginTop: '10px', marginRight: '8px' }} onClick={() => resumeSavedGame(game)}>Resume Round</button>}<button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}</div></section>}
     {!showScoringMode && <footer style={{ marginTop: '22px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '22px', padding: '18px', background: 'linear-gradient(180deg, rgba(6,57,39,.88), rgba(2,20,15,.96))', boxShadow: '0 18px 44px rgba(0,0,0,.35)' }}><div style={{ display: 'grid', gridTemplateColumns: '72px 1fr', gap: '16px', alignItems: 'center' }}><img src="/two-ball-darts-logo.png" alt="TWO BALL DARTS" style={{ width: '64px', height: '64px', objectFit: 'contain', display: 'block' }} /><div><strong style={{ display: 'block', fontSize: '1.35rem', letterSpacing: '.03em' }}>TWO BALL DARTS</strong><span style={{ color: '#d0a948', fontWeight: 900 }}>No gimmes. Just throw.</span><p style={{ margin: '6px 0 0', color: '#f5e8c6' }}>18 holes. Two darts per hole. Bulls, 19s, and 20s are hazards.</p></div></div></footer>}
-    <PlayerProfilesModal open={showPlayerProfiles} onClose={() => setShowPlayerProfiles(false)} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} />{scoringPlayer && <ScoreModal player={scoringPlayer} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />
+    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} />{scoringPlayer && <ScoreModal player={scoringPlayer} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />
   </main>;
 }
