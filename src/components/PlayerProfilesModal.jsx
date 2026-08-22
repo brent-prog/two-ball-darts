@@ -17,6 +17,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
       .from('players')
       .select('id,display_name')
       .eq('owner_key', getOwnerKey())
+      .eq('is_profile', true)
       .order('display_name', { ascending: true });
     if (error) setStatus(error.message);
     else {
@@ -38,7 +39,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
     setStatus('Saving player...');
     const { data, error } = await supabase
       .from('players')
-      .upsert({ owner_key: getOwnerKey(), display_name: displayName }, { onConflict: 'owner_key,display_name' })
+      .upsert({ owner_key: getOwnerKey(), display_name: displayName, is_profile: true }, { onConflict: 'owner_key,display_name' })
       .select('id,display_name')
       .single();
     setLoading(false);
