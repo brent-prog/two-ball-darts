@@ -52,6 +52,26 @@ function exitScoringToHome() {
   window.setTimeout(exitScoringToHome, 80);
 }
 
+function resetCompletedRoundAndReturnHome() {
+  if (!isScoringMode()) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  const menuButton = document.querySelector('[aria-label="Scoring menu"]');
+  if (!menuButton) {
+    exitScoringToHome();
+    return;
+  }
+
+  menuButton.click();
+  window.setTimeout(() => {
+    const resetButton = findButton('Reset Round');
+    if (resetButton) resetButton.click();
+    window.setTimeout(exitScoringToHome, 100);
+  }, 80);
+}
+
 function triggerNativeSave() {
   const saveButton = findButtonMatching(/^(Save round|Save changes)$/i);
   if (saveButton && !saveButton.disabled) {
@@ -97,7 +117,7 @@ export default function RoundCompletionSaveEnhancer() {
     function handleClick(event) {
       const button = event.target?.closest?.('button');
       if (isScoringMode() && isSavedScorecardClose(button)) {
-        window.setTimeout(exitScoringToHome, 80);
+        window.setTimeout(resetCompletedRoundAndReturnHome, 80);
       }
       scheduleRefresh();
     }
