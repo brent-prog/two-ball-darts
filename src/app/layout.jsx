@@ -16,6 +16,7 @@ import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnh
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
 import LiveScoreButtonToneEnhancer from '@/components/LiveScoreButtonToneEnhancer';
 import RockPailFooterEnhancer from '@/components/RockPailFooterEnhancer';
+import MainPlayerProfilesAccess from '@/components/MainPlayerProfilesAccess';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
         <RoundCompletionSaveEnhancer />
         <LiveScoreButtonToneEnhancer />
         <RockPailFooterEnhancer />
+        <MainPlayerProfilesAccess />
         {children}
       </body>
     </html>
