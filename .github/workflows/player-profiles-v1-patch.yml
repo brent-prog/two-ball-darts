@@ -1,0 +1,50 @@
+name: Player Profiles V1 Patch
+
+on:
+  push:
+    branches: [player-profiles-v1]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: player-profiles-v1
+      - name: Patch page integration
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('src/app/page.jsx')
+          s = p.read_text()
+
+          replacements = [
+            ("import LogoMark from '@/components/LogoMark';", "import LogoMark from '@/components/LogoMark';\nimport PlayerProfilesModal from '@/components/PlayerProfilesModal';"),
+            ("{ id: 'p1', name: 'Player 1', scores: {} },\n  { id: 'p2', name: 'Player 2', scores: {} }", "{ id: 'p1', playerId: null, name: 'Player 1', scores: {} },\n  { id: 'p2', playerId: null, name: 'Player 2', scores: {} }"),
+            ("id: `saved-${row.id || index}`,\n      name: row.players?.display_name || `Player ${index + 1}`,", "id: `saved-${row.id || index}`,\n      playerId: row.player_id || row.players?.id || null,\n      name: row.players?.display_name || `Player ${index + 1}`,"),
+            ("<input className=\"tbd-player-name-input\" aria-label={`${player.name} name`} value={player.name} onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} />", "<input className=\"tbd-player-name-input\" aria-label={`${player.name} name`} value={player.name} readOnly={Boolean(player.playerId)} title={player.playerId ? 'Saved player profile' : 'Guest player'} onFocus={event => { if (!player.playerId) event.target.select(); }} onChange={event => { if (!player.playerId) updateName(player.id, event.target.value); }} />"),
+            ("const [showHowToPlay, setShowHowToPlay] = useState(false);", "const [showHowToPlay, setShowHowToPlay] = useState(false);\n  const [showPlayerProfiles, setShowPlayerProfiles] = useState(false);"),
+            ("function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, name } : player)); }\n  function addPlayer() { markRoundDirty(); setPlayers(current => [...current, { id: crypto.randomUUID(), name: `Player ${current.length + 1}`, scores: {} }]); }", "function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId && !player.playerId ? { ...player, name } : player)); }\n  function addPlayer() { setShowPlayerProfiles(true); }\n  function addGuest() { markRoundDirty(); setPlayers(current => [...current, { id: crypto.randomUUID(), playerId: null, name: `Player ${current.length + 1}`, scores: {} }]); }\n  function addSavedProfile(profile) {\n    if (!profile?.id) return;\n    setPlayers(current => current.some(player => player.playerId === profile.id) ? current : [...current, { id: crypto.randomUUID(), playerId: profile.id, name: profile.display_name, scores: {} }]);\n    markRoundDirty();\n  }"),
+            ("const { data: dbPlayer, error: playerError } = await supabase.from('players').upsert({ owner_key: getOwnerKey(), display_name: displayName }, { onConflict: 'owner_key,display_name' }).select('id,display_name').single();\n      if (playerError || !dbPlayer) throw new Error(playerError?.message || `Could not save player ${displayName}.`);\n      const { data: gp, error: gamePlayerError } = await supabase.from('game_players').insert({ game_id: gameId, player_id: dbPlayer.id, display_order: index, total_score: total(player), total_strokes: strokes(player) }).select('id').single();", "let persistentPlayerId = player.playerId;\n      if (!persistentPlayerId) {\n        const { data: dbPlayer, error: playerError } = await supabase.from('players').upsert({ owner_key: getOwnerKey(), display_name: displayName }, { onConflict: 'owner_key,display_name' }).select('id,display_name').single();\n        if (playerError || !dbPlayer) throw new Error(playerError?.message || `Could not save player ${displayName}.`);\n        persistentPlayerId = dbPlayer.id;\n      }\n      const { data: gp, error: gamePlayerError } = await supabase.from('game_players').insert({ game_id: gameId, player_id: persistentPlayerId, display_order: index, total_score: total(player), total_strokes: strokes(player) }).select('id').single();"),
+            ("select('id,game_id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number)')", "select('id,game_id,player_id,display_order,total_score,total_strokes,players(id,display_name),hole_scores(hole_number)')"),
+            ("select('id,display_order,total_score,total_strokes,players(display_name),hole_scores(hole_number,relative_score,strokes,result)')", "select('id,player_id,display_order,total_score,total_strokes,players(id,display_name),hole_scores(hole_number,relative_score,strokes,result)')"),
+            ("{scoringPlayer && <ScoreModal", "<PlayerProfilesModal open={showPlayerProfiles} onClose={() => setShowPlayerProfiles(false)} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} />}{scoringPlayer && <ScoreModal")
+          ]
+
+          for old, new in replacements:
+            if old not in s:
+              raise SystemExit(f'Missing expected source fragment: {old[:100]}')
+            s = s.replace(old, new)
+
+          p.write_text(s)
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/page.jsx
+          git commit -m "Integrate persistent player profiles"
+          git push origin player-profiles-v1
