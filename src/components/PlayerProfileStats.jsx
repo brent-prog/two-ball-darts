@@ -115,6 +115,10 @@ export default function PlayerProfileStats({ profile, onBack }) {
     });
 
     const totalHoles = Object.values(breakdown).reduce((sum, count) => sum + count, 0);
+    const underParRounds = completeRows.filter(row => Number(row.total_score) < 0).length;
+    const evenParRounds = completeRows.filter(row => Number(row.total_score) === 0).length;
+    const overParRounds = completeRows.filter(row => Number(row.total_score) > 0).length;
+    const bogeyFreeRounds = completeRows.filter(row => (row.hole_scores ?? []).every(score => Number(score.relative_score) <= 0)).length;
 
     return {
       rounds: completeRows.length,
@@ -123,6 +127,10 @@ export default function PlayerProfileStats({ profile, onBack }) {
       best,
       breakdown,
       totalHoles,
+      underParRounds,
+      evenParRounds,
+      overParRounds,
+      bogeyFreeRounds,
       history: [...rows].sort((a, b) => new Date(b.games?.played_at || 0) - new Date(a.games?.played_at || 0)).slice(0, 8)
     };
   }, [rows, fieldRows]);
@@ -144,6 +152,17 @@ export default function PlayerProfileStats({ profile, onBack }) {
         <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase' }}>Wins</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.6rem' }}>{stats.wins}</strong></div>
         <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase' }}>Best Round</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.6rem' }}>{stats.best === null ? '-' : fmt(stats.best)}</strong></div>
         <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase' }}>Avg Score</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.6rem' }}>{stats.average === null ? '-' : fmt(Math.round(stats.average * 10) / 10)}</strong></div>
+      </div>
+
+      <div style={{ marginBottom: '18px' }}>
+        <p style={{ margin: '0 0 10px', color: '#fff4d6', fontWeight: 900 }}>Round Quality</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: '8px' }}>
+          <div style={{ border: '1px solid rgba(208,169,72,.38)', borderRadius: '14px', padding: '10px 11px', background: 'rgba(0,0,0,.18)' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>Bogey-Free</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{stats.bogeyFreeRounds}</strong></div>
+          <div style={{ border: '1px solid rgba(208,169,72,.38)', borderRadius: '14px', padding: '10px 11px', background: 'rgba(0,0,0,.18)' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>Under Par</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{stats.underParRounds}</strong></div>
+          <div style={{ border: '1px solid rgba(208,169,72,.38)', borderRadius: '14px', padding: '10px 11px', background: 'rgba(0,0,0,.18)' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>Even Par</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{stats.evenParRounds}</strong></div>
+          <div style={{ border: '1px solid rgba(208,169,72,.38)', borderRadius: '14px', padding: '10px 11px', background: 'rgba(0,0,0,.18)' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>Over Par</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{stats.overParRounds}</strong></div>
+        </div>
+        <p style={{ margin: '7px 0 0', opacity: .62, fontSize: '.75rem' }}>Round-quality stats use completed 18-hole rounds only.</p>
       </div>
 
       <div style={{ marginBottom: '18px' }}>
