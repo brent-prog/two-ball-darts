@@ -1,0 +1,81 @@
+/* Live scorecard only.
+   Saved scorecards intentionally keep their separate sticky Score-column layout. */
+
+#scorecard .scorecard-table th:not(:first-child),
+#scorecard .scorecard-table td:not(:first-child){
+  order:3;
+}
+
+#scorecard .scorecard-table th:last-child,
+#scorecard .scorecard-table td:last-child{
+  position:static;
+  left:auto;
+  z-index:auto;
+  flex-basis:48px;
+  min-width:48px;
+  max-width:48px;
+  box-shadow:none;
+}
+
+#scorecard .scorecard-table th:nth-child(2),
+#scorecard .scorecard-table td:nth-child(2){
+  order:2;
+  position:sticky;
+  left:112px;
+  z-index:5;
+  flex-basis:74px;
+  min-width:74px;
+  max-width:74px;
+  box-shadow:3px 0 0 #102017;
+}
+
+#scorecard .scorecard-table thead th:nth-child(2){
+  z-index:8;
+  background:#0a392b;
+}
+
+#scorecard .scorecard-table .par-row td:nth-child(2){
+  z-index:7;
+  background:#d8c38a!important;
+  color:#102017!important;
+}
+
+#scorecard .scorecard-table tbody td:nth-child(2){
+  z-index:7;
+}
+
+@media(max-width:700px){
+  #scorecard .scorecard-table th:last-child,
+  #scorecard .scorecard-table td:last-child{
+    flex-basis:44px;
+    min-width:44px;
+    max-width:44px;
+  }
+
+  #scorecard .scorecard-table th:nth-child(2),
+  #scorecard .scorecard-table td:nth-child(2){
+    left:104px;
+    flex-basis:68px;
+    min-width:68px;
+    max-width:68px;
+    padding-left:6px;
+    padding-right:6px;
+  }
+}
+
+@media(max-width:390px){
+  #scorecard .scorecard-table th:last-child,
+  #scorecard .scorecard-table td:last-child{
+    flex-basis:40px;
+    min-width:40px;
+    max-width:40px;
+  }
+
+  #scorecard .scorecard-table th:nth-child(2),
+  #scorecard .scorecard-table td:nth-child(2){
+    left:96px;
+    flex-basis:64px;
+    min-width:64px;
+    max-width:64px;
+  }
+}
