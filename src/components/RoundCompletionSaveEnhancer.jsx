@@ -32,11 +32,19 @@ function savedStatusText() {
     .find(text => /^Round saved as /i.test(text)) || '';
 }
 
-function closeSavedScorecard() {
+function getSavedScorecardModal() {
   const viewingSavedRound = [...document.querySelectorAll('p')].find(node => textOf(node) === 'Viewing saved round');
-  const modal = viewingSavedRound?.closest('[style*="position: fixed"]');
-  const closeButton = modal ? [...modal.querySelectorAll('button')].find(button => textOf(button) === 'Close') : null;
+  return viewingSavedRound?.closest('[style*="position: fixed"]') || null;
+}
+
+function closeSavedScorecard() {
+  const modal = getSavedScorecardModal();
+  if (!modal) return false;
+
+  modal.style.display = 'none';
+  const closeButton = [...modal.querySelectorAll('button')].find(button => textOf(button) === 'Close');
   closeButton?.click();
+  return true;
 }
 
 function exitScoringToHome() {
@@ -86,19 +94,16 @@ export default function RoundCompletionSaveEnhancer() {
     function finishSuccessfulSave(statusText) {
       if (!statusText || handledSavedStatus === statusText) return;
       handledSavedStatus = statusText;
-
-      [120, 400, 900, 1600].forEach(delay => {
-        window.setTimeout(() => {
-          closeSavedScorecard();
-          exitScoringToHome();
-        }, delay);
-      });
+      closeSavedScorecard();
+      exitScoringToHome();
     }
 
     function refresh() {
       frameId = null;
 
       const scoring = isScoringMode();
+      if (scoring) closeSavedScorecard();
+
       const complete = scoring && isRoundComplete();
       const savedStatus = savedStatusText();
 
