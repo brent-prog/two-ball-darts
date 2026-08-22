@@ -1,0 +1,75 @@
+name: Wire Remove Player Picker
+
+on:
+  push:
+    branches: [player-profiles-v1]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: player-profiles-v1
+
+      - name: Patch page source
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('src/app/page.jsx')
+          s = p.read_text()
+
+          replacements = [
+            (
+              "import PlayerProfilesModal from '@/components/PlayerProfilesModal';",
+              "import PlayerProfilesModal from '@/components/PlayerProfilesModal';\nimport RemovePlayerModal from '@/components/RemovePlayerModal';"
+            ),
+            (
+              "function ScoringMenu({ isOpen, setIsOpen, addPlayer, removePlayer, canRemovePlayer, resetRound, saveRound, saveDisabled, saveLabel, exitScoring }) {",
+              "function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemovePlayer, resetRound, saveRound, saveDisabled, saveLabel, exitScoring }) {"
+            ),
+            (
+              "<button className=\"button secondary\" disabled={!canRemovePlayer} onClick={() => { setIsOpen(false); removePlayer(); }}>Remove Player</button>",
+              "<button className=\"button secondary\" disabled={!canRemovePlayer} onClick={() => { setIsOpen(false); openRemovePlayer(); }}>Remove Player</button>"
+            ),
+            (
+              "const [showPlayerProfiles, setShowPlayerProfiles] = useState(false);\n  const [playerPickerTargetId, setPlayerPickerTargetId] = useState(null);",
+              "const [showPlayerProfiles, setShowPlayerProfiles] = useState(false);\n  const [showRemovePlayer, setShowRemovePlayer] = useState(false);\n  const [playerPickerTargetId, setPlayerPickerTargetId] = useState(null);"
+            ),
+            (
+              "function removePlayer() { setPlayers(current => { if (current.length <= 1) return current; const next = current.slice(0, -1); if (!next.some(player => player.id === scoringPlayerId)) setScoringPlayerId(null); return next; }); markRoundDirty(); }",
+              "function removePlayer(playerId) {\n    setPlayers(current => {\n      if (current.length <= 1) return current;\n      const next = current.filter(player => player.id !== playerId);\n      if (!next.some(player => player.id === scoringPlayerId)) setScoringPlayerId(null);\n      return next;\n    });\n    setShowRemovePlayer(false);\n    markRoundDirty();\n  }"
+            ),
+            (
+              "<ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} removePlayer={removePlayer} canRemovePlayer={players.length > 1}",
+              "<ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} openRemovePlayer={() => setShowRemovePlayer(true)} canRemovePlayer={players.length > 1}"
+            ),
+            (
+              "<PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} />{scoringPlayer &&",
+              "<PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer &&"
+            )
+          ]
+
+          for old, new in replacements:
+            if old not in s:
+              raise SystemExit(f'Missing expected source fragment: {old[:160]}')
+            s = s.replace(old, new, 1)
+
+          p.write_text(s)
+
+      - name: Verify build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/page.jsx
+          git commit -m "Let users choose which player to remove"
+          git push origin player-profiles-v1
