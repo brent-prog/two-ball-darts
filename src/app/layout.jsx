@@ -7,6 +7,7 @@ import './hole-spin-animation.css';
 import './score-action-button-states.css';
 import './scoring-mode-react-polish.css';
 import './app-icon-polish.css';
+import './live-scorecard-fixes.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 
