@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import PlayerProfileStats from '@/components/PlayerProfileStats';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
 export default function PlayerProfilesModal({ open, onClose, onSelectProfile, onAddGuest, activePlayerIds = [], browseOnly = false }) {
   const [profiles, setProfiles] = useState([]);
+  const [accountPlayerId, setAccountPlayerId] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [newName, setNewName] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const autoSelectedRef = useRef(false);
 
   async function loadProfiles() {
     setLoading(true);
@@ -18,6 +20,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
 
     const ownerKey = getOwnerKey();
     let accountProfileId = null;
+    let nextAccountPlayerId = null;
     const { data: userData } = await supabase.auth.getUser();
     const authUser = userData?.user ?? null;
 
@@ -28,6 +31,17 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         .eq('user_id', authUser.id)
         .maybeSingle();
       accountProfileId = accountProfile?.id ?? null;
+
+      if (accountProfileId) {
+        const { data: accountPlayer } = await supabase
+          .from('players')
+          .select('id')
+          .eq('profile_id', accountProfileId)
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        nextAccountPlayerId = accountPlayer?.id ?? null;
+      }
     }
 
     let query = supabase
@@ -49,14 +63,30 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         seen.add(player.id);
         unique.push(player);
       });
+      unique.sort((a, b) => {
+        if (a.id === nextAccountPlayerId) return -1;
+        if (b.id === nextAccountPlayerId) return 1;
+        return a.display_name.localeCompare(b.display_name);
+      });
       setProfiles(unique);
+      setAccountPlayerId(nextAccountPlayerId);
       setStatus(unique.length ? '' : 'No saved players yet.');
+
+      if (!browseOnly && !autoSelectedRef.current && activePlayerIds.length === 0 && nextAccountPlayerId) {
+        const me = unique.find(player => player.id === nextAccountPlayerId);
+        if (me) {
+          autoSelectedRef.current = true;
+          onSelectProfile?.(me);
+          onClose();
+        }
+      }
     }
     setLoading(false);
   }
 
   useEffect(() => {
     if (open) {
+      autoSelectedRef.current = false;
       setSelectedProfile(null);
       loadProfiles();
     }
@@ -102,14 +132,16 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         <div style={{ display: 'grid', gap: '8px' }}>
           {profiles.map(profile => {
             const alreadyPlaying = activePlayerIds.includes(profile.id);
+            const isMe = profile.id === accountPlayerId;
+            const label = `${profile.display_name}${isMe ? ' · You' : ''}`;
             if (browseOnly) {
               return <button key={profile.id} className="button secondary" type="button" onClick={() => setSelectedProfile(profile)} style={{ width: '100%', textAlign: 'left' }}>
-                {profile.display_name}
+                {label}
               </button>;
             }
             return <div key={profile.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '8px' }}>
               <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile?.(profile); onClose(); }} style={{ opacity: alreadyPlaying ? .5 : 1, minWidth: 0, textAlign: 'left' }}>
-                {profile.display_name}{alreadyPlaying ? ' · Playing' : ''}
+                {label}{alreadyPlaying ? ' · Playing' : ''}
               </button>
               <button className="button ghost" type="button" onClick={() => setSelectedProfile(profile)} aria-label={`View ${profile.display_name} profile`}>Stats</button>
             </div>;
