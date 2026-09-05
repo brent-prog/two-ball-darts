@@ -126,6 +126,14 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      window.setTimeout(() => loadProfiles(), 0);
+    });
+    return () => authListener?.subscription?.unsubscribe();
+  }, [open]);
+
   async function createProfile(event) {
     event.preventDefault();
     const displayName = newName.trim();
@@ -155,9 +163,19 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
     setStatus('');
   }
 
+  function openAccountForInvite() {
+    const accountButton = document.querySelector('[data-tbd-account]');
+    if (!accountButton) {
+      setStatus('Open My Profile and sign in, then return here to create the invite.');
+      return;
+    }
+    setStatus('Sign in to create this guest invite.');
+    accountButton.click();
+  }
+
   async function createInvite(profile) {
     if (!accountProfileId) {
-      setStatus('Sign in to invite a saved guest to claim their stats.');
+      openAccountForInvite();
       return;
     }
     setLoading(true);
@@ -258,7 +276,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
           <button className="button secondary" type="button" onClick={dismissInvite}>Not Now</button>
         </div>
         <p style={{ marginTop: 0, opacity: .82 }}>Optional. If {invitePrompt.display_name} joins through this invite, their saved TwoBall rounds and stats become their account history.</p>
-        {!inviteUrl ? <button className="button primary" type="button" onClick={() => createInvite(invitePrompt)} disabled={loading || !accountProfileId}>{accountProfileId ? 'Create Invite' : 'Sign In to Invite'}</button> : <div style={{ display: 'grid', gap: '10px' }}>
+        {!inviteUrl ? <button className="button primary" type="button" onClick={accountProfileId ? () => createInvite(invitePrompt) : openAccountForInvite} disabled={loading}>{accountProfileId ? 'Create Invite' : 'Sign In to Invite'}</button> : <div style={{ display: 'grid', gap: '10px' }}>
           <input value={inviteUrl} readOnly onFocus={event => event.target.select()} aria-label="Guest invite link" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <button className="button primary" type="button" onClick={shareInvite}>Share Invite</button>
