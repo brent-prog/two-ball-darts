@@ -7,6 +7,7 @@ import { getOwnerKey } from '@/lib/storage';
 
 export default function PlayerProfilesModal({ open, onClose, onSelectProfile, onAddGuest, activePlayerIds = [], browseOnly = false }) {
   const [profiles, setProfiles] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [accountPlayerId, setAccountPlayerId] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [newName, setNewName] = useState('');
@@ -21,6 +22,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
     const ownerKey = getOwnerKey();
     let accountProfileId = null;
     let nextAccountPlayerId = null;
+    let friendPlayers = [];
     const { data: userData } = await supabase.auth.getUser();
     const authUser = userData?.user ?? null;
 
@@ -41,6 +43,23 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
           .limit(1)
           .maybeSingle();
         nextAccountPlayerId = accountPlayer?.id ?? null;
+
+        const { data: friendshipRows } = await supabase
+          .from('friendships')
+          .select('requester_profile_id,addressee_profile_id')
+          .eq('status', 'accepted')
+          .or(`requester_profile_id.eq.${accountProfileId},addressee_profile_id.eq.${accountProfileId}`);
+
+        const friendProfileIds = [...new Set((friendshipRows ?? []).map(row => row.requester_profile_id === accountProfileId ? row.addressee_profile_id : row.requester_profile_id))];
+        if (friendProfileIds.length) {
+          const { data: linkedFriendPlayers } = await supabase
+            .from('players')
+            .select('id,display_name,profile_id')
+            .in('profile_id', friendProfileIds)
+            .eq('is_profile', true)
+            .order('display_name', { ascending: true });
+          friendPlayers = linkedFriendPlayers ?? [];
+        }
       }
     }
 
@@ -69,8 +88,9 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         return a.display_name.localeCompare(b.display_name);
       });
       setProfiles(unique);
+      setFriends(friendPlayers.filter(player => !seen.has(player.id)));
       setAccountPlayerId(nextAccountPlayerId);
-      setStatus(unique.length ? '' : 'No saved players yet.');
+      setStatus(unique.length || friendPlayers.length ? '' : 'No saved players yet.');
 
       if (!browseOnly && !autoSelectedRef.current && activePlayerIds.length === 0 && nextAccountPlayerId) {
         const me = unique.find(player => player.id === nextAccountPlayerId);
@@ -118,6 +138,19 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
     onClose();
   }
 
+  function renderPlayer(profile, labelSuffix = '') {
+    const alreadyPlaying = activePlayerIds.includes(profile.id);
+    const isMe = profile.id === accountPlayerId;
+    const label = `${profile.display_name}${isMe ? ' · You' : ''}${labelSuffix}`;
+    if (browseOnly) {
+      return <button key={profile.id} className="button secondary" type="button" onClick={() => setSelectedProfile(profile)} style={{ width: '100%', textAlign: 'left' }}>{label}</button>;
+    }
+    return <div key={profile.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '8px' }}>
+      <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile?.(profile); onClose(); }} style={{ opacity: alreadyPlaying ? .5 : 1, minWidth: 0, textAlign: 'left' }}>{label}{alreadyPlaying ? ' · Playing' : ''}</button>
+      <button className="button ghost" type="button" onClick={() => setSelectedProfile(profile)} aria-label={`View ${profile.display_name} profile`}>Stats</button>
+    </div>;
+  }
+
   if (!open) return null;
 
   return <div style={{ position: 'fixed', inset: 0, zIndex: 340, background: 'rgba(0,0,0,.8)', padding: '18px', display: 'grid', placeItems: 'center' }}>
@@ -129,24 +162,13 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         </div>
 
         <p style={{ margin: '0 0 10px', color: '#fff4d6', fontWeight: 900 }}>Saved Players</p>
-        <div style={{ display: 'grid', gap: '8px' }}>
-          {profiles.map(profile => {
-            const alreadyPlaying = activePlayerIds.includes(profile.id);
-            const isMe = profile.id === accountPlayerId;
-            const label = `${profile.display_name}${isMe ? ' · You' : ''}`;
-            if (browseOnly) {
-              return <button key={profile.id} className="button secondary" type="button" onClick={() => setSelectedProfile(profile)} style={{ width: '100%', textAlign: 'left' }}>
-                {label}
-              </button>;
-            }
-            return <div key={profile.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '8px' }}>
-              <button className="button secondary" disabled={alreadyPlaying} onClick={() => { onSelectProfile?.(profile); onClose(); }} style={{ opacity: alreadyPlaying ? .5 : 1, minWidth: 0, textAlign: 'left' }}>
-                {label}{alreadyPlaying ? ' · Playing' : ''}
-              </button>
-              <button className="button ghost" type="button" onClick={() => setSelectedProfile(profile)} aria-label={`View ${profile.display_name} profile`}>Stats</button>
-            </div>;
-          })}
-        </div>
+        <div style={{ display: 'grid', gap: '8px' }}>{profiles.map(profile => renderPlayer(profile))}</div>
+
+        {friends.length > 0 && <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)' }}>
+          <p style={{ margin: '0 0 10px', color: '#fff4d6', fontWeight: 900 }}>Friends</p>
+          <div style={{ display: 'grid', gap: '8px' }}>{friends.map(profile => renderPlayer(profile, ' · Friend'))}</div>
+        </div>}
+
         {status && <p className="status-line">{status}</p>}
 
         <form onSubmit={createProfile} style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)', display: 'grid', gap: '10px' }}>
