@@ -68,3 +68,29 @@
 #rules .rule-answer strong{
   color:var(--gold);
 }
+
+.tbd-rules-board{
+  width:min(100%,520px);
+  margin:18px auto 20px;
+  text-align:center;
+}
+
+.tbd-rules-board img{
+  display:block;
+  width:100%;
+  height:auto;
+  border:1px solid rgba(208,169,72,.48);
+  border-radius:50%;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.38));
+}
+
+.tbd-rules-board figcaption{
+  margin-top:10px;
+  color:rgba(245,232,198,.78);
+  font-size:.92rem;
+  line-height:1.45;
+}
+
+.tbd-rules-board figcaption strong{
+  color:var(--gold);
+}
