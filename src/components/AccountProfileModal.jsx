@@ -96,29 +96,59 @@ export default function AccountProfileModal({ open, onClose }) {
       return;
     }
 
-    const { data: existingLocal } = await supabase
+    const ownerKey = getOwnerKey();
+    const { data: linkedPlayer } = await supabase
       .from('players')
       .select('id')
-      .eq('owner_key', getOwnerKey())
-      .eq('display_name', name)
+      .eq('profile_id', data.id)
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle();
 
-    if (existingLocal?.id) {
-      await supabase.from('players').update({ profile_id: data.id, is_profile: true }).eq('id', existingLocal.id);
+    let accountPlayerId = linkedPlayer?.id ?? null;
+
+    if (accountPlayerId) {
+      await supabase
+        .from('players')
+        .update({ owner_key: ownerKey, display_name: name, is_profile: true })
+        .eq('id', accountPlayerId);
     } else {
-      const { data: linkedPlayer } = await supabase.from('players').select('id').eq('profile_id', data.id).limit(1).maybeSingle();
-      if (!linkedPlayer?.id) {
-        await supabase.from('players').insert({ owner_key: getOwnerKey(), display_name: name, is_profile: true, profile_id: data.id });
+      const { data: existingLocal } = await supabase
+        .from('players')
+        .select('id')
+        .eq('owner_key', ownerKey)
+        .eq('display_name', name)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingLocal?.id) {
+        accountPlayerId = existingLocal.id;
+        await supabase
+          .from('players')
+          .update({ profile_id: data.id, is_profile: true, display_name: name })
+          .eq('id', existingLocal.id);
+      } else {
+        const { data: createdPlayer, error: playerError } = await supabase
+          .from('players')
+          .insert({ owner_key: ownerKey, display_name: name, is_profile: true, profile_id: data.id })
+          .select('id')
+          .single();
+        if (playerError || !createdPlayer) {
+          setLoading(false);
+          setStatus(playerError?.message || 'Profile saved, but your player identity could not be created.');
+          return;
+        }
+        accountPlayerId = createdPlayer.id;
       }
     }
 
+    window.dispatchEvent(new CustomEvent('tbd-account-player-changed', { detail: { playerId: accountPlayerId, profileId: data.id, displayName: name } }));
     setProfile(data);
     setUsername(data.username ?? '');
     setDisplayName(data.display_name ?? '');
     setLoading(false);
-    setStatus('Profile saved. Your TwoBall identity now follows your account.');
+    setStatus('Profile saved. Your TwoBall player identity is synced across devices.');
   }
 
   async function signOut() {
