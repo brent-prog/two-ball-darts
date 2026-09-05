@@ -6,7 +6,7 @@ const FOOTER_HTML = `
   <div class="tbd-rockpail-footer-inner">
     <div class="tbd-footer-twoball">
       <img
-        src="/two-ball-darts-logo.png"
+        src="/two-ball-darts-logo-clean.webp"
         alt="Two Ball Darts"
         class="tbd-footer-twoball-logo"
       />
@@ -18,7 +18,7 @@ const FOOTER_HTML = `
     <div class="tbd-footer-rockpail">
       <a href="https://rockpail.com" aria-label="Visit RockPail.com">
         <img
-          src="/rockpail-production-white-footer.png"
+          src="/rockpail-production-white-footer.webp"
           alt="A RockPail Production"
           class="tbd-rockpail-footer-logo"
         />
