@@ -10,7 +10,7 @@ function addButton() {
   button.type = 'button';
   button.className = 'button secondary';
   button.dataset.tbdPlayerProfiles = 'true';
-  button.textContent = 'Player Profiles';
+  button.textContent = 'Players';
   savedButton.insertAdjacentElement('afterend', button);
 }
 
