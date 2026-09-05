@@ -20,6 +20,7 @@ import MainPlayerProfilesAccess from '@/components/MainPlayerProfilesAccess';
 import MainPlayerProfilesButtonEnhancer from '@/components/MainPlayerProfilesButtonEnhancer';
 import MainAccountAccess from '@/components/MainAccountAccess';
 import MainAccountButtonEnhancer from '@/components/MainAccountButtonEnhancer';
+import AccountRoundIdentityEnhancer from '@/components/AccountRoundIdentityEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -50,6 +51,7 @@ export default function RootLayout({ children }) {
         <MainPlayerProfilesButtonEnhancer />
         <MainAccountAccess />
         <MainAccountButtonEnhancer />
+        <AccountRoundIdentityEnhancer />
         {children}
       </body>
     </html>
