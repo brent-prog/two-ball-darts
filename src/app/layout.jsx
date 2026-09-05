@@ -21,7 +21,11 @@ import MainPlayerProfilesButtonEnhancer from '@/components/MainPlayerProfilesBut
 
 export const metadata = {
   title: 'TWO BALL DARTS',
-  description: 'No gimmes. Just throw. Live golf-style darts scoring and official rules.'
+  description: 'No gimmes. Just throw. Live golf-style darts scoring and official rules.',
+  icons: {
+    icon: [{ url: '/two-ball-darts-favicon-clean.svg', type: 'image/svg+xml' }],
+    shortcut: '/two-ball-darts-favicon-clean.svg'
+  }
 };
 
 export const viewport = {
