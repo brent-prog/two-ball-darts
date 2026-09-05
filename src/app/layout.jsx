@@ -18,6 +18,8 @@ import LiveScoreButtonToneEnhancer from '@/components/LiveScoreButtonToneEnhance
 import RockPailFooterEnhancer from '@/components/RockPailFooterEnhancer';
 import MainPlayerProfilesAccess from '@/components/MainPlayerProfilesAccess';
 import MainPlayerProfilesButtonEnhancer from '@/components/MainPlayerProfilesButtonEnhancer';
+import MainAccountAccess from '@/components/MainAccountAccess';
+import MainAccountButtonEnhancer from '@/components/MainAccountButtonEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -46,6 +48,8 @@ export default function RootLayout({ children }) {
         <RockPailFooterEnhancer />
         <MainPlayerProfilesAccess />
         <MainPlayerProfilesButtonEnhancer />
+        <MainAccountAccess />
+        <MainAccountButtonEnhancer />
         {children}
       </body>
     </html>
