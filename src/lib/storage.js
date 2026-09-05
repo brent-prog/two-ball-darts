@@ -8,3 +8,8 @@ export function getOwnerKey() {
   window.localStorage.setItem(OWNER_KEY, next);
   return next;
 }
+
+export function setOwnerKey(ownerKey) {
+  if (typeof window === 'undefined' || !ownerKey) return;
+  window.localStorage.setItem(OWNER_KEY, ownerKey);
+}
