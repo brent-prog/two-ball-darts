@@ -15,16 +15,42 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
   async function loadProfiles() {
     setLoading(true);
     setStatus('Loading players...');
-    const { data, error } = await supabase
+
+    const ownerKey = getOwnerKey();
+    let accountProfileId = null;
+    const { data: userData } = await supabase.auth.getUser();
+    const authUser = userData?.user ?? null;
+
+    if (authUser) {
+      const { data: accountProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+      accountProfileId = accountProfile?.id ?? null;
+    }
+
+    let query = supabase
       .from('players')
-      .select('id,display_name')
-      .eq('owner_key', getOwnerKey())
+      .select('id,display_name,profile_id')
       .eq('is_profile', true)
       .order('display_name', { ascending: true });
+
+    if (accountProfileId) query = query.or(`owner_key.eq.${ownerKey},profile_id.eq.${accountProfileId}`);
+    else query = query.eq('owner_key', ownerKey);
+
+    const { data, error } = await query;
     if (error) setStatus(error.message);
     else {
-      setProfiles(data ?? []);
-      setStatus(data?.length ? '' : 'No saved players yet.');
+      const unique = [];
+      const seen = new Set();
+      (data ?? []).forEach(player => {
+        if (seen.has(player.id)) return;
+        seen.add(player.id);
+        unique.push(player);
+      });
+      setProfiles(unique);
+      setStatus(unique.length ? '' : 'No saved players yet.');
     }
     setLoading(false);
   }
@@ -45,7 +71,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
     const { data, error } = await supabase
       .from('players')
       .upsert({ owner_key: getOwnerKey(), display_name: displayName, is_profile: true }, { onConflict: 'owner_key,display_name' })
-      .select('id,display_name')
+      .select('id,display_name,profile_id')
       .single();
     setLoading(false);
     if (error || !data) {
