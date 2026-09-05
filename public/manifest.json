@@ -1,0 +1,26 @@
+{
+  "name": "TwoBall Darts",
+  "short_name": "TwoBall",
+  "description": "No gimmes. Just throw. Live golf-style darts scoring.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#02140f",
+  "theme_color": "#02140f",
+  "categories": ["games", "sports", "entertainment"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">TwoBall Darts app icon</title>
+  <desc id="desc">A simple TwoBall Darts placeholder app icon using the brand colors.</desc>
+  <rect width="512" height="512" rx="104" fill="#02140f"/>
+  <circle cx="256" cy="256" r="196" fill="#063927" stroke="#d0a948" stroke-width="18"/>
+  <circle cx="256" cy="256" r="118" fill="none" stroke="#f5e8c6" stroke-width="10" opacity="0.9"/>
+  <circle cx="256" cy="256" r="54" fill="#f5e8c6"/>
+  <path d="M352 126l42-42 12 58 58 12-42 42-51-19-19-51z" fill="#be1412" stroke="#f5e8c6" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M308 204l70-70" stroke="#f5e8c6" stroke-width="16" stroke-linecap="round"/>
+  <text x="256" y="407" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="900" letter-spacing="3" fill="#fff4d6">TWO</text>
+  <text x="256" y="454" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="900" letter-spacing="2" fill="#d0a948">BALL</text>
+</svg>
