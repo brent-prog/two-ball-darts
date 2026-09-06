@@ -18,6 +18,20 @@ async function syncAccountOwnerKey() {
   window.dispatchEvent(new CustomEvent('tbd-owner-key-changed', { detail: { ownerKey: cloudOwnerKey } }));
 }
 
+async function profileNeedsSetup() {
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData?.user ?? null;
+  if (!user) return false;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username,display_name')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  return !profile?.username || !profile?.display_name?.trim();
+}
+
 function rotateGuestOwnerKey() {
   if (typeof window === 'undefined') return;
   const nextOwnerKey = crypto.randomUUID();
@@ -29,11 +43,23 @@ export default function MainAccountAccess() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    syncAccountOwnerKey();
+    let cancelled = false;
+
+    async function syncAndPrompt() {
+      await syncAccountOwnerKey();
+      if (cancelled) return;
+      if (await profileNeedsSetup()) setOpen(true);
+    }
+
+    syncAndPrompt();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(event => {
       if (event === 'SIGNED_OUT') {
         rotateGuestOwnerKey();
+        return;
+      }
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        window.setTimeout(() => syncAndPrompt(), 0);
         return;
       }
       window.setTimeout(() => syncAccountOwnerKey(), 0);
@@ -47,6 +73,7 @@ export default function MainAccountAccess() {
     };
     document.addEventListener('click', handler);
     return () => {
+      cancelled = true;
       document.removeEventListener('click', handler);
       authListener?.subscription?.unsubscribe();
     };
