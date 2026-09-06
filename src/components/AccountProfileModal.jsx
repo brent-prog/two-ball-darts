@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
-const cleanUsername = value => value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+const cleanUsername = value => value.replace(/[^A-Za-z0-9_]/g, '').slice(0, 24);
 
 export default function AccountProfileModal({ open, onClose }) {
   const [user, setUser] = useState(null);
@@ -39,9 +39,10 @@ export default function AccountProfileModal({ open, onClose }) {
 
     if (error) setStatus(error.message);
     else {
+      const complete = Boolean(data?.username && data?.display_name?.trim());
       setProfile(data ?? null);
-      setUsername(data?.username ?? '');
-      setDisplayName(data?.display_name ?? '');
+      setUsername(complete ? (data?.username ?? '') : '');
+      setDisplayName(complete ? (data?.display_name ?? '') : '');
       setStatus('');
     }
     setLoading(false);
@@ -71,7 +72,7 @@ export default function AccountProfileModal({ open, onClose }) {
   async function saveProfile(event) {
     event.preventDefault();
     if (!user) return;
-    const handle = cleanUsername(username);
+    const handle = cleanUsername(username).trim();
     const name = displayName.trim();
     if (handle.length < 3) {
       setStatus('Username must be at least 3 characters.');
@@ -160,10 +161,12 @@ export default function AccountProfileModal({ open, onClose }) {
 
   if (!open) return null;
 
+  const profileComplete = Boolean(profile?.username && profile?.display_name?.trim());
+
   return <div style={{ position: 'fixed', inset: 0, zIndex: 360, background: 'rgba(0,0,0,.82)', padding: '18px', display: 'grid', placeItems: 'center' }}>
     <div className="card" style={{ width: 'min(560px,96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
       <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
-        <div><p className="eyebrow">TwoBall account</p><h2 style={{ fontSize: 'clamp(2rem,7vw,3.5rem)' }}>{user ? 'My Profile' : 'Save Your Game'}</h2></div>
+        <div><p className="eyebrow">TwoBall account</p><h2 style={{ fontSize: 'clamp(2rem,7vw,3.5rem)' }}>{user ? (profileComplete ? 'My Profile' : 'Complete Your Profile') : 'Save Your Game'}</h2></div>
         <button className="button secondary" onClick={onClose}>Close</button>
       </div>
 
@@ -176,13 +179,15 @@ export default function AccountProfileModal({ open, onClose }) {
         </form>
       </> : <form onSubmit={saveProfile} style={{ display: 'grid', gap: '10px' }}>
         <p style={{ marginTop: 0, opacity: .72, fontSize: '.86rem' }}>{user.email}</p>
+        {!profileComplete && <p style={{ margin: '0 0 4px', lineHeight: 1.45 }}>Choose how you want to appear in TwoBall. You can change both later.</p>}
         <label htmlFor="twoball-display-name" style={{ color: '#fff4d6', fontWeight: 900 }}>Display Name</label>
-        <input id="twoball-display-name" value={displayName} onChange={event => setDisplayName(event.target.value)} placeholder="Brent" autoComplete="nickname" />
+        <input id="twoball-display-name" value={displayName} onChange={event => setDisplayName(event.target.value)} placeholder="Type your display name" autoComplete="nickname" style={{ background: '#fff', color: '#111' }} />
+        <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>This is the name shown on scorecards and to your friends.</p>
         <label htmlFor="twoball-username" style={{ color: '#fff4d6', fontWeight: 900 }}>Username</label>
-        <input id="twoball-username" value={username} onChange={event => setUsername(cleanUsername(event.target.value))} placeholder="brent" autoCapitalize="none" autoCorrect="off" />
-        <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>3-24 characters. Letters, numbers and underscores. This will be how friends find you.</p>
-        <button className="button primary" type="submit" disabled={loading || !displayName.trim() || cleanUsername(username).length < 3}>{profile?.username ? 'Update Profile' : 'Create My Profile'}</button>
-        <button className="button ghost" type="button" onClick={signOut} disabled={loading}>Sign Out</button>
+        <input id="twoball-username" value={username} onChange={event => setUsername(cleanUsername(event.target.value))} placeholder="Choose a username" autoCapitalize="none" autoCorrect="off" style={{ background: '#fff', color: '#111' }} />
+        <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>3-24 characters. Uppercase/lowercase letters, numbers and underscores. Friends can search for you without matching capitalization.</p>
+        <button className="button primary" type="submit" disabled={loading || !displayName.trim() || cleanUsername(username).trim().length < 3}>{profileComplete ? 'Update Profile' : 'Save My Profile'}</button>
+        {profileComplete && <button className="button ghost" type="button" onClick={signOut} disabled={loading}>Sign Out</button>}
       </form>}
 
       {status && <p className="status-line" style={{ marginBottom: 0 }}>{status}</p>}
