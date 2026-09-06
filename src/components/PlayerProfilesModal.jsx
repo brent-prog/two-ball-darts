@@ -76,7 +76,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
 
     let query = supabase
       .from('players')
-      .select('id,display_name,profile_id,owner_profile_id')
+      .select('id,display_name,profile_id,owner_profile_id,owner_key')
       .eq('is_profile', true)
       .order('display_name', { ascending: true });
 
@@ -89,6 +89,12 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
       const unique = [];
       const seen = new Set();
       (data ?? []).forEach(player => {
+        const isOwnAccount = nextAccountProfileId && player.profile_id === nextAccountProfileId;
+        const isSavedGuest = !player.profile_id && (
+          (nextAccountProfileId && player.owner_profile_id === nextAccountProfileId) ||
+          player.owner_key === ownerKey
+        );
+        if (nextAccountProfileId && !isOwnAccount && !isSavedGuest) return;
         if (seen.has(player.id)) return;
         seen.add(player.id);
         unique.push(player);
@@ -99,7 +105,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
         return a.display_name.localeCompare(b.display_name);
       });
       setProfiles(unique);
-      setFriends(friendPlayers.filter(player => !seen.has(player.id)));
+      setFriends(friendPlayers);
       setAccountPlayerId(nextAccountPlayerId);
       setAccountProfileId(nextAccountProfileId);
       setStatus(unique.length || friendPlayers.length ? '' : 'No players yet.');
