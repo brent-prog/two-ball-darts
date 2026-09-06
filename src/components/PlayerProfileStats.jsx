@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 const fmt = score => score === 0 ? 'E' : score > 0 ? `+${score}` : `${score}`;
+const isComplete = row => new Set((row?.hole_scores ?? []).map(score => score.hole_number)).size === 18;
 
 const scoringLabels = [
   ['eagle', 'Eagles', '-2'],
@@ -17,6 +18,8 @@ const scoringLabels = [
 export default function PlayerProfileStats({ profile, onBack }) {
   const [rows, setRows] = useState([]);
   const [fieldRows, setFieldRows] = useState([]);
+  const [myPlayer, setMyPlayer] = useState(null);
+  const [sharedRows, setSharedRows] = useState([]);
   const [status, setStatus] = useState('Loading profile...');
 
   useEffect(() => {
@@ -24,6 +27,9 @@ export default function PlayerProfileStats({ profile, onBack }) {
 
     async function load() {
       setStatus('Loading profile...');
+      setMyPlayer(null);
+      setSharedRows([]);
+
       const { data, error } = await supabase
         .from('game_players')
         .select('id,game_id,total_score,total_strokes,games(id,title,played_at,course_name),hole_scores(hole_number,result,relative_score)')
@@ -40,37 +46,96 @@ export default function PlayerProfileStats({ profile, onBack }) {
       setRows(playerRows);
 
       const gameIds = [...new Set(playerRows.map(row => row.game_id).filter(Boolean))];
-      if (!gameIds.length) {
+      if (gameIds.length) {
+        const { data: allPlayers, error: fieldError } = await supabase
+          .from('game_players')
+          .select('game_id,player_id,total_score,hole_scores(hole_number)')
+          .in('game_id', gameIds);
+
+        if (cancelled) return;
+        if (fieldError) {
+          setStatus(fieldError.message);
+          return;
+        }
+        setFieldRows(allPlayers ?? []);
+      } else {
         setFieldRows([]);
-        setStatus('');
-        return;
       }
 
-      const { data: allPlayers, error: fieldError } = await supabase
-        .from('game_players')
-        .select('game_id,player_id,total_score,hole_scores(hole_number)')
-        .in('game_id', gameIds);
+      // Social stats only apply to account-linked players. Saved Guests have no profile_id.
+      if (profile.profile_id) {
+        const { data: userData } = await supabase.auth.getUser();
+        const authUser = userData?.user ?? null;
 
-      if (cancelled) return;
-      if (fieldError) {
-        setStatus(fieldError.message);
-        return;
+        if (authUser) {
+          const { data: ownProfile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', authUser.id)
+            .maybeSingle();
+
+          if (cancelled) return;
+
+          if (ownProfile?.id && ownProfile.id !== profile.profile_id) {
+            const { data: ownPlayer } = await supabase
+              .from('players')
+              .select('id,display_name,profile_id')
+              .eq('profile_id', ownProfile.id)
+              .eq('is_profile', true)
+              .order('created_at', { ascending: true })
+              .limit(1)
+              .maybeSingle();
+
+            if (cancelled) return;
+
+            if (ownPlayer?.id) {
+              setMyPlayer(ownPlayer);
+
+              const friendCompleteGameIds = playerRows.filter(isComplete).map(row => row.game_id);
+              if (friendCompleteGameIds.length) {
+                const { data: mine, error: mineError } = await supabase
+                  .from('game_players')
+                  .select('id,game_id,total_score,total_strokes,games(id,title,played_at,course_name),hole_scores(hole_number,result,relative_score)')
+                  .eq('player_id', ownPlayer.id)
+                  .in('game_id', friendCompleteGameIds);
+
+                if (cancelled) return;
+                if (mineError) {
+                  setStatus(mineError.message);
+                  return;
+                }
+
+                const friendByGame = new Map(playerRows.filter(isComplete).map(row => [row.game_id, row]));
+                const shared = (mine ?? [])
+                  .filter(isComplete)
+                  .map(myRow => ({
+                    game_id: myRow.game_id,
+                    game: myRow.games,
+                    mine: myRow,
+                    theirs: friendByGame.get(myRow.game_id)
+                  }))
+                  .filter(item => item.theirs)
+                  .sort((a, b) => new Date(b.game?.played_at || 0) - new Date(a.game?.played_at || 0));
+
+                setSharedRows(shared);
+              }
+            }
+          }
+        }
       }
 
-      setFieldRows(allPlayers ?? []);
       setStatus('');
     }
 
     load();
     return () => { cancelled = true; };
-  }, [profile.id]);
+  }, [profile.id, profile.profile_id]);
 
   const stats = useMemo(() => {
-    const completeRows = rows.filter(row => new Set((row.hole_scores ?? []).map(score => score.hole_number)).size === 18);
+    const completeRows = rows.filter(isComplete);
     const gameFields = new Map();
     fieldRows.forEach(row => {
-      const complete = new Set((row.hole_scores ?? []).map(score => score.hole_number)).size === 18;
-      if (!complete) return;
+      if (!isComplete(row)) return;
       if (!gameFields.has(row.game_id)) gameFields.set(row.game_id, []);
       gameFields.get(row.game_id).push(row);
     });
@@ -89,14 +154,7 @@ export default function PlayerProfileStats({ profile, onBack }) {
     const average = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : null;
     const best = scores.length ? Math.min(...scores) : null;
 
-    const breakdown = {
-      eagle: 0,
-      birdie: 0,
-      par: 0,
-      bogey: 0,
-      double_bogey: 0,
-      triple_bogey: 0
-    };
+    const breakdown = { eagle: 0, birdie: 0, par: 0, bogey: 0, double_bogey: 0, triple_bogey: 0 };
 
     rows.forEach(row => {
       (row.hole_scores ?? []).forEach(score => {
@@ -135,17 +193,83 @@ export default function PlayerProfileStats({ profile, onBack }) {
     };
   }, [rows, fieldRows]);
 
+  const headToHead = useMemo(() => {
+    let myWins = 0;
+    let theirWins = 0;
+    let ties = 0;
+    let myTotal = 0;
+    let theirTotal = 0;
+
+    sharedRows.forEach(item => {
+      const mine = Number(item.mine.total_score);
+      const theirs = Number(item.theirs.total_score);
+      myTotal += mine;
+      theirTotal += theirs;
+      if (mine < theirs) myWins += 1;
+      else if (theirs < mine) theirWins += 1;
+      else ties += 1;
+    });
+
+    return {
+      rounds: sharedRows.length,
+      myWins,
+      theirWins,
+      ties,
+      myAverage: sharedRows.length ? myTotal / sharedRows.length : null,
+      theirAverage: sharedRows.length ? theirTotal / sharedRows.length : null,
+      lastPlayed: sharedRows[0]?.game?.played_at ?? null
+    };
+  }, [sharedRows]);
+
   return (
     <div>
       <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
         <div>
-          <p className="eyebrow">Player Profile</p>
+          <p className="eyebrow">{myPlayer ? 'Friend Profile' : 'Player Profile'}</p>
           <h2 style={{ fontSize: 'clamp(2rem, 7vw, 3.4rem)' }}>{profile.display_name}</h2>
         </div>
         <button className="button secondary" onClick={onBack}>Back</button>
       </div>
 
       {status && <p className="status-line">{status}</p>}
+
+      {myPlayer && <div style={{ marginBottom: '20px', paddingBottom: '18px', borderBottom: '1px solid rgba(208,169,72,.28)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'baseline', marginBottom: '10px' }}>
+          <p style={{ margin: 0, color: '#fff4d6', fontWeight: 900 }}>Head-to-Head</p>
+          <span style={{ opacity: .68, fontSize: '.78rem', fontWeight: 800 }}>Completed 18-hole rounds together</span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: '8px' }}>
+          <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>Rounds Together</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{headToHead.rounds}</strong></div>
+          <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>Record</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{headToHead.myWins}-{headToHead.theirWins}-{headToHead.ties}</strong><span style={{ display: 'block', marginTop: '2px', opacity: .62, fontSize: '.72rem' }}>You - {profile.display_name} - Ties</span></div>
+          <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>Your Avg Together</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{headToHead.myAverage === null ? '-' : fmt(Math.round(headToHead.myAverage * 10) / 10)}</strong></div>
+          <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.76rem', fontWeight: 900, textTransform: 'uppercase' }}>{profile.display_name} Avg Together</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.5rem' }}>{headToHead.theirAverage === null ? '-' : fmt(Math.round(headToHead.theirAverage * 10) / 10)}</strong></div>
+        </div>
+
+        <p style={{ margin: '8px 0 0', opacity: .66, fontSize: '.78rem' }}>{headToHead.lastPlayed ? `Last played together ${new Date(headToHead.lastPlayed).toLocaleDateString()}.` : 'No completed rounds together yet.'} Multi-player rounds count as head-to-head between the two of you.</p>
+
+        {sharedRows.length > 0 && <>
+          <p style={{ margin: '16px 0 9px', color: '#fff4d6', fontWeight: 900 }}>Recent Rounds Together</p>
+          <div style={{ display: 'grid', gap: '8px' }}>
+            {sharedRows.slice(0, 6).map(item => {
+              const mine = Number(item.mine.total_score);
+              const theirs = Number(item.theirs.total_score);
+              const result = mine < theirs ? 'You won' : theirs < mine ? `${profile.display_name} won` : 'Tie';
+              return <div key={item.game_id} style={{ border: '1px solid rgba(208,169,72,.38)', borderRadius: '14px', padding: '10px 12px', background: 'rgba(0,0,0,.18)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'baseline' }}>
+                  <strong>{item.game?.title || 'Two Ball Darts'}</strong>
+                  <strong style={{ color: '#d0a948' }}>{result}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginTop: '4px', fontSize: '.84rem' }}>
+                  <span>You {fmt(mine)}</span>
+                  <span>{profile.display_name} {fmt(theirs)}</span>
+                </div>
+                <span style={{ display: 'block', marginTop: '3px', opacity: .66, fontSize: '.78rem' }}>{item.game?.played_at ? new Date(item.game.played_at).toLocaleDateString() : 'Date unavailable'}</span>
+              </div>;
+            })}
+          </div>
+        </>}
+      </div>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: '10px', marginBottom: '18px' }}>
         <div className="card" style={{ margin: 0, padding: '12px', textAlign: 'center' }}><span style={{ display: 'block', opacity: .72, fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase' }}>Rounds</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '1.6rem' }}>{stats.rounds}</strong></div>
@@ -175,10 +299,7 @@ export default function PlayerProfileStats({ profile, onBack }) {
             const count = stats.breakdown[key];
             const percentage = stats.totalHoles ? Math.round((count / stats.totalHoles) * 100) : 0;
             return <div key={key} style={{ border: '1px solid rgba(208,169,72,.38)', borderRadius: '14px', padding: '10px 11px', background: 'rgba(0,0,0,.18)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'baseline' }}>
-                <strong style={{ color: '#fff4d6' }}>{label}</strong>
-                <span style={{ color: '#d0a948', fontWeight: 900 }}>{score}</span>
-              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', alignItems: 'baseline' }}><strong style={{ color: '#fff4d6' }}>{label}</strong><span style={{ color: '#d0a948', fontWeight: 900 }}>{score}</span></div>
               <strong style={{ display: 'block', marginTop: '5px', fontSize: '1.5rem' }}>{count}</strong>
               <span style={{ display: 'block', marginTop: '2px', opacity: .66, fontSize: '.78rem', fontWeight: 800 }}>{percentage}% of holes</span>
             </div>;
@@ -192,10 +313,7 @@ export default function PlayerProfileStats({ profile, onBack }) {
           const holesPlayed = new Set((row.hole_scores ?? []).map(score => score.hole_number)).size;
           const complete = holesPlayed === 18;
           return <div key={row.id} style={{ border: '1px solid rgba(208,169,72,.38)', borderRadius: '14px', padding: '10px 12px', background: 'rgba(0,0,0,.18)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'baseline' }}>
-              <strong>{row.games?.title || 'Two Ball Darts'}</strong>
-              <strong style={{ color: '#d0a948' }}>{fmt(Number(row.total_score) || 0)}</strong>
-            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'baseline' }}><strong>{row.games?.title || 'Two Ball Darts'}</strong><strong style={{ color: '#d0a948' }}>{fmt(Number(row.total_score) || 0)}</strong></div>
             <span style={{ display: 'block', marginTop: '3px', opacity: .72, fontSize: '.82rem' }}>{row.games?.played_at ? new Date(row.games.played_at).toLocaleDateString() : 'Date unavailable'} · {complete ? '18 holes' : `${holesPlayed} holes`}</span>
           </div>;
         })}
