@@ -10,30 +10,10 @@ async function syncAccountOwnerKey() {
   const user = userData?.user ?? null;
   if (!user) return;
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id,owner_key')
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  if (!profile?.id) return;
-
-  if (profile.owner_key) {
-    setOwnerKey(profile.owner_key);
-    window.dispatchEvent(new CustomEvent('tbd-owner-key-changed', { detail: { ownerKey: profile.owner_key } }));
-    return;
-  }
-
   const browserOwnerKey = getOwnerKey();
-  const { data: claimedProfile } = await supabase
-    .from('profiles')
-    .update({ owner_key: browserOwnerKey, updated_at: new Date().toISOString() })
-    .eq('id', profile.id)
-    .is('owner_key', null)
-    .select('owner_key')
-    .maybeSingle();
+  const { data: cloudOwnerKey, error } = await supabase.rpc('sync_my_owner_key', { browser_owner_key: browserOwnerKey });
+  if (error || !cloudOwnerKey) return;
 
-  const cloudOwnerKey = claimedProfile?.owner_key ?? browserOwnerKey;
   setOwnerKey(cloudOwnerKey);
   window.dispatchEvent(new CustomEvent('tbd-owner-key-changed', { detail: { ownerKey: cloudOwnerKey } }));
 }
