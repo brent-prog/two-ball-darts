@@ -18,13 +18,24 @@ async function syncAccountOwnerKey() {
   window.dispatchEvent(new CustomEvent('tbd-owner-key-changed', { detail: { ownerKey: cloudOwnerKey } }));
 }
 
+function rotateGuestOwnerKey() {
+  if (typeof window === 'undefined') return;
+  const nextOwnerKey = crypto.randomUUID();
+  setOwnerKey(nextOwnerKey);
+  window.dispatchEvent(new CustomEvent('tbd-owner-key-changed', { detail: { ownerKey: nextOwnerKey } }));
+}
+
 export default function MainAccountAccess() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     syncAccountOwnerKey();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(event => {
+      if (event === 'SIGNED_OUT') {
+        rotateGuestOwnerKey();
+        return;
+      }
       window.setTimeout(() => syncAccountOwnerKey(), 0);
     });
 
