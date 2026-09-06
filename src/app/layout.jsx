@@ -23,6 +23,8 @@ import MainAccountButtonEnhancer from '@/components/MainAccountButtonEnhancer';
 import AccountRoundIdentityEnhancer from '@/components/AccountRoundIdentityEnhancer';
 import MainFriendsAccess from '@/components/MainFriendsAccess';
 import GuestInviteClaimEnhancer from '@/components/GuestInviteClaimEnhancer';
+import SavedRoundsNavigationEnhancer from '@/components/SavedRoundsNavigationEnhancer';
+import AccountStatusIndicator from '@/components/AccountStatusIndicator';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -55,6 +57,8 @@ export default function RootLayout({ children }) {
         <AccountRoundIdentityEnhancer />
         <MainFriendsAccess />
         <GuestInviteClaimEnhancer />
+        <SavedRoundsNavigationEnhancer />
+        <AccountStatusIndicator />
         {children}
       </body>
     </html>
