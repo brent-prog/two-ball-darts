@@ -26,6 +26,7 @@ import GuestInviteClaimEnhancer from '@/components/GuestInviteClaimEnhancer';
 import SavedRoundsNavigationEnhancer from '@/components/SavedRoundsNavigationEnhancer';
 import SignedOutActionGuard from '@/components/SignedOutActionGuard';
 import FriendRequestNotificationEnhancer from '@/components/FriendRequestNotificationEnhancer';
+import HomeLiveRoundCleanup from '@/components/HomeLiveRoundCleanup';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -61,6 +62,7 @@ export default function RootLayout({ children }) {
         <SavedRoundsNavigationEnhancer />
         <SignedOutActionGuard />
         <FriendRequestNotificationEnhancer />
+        <HomeLiveRoundCleanup />
         {children}
       </body>
     </html>
