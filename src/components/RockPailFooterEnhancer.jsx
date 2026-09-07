@@ -26,7 +26,7 @@ const FOOTER_HTML = `
       <p class="tbd-footer-rockpail-purpose">KEEP FUN SIMPLE</p>
     </div>
   </div>
-  <a class="tbd-footer-contact" href="mailto:brent@3psolutions.ca">Contact / Feedback</a>
+  <a class="tbd-footer-contact" href="mailto:info@twoballdarts.com">Contact / Feedback</a>
 `;
 
 function applyFooterBrand() {
