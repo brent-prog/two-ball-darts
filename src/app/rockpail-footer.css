@@ -80,6 +80,25 @@
   white-space:nowrap;
 }
 
+.tbd-footer-contact{
+  display:block;
+  width:100%;
+  margin:16px 0 0;
+  padding-top:14px;
+  border-top:1px solid rgba(208,169,72,.28);
+  color:#fff4d6;
+  font-size:.9rem;
+  font-weight:900;
+  letter-spacing:.03em;
+  text-align:center;
+  text-decoration-color:#d0a948;
+  text-underline-offset:.28rem;
+}
+
+.tbd-footer-contact:hover{
+  color:#d0a948;
+}
+
 @media(max-width:700px){
   .tbd-rockpail-footer{
     padding:18px 14px!important;
