@@ -30,6 +30,7 @@ import FriendRequestNotificationEnhancer from '@/components/FriendRequestNotific
 import HomeLiveRoundCleanup from '@/components/HomeLiveRoundCleanup';
 import RoundHistoryHomeEnhancer from '@/components/RoundHistoryHomeEnhancer';
 import RoundHistoryCards from '@/components/RoundHistoryCards';
+import MissingHoleGuardEnhancer from '@/components/MissingHoleGuardEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -68,6 +69,7 @@ export default function RootLayout({ children }) {
         <HomeLiveRoundCleanup />
         <RoundHistoryHomeEnhancer />
         <RoundHistoryCards />
+        <MissingHoleGuardEnhancer />
         {children}
       </body>
     </html>
