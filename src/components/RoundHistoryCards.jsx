@@ -122,33 +122,43 @@ export default function RoundHistoryCards() {
   const [discardingId, setDiscardingId] = useState(null);
   const lastSaveMessageRef = useRef('');
 
-  function suppressLegacy(section) {
-    if (!section) return;
-    const list = section.querySelector('.history-list');
-    if (list) list.style.display = 'none';
-    const status = section.querySelector('.status-line');
-    if (status) status.style.display = 'none';
-    const legacyMore = section.querySelector('[data-tbd-round-history-more]');
-    if (legacyMore) legacyMore.style.display = 'none';
-  }
-
   useEffect(() => {
     let cancelled = false;
-    let timer = null;
-    let sectionObserver = null;
+    let host = null;
 
-    function findTarget() {
-      const section = [...document.querySelectorAll('section.card')].find(node => node.querySelector('h2')?.textContent?.trim() === 'Round History');
-      if (!section) return false;
-      suppressLegacy(section);
-      sectionObserver = new MutationObserver(() => suppressLegacy(section));
-      sectionObserver.observe(section, { childList: true, subtree: true });
-      if (!cancelled) setTarget(section);
-      return true;
+    function ensureStableHost() {
+      const main = document.querySelector('main.app-shell');
+      if (!main) return;
+
+      const legacy = [...main.querySelectorAll('section.card')].find(section => {
+        const heading = section.querySelector('h2');
+        return heading?.textContent?.trim() === 'Round History' || heading?.textContent?.trim() === 'Saved rounds';
+      });
+      if (legacy && legacy !== host) legacy.style.setProperty('display', 'none', 'important');
+
+      if (!host) {
+        host = document.createElement('section');
+        host.className = 'card';
+        host.setAttribute('data-tbd-round-history-host', 'true');
+      }
+
+      if (!host.isConnected) {
+        const footer = main.querySelector('footer');
+        main.insertBefore(host, footer || null);
+      }
+
+      if (!cancelled) setTarget(current => current || host);
     }
 
-    if (!findTarget()) timer = window.setInterval(() => { if (findTarget() && timer) { window.clearInterval(timer); timer = null; } }, 300);
-    return () => { cancelled = true; if (timer) window.clearInterval(timer); sectionObserver?.disconnect(); };
+    ensureStableHost();
+    const observer = new MutationObserver(ensureStableHost);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+      host?.remove();
+    };
   }, []);
 
   async function loadGames() {
@@ -188,7 +198,6 @@ export default function RoundHistoryCards() {
     setGames(roundGames);
     setVisibleCount(PAGE_SIZE);
     setLoading(false);
-    if (target) suppressLegacy(target);
   }
 
   useEffect(() => {
@@ -243,6 +252,7 @@ export default function RoundHistoryCards() {
   if (!target) return null;
 
   return createPortal(<>
+    <div className="section-heading compact" style={{ marginBottom: '14px' }}><div><h2>Round History</h2></div></div>
     <div data-tbd-rich-round-history style={{ display: 'grid', gap: '12px', marginTop: '4px' }}>
       {loading && <p style={{ opacity: .72 }}>Loading rounds...</p>}
       {!loading && !games.length && <p style={{ opacity: .72 }}>No rounds yet.</p>}
