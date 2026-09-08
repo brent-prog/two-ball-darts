@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 const PAGE_SIZE = 5;
+const OWNER_KEY_STORAGE = 'two-ball-darts-owner-key';
 
 function text(node) {
   return node?.textContent?.replace(/\s+/g, ' ').trim() || '';
@@ -19,9 +20,43 @@ function findHistorySection() {
 export default function RoundHistoryHomeEnhancer() {
   const visibleCountRef = useRef(PAGE_SIZE);
   const loadedRef = useRef(false);
+  const loadingRef = useRef(false);
 
   useEffect(() => {
     let intervalId = null;
+    let cancelled = false;
+
+    async function syncAccountOwnerKey() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user || typeof window === 'undefined') return;
+
+      let browserOwnerKey = window.localStorage.getItem(OWNER_KEY_STORAGE);
+      if (!browserOwnerKey) {
+        browserOwnerKey = crypto.randomUUID();
+        window.localStorage.setItem(OWNER_KEY_STORAGE, browserOwnerKey);
+      }
+
+      const { data: canonicalOwnerKey, error } = await supabase.rpc('sync_my_owner_key', {
+        browser_owner_key: browserOwnerKey
+      });
+
+      if (!error && canonicalOwnerKey && canonicalOwnerKey !== browserOwnerKey) {
+        window.localStorage.setItem(OWNER_KEY_STORAGE, canonicalOwnerKey);
+      }
+    }
+
+    async function loadHistoryOnce(loadButton) {
+      if (loadedRef.current || loadingRef.current || !loadButton) return;
+      loadingRef.current = true;
+      try {
+        await syncAccountOwnerKey();
+        if (cancelled) return;
+        loadedRef.current = true;
+        loadButton.click();
+      } finally {
+        loadingRef.current = false;
+      }
+    }
 
     function applyHistoryPresentation() {
       const topSaved = [...document.querySelectorAll('.hero-actions button')]
@@ -41,10 +76,7 @@ export default function RoundHistoryHomeEnhancer() {
       const loadButton = header ? [...header.querySelectorAll('button')].find(button => text(button) === 'Load') : null;
       if (loadButton) {
         loadButton.style.display = 'none';
-        if (!loadedRef.current) {
-          loadedRef.current = true;
-          window.setTimeout(() => loadButton.click(), 50);
-        }
+        void loadHistoryOnce(loadButton);
       }
 
       const status = section.querySelector('.status-line');
@@ -94,11 +126,13 @@ export default function RoundHistoryHomeEnhancer() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange(() => {
       loadedRef.current = false;
+      loadingRef.current = false;
       visibleCountRef.current = PAGE_SIZE;
       window.setTimeout(applyHistoryPresentation, 100);
     });
 
     return () => {
+      cancelled = true;
       if (intervalId) window.clearInterval(intervalId);
       authListener?.subscription?.unsubscribe();
     };
