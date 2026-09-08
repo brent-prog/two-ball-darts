@@ -20,6 +20,14 @@
   width:30px!important;
   height:30px!important;
   align-self:center!important;
+  display:grid!important;
+  place-items:center!important;
+  border:2px solid #d0a948!important;
+  border-radius:999px!important;
+  background:#0b2b21!important;
+  color:#fff4d6!important;
+  box-shadow:none!important;
+  font-weight:1000!important;
 }
 
 .tbd-player-score-row.has-honours .tbd-player-name-input{
