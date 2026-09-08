@@ -39,11 +39,27 @@ export async function POST(request) {
   const resend = new Resend(apiKey);
   const payload = await request.text();
 
+  const svixId = request.headers.get('svix-id');
+  const svixTimestamp = request.headers.get('svix-timestamp');
+  const svixSignature = request.headers.get('svix-signature');
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    console.warn('Rejected a Resend webhook with missing signature headers.');
+    return NextResponse.json(
+      { error: 'Missing webhook signature headers.' },
+      { status: 400 },
+    );
+  }
+
   let event;
   try {
     event = resend.webhooks.verify({
       payload,
-      headers: request.headers,
+      headers: {
+        id: svixId,
+        timestamp: svixTimestamp,
+        signature: svixSignature,
+      },
       webhookSecret,
     });
   } catch (error) {
