@@ -1,0 +1,24 @@
+/* Must remain the final global stylesheet import. */
+
+#scorecard .tbd-player-score-row .tbd-player-name-line > .tbd-honours-chip{
+  display:grid!important;
+  place-items:center!important;
+  width:26px!important;
+  min-width:26px!important;
+  max-width:26px!important;
+  height:26px!important;
+  min-height:26px!important;
+  max-height:26px!important;
+  padding:0!important;
+  margin-left:2px!important;
+  border:2px solid #f5e8c6!important;
+  border-radius:6px!important;
+  background:#02140f!important;
+  background-image:none!important;
+  color:#f5e8c6!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  font-size:.72rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
+}
