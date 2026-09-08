@@ -3,6 +3,7 @@
 /* Keep every scoring row geometrically stable regardless of result text length. */
 .tbd-player-score-row{
   grid-template-columns:minmax(0,1fr) 92px!important;
+  align-items:start!important;
 }
 
 .tbd-player-score-main,
@@ -15,11 +16,14 @@
   width:92px!important;
   min-width:92px!important;
   max-width:92px!important;
+  height:44px!important;
   min-height:44px!important;
+  margin-top:0!important;
   padding:7px 8px!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
+  align-self:start!important;
   text-align:center!important;
   white-space:nowrap!important;
   line-height:1!important;
@@ -78,7 +82,8 @@
     width:84px!important;
     min-width:84px!important;
     max-width:84px!important;
-    min-height:42px!important;
+    height:38px!important;
+    min-height:38px!important;
     padding:6px 7px!important;
     font-size:.78rem!important;
   }
