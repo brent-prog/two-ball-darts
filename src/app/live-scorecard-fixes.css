@@ -166,3 +166,17 @@
     max-width:64px;
   }
 }
+
+/* Final scoring-mode treatment: honours is a status marker, not an action button. */
+#scorecard .tbd-player-score-row .tbd-honours-chip{
+  width:26px!important;
+  height:26px!important;
+  min-width:26px!important;
+  border:2px solid #f5e8c6!important;
+  border-radius:7px!important;
+  background:#02140f!important;
+  color:#f5e8c6!important;
+  box-shadow:none!important;
+  font-size:.72rem!important;
+  font-weight:1000!important;
+}
