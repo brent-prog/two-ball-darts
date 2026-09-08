@@ -32,6 +32,7 @@ import RoundHistoryHomeEnhancer from '@/components/RoundHistoryHomeEnhancer';
 import RoundHistoryCards from '@/components/RoundHistoryCards';
 import MissingHoleGuardEnhancer from '@/components/MissingHoleGuardEnhancer';
 import LiveScorecardSyncEnhancer from '@/components/LiveScorecardSyncEnhancer';
+import ScoringFeedbackEnhancer from '@/components/ScoringFeedbackEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -72,6 +73,7 @@ export default function RootLayout({ children }) {
         <RoundHistoryCards />
         <MissingHoleGuardEnhancer />
         <LiveScorecardSyncEnhancer />
+        <ScoringFeedbackEnhancer />
         {children}
       </body>
     </html>
