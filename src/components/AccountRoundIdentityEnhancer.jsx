@@ -57,8 +57,15 @@ export default function AccountRoundIdentityEnhancer() {
       return statuses.every(node => node.textContent?.trim() === 'No score yet');
     }
 
+    function scoringModeIsActive() {
+      const scorecard = document.querySelector('#scorecard');
+      if (!scorecard) return false;
+      const eyebrow = scorecard.querySelector('.eyebrow');
+      return eyebrow?.textContent?.trim().toLowerCase() === 'scoring mode';
+    }
+
     function tryUseAccountPlayer() {
-      if (!accountRef.current || attemptedRef.current || accountAlreadyInRound() || !roundLooksFresh()) return;
+      if (!scoringModeIsActive() || !accountRef.current || attemptedRef.current || accountAlreadyInRound() || !roundLooksFresh()) return;
       const chooseButton = document.querySelector('.tbd-live-score-list button.tbd-player-name-input[aria-label^="Choose "]');
       if (!chooseButton) return;
       attemptedRef.current = true;
@@ -72,7 +79,7 @@ export default function AccountRoundIdentityEnhancer() {
 
     loadAccountPlayer();
     observer = new MutationObserver(scheduleCheck);
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
     const { data: authListener } = supabase.auth.onAuthStateChange(() => {
       window.setTimeout(() => loadAccountPlayer(), 0);
