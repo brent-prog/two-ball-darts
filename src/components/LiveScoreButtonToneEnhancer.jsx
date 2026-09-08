@@ -15,12 +15,12 @@ function applyTone(button) {
   if (!button) return;
   toneClasses.forEach(className => button.classList.remove(className));
   const label = String(button.textContent || '').trim().toLowerCase();
-  if (label.startsWith('eagle')) button.classList.add('is-eagle');
-  else if (label.startsWith('birdie')) button.classList.add('is-birdie');
+  if (label.startsWith('eagle') || label.startsWith('eag')) button.classList.add('is-eagle');
+  else if (label.startsWith('birdie') || label.startsWith('brd')) button.classList.add('is-birdie');
   else if (label.startsWith('par')) button.classList.add('is-par');
-  else if (label.startsWith('double bogey')) button.classList.add('is-double-bogey');
-  else if (label.startsWith('triple bogey')) button.classList.add('is-triple-bogey');
-  else if (label.startsWith('bogey')) button.classList.add('is-bogey');
+  else if (label.startsWith('double bogey') || label.startsWith('dbg')) button.classList.add('is-double-bogey');
+  else if (label.startsWith('triple bogey') || label.startsWith('tbg')) button.classList.add('is-triple-bogey');
+  else if (label.startsWith('bogey') || label.startsWith('bog')) button.classList.add('is-bogey');
 }
 
 function refresh() {
