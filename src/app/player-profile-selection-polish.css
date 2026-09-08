@@ -16,7 +16,7 @@
 }
 
 .tbd-player-score-row:has(button.tbd-player-name-input)::before{
-  content:'PLAYER ' counter(tbd-player-slot)!important;
+  content:''!important;
   display:block!important;
   margin:0 0 7px!important;
   color:#d0a948!important;
@@ -25,6 +25,13 @@
   letter-spacing:.12em!important;
   line-height:1!important;
 }
+
+.tbd-live-score-list > .tbd-player-score-row:nth-child(1):has(button.tbd-player-name-input)::before{content:'PLAYER 1'!important;}
+.tbd-live-score-list > .tbd-player-score-row:nth-child(2):has(button.tbd-player-name-input)::before{content:'PLAYER 2'!important;}
+.tbd-live-score-list > .tbd-player-score-row:nth-child(3):has(button.tbd-player-name-input)::before{content:'PLAYER 3'!important;}
+.tbd-live-score-list > .tbd-player-score-row:nth-child(4):has(button.tbd-player-name-input)::before{content:'PLAYER 4'!important;}
+.tbd-live-score-list > .tbd-player-score-row:nth-child(5):has(button.tbd-player-name-input)::before{content:'PLAYER 5'!important;}
+.tbd-live-score-list > .tbd-player-score-row:nth-child(6):has(button.tbd-player-name-input)::before{content:'PLAYER 6'!important;}
 
 .tbd-player-score-row:has(button.tbd-player-name-input) .tbd-player-score-main{
   width:100%!important;
@@ -101,6 +108,11 @@ button.tbd-player-name-input::after{
   line-height:1.1!important;
   text-transform:none!important;
   opacity:1!important;
+}
+
+/* Round History belongs on the home screen only. Scoring Mode removes the hero card. */
+.app-shell:not(:has(.hero-card)) > [data-tbd-round-history-host]{
+  display:none!important;
 }
 
 @media(max-width:520px){
