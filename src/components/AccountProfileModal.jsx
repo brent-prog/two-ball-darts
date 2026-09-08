@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import PlayerProfileStats from '@/components/PlayerProfileStats';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
@@ -9,6 +10,8 @@ const cleanUsername = value => value.replace(/[^A-Za-z0-9_]/g, '').slice(0, 24);
 export default function AccountProfileModal({ open, onClose }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [accountPlayer, setAccountPlayer] = useState(null);
+  const [showStats, setShowStats] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -24,6 +27,8 @@ export default function AccountProfileModal({ open, onClose }) {
 
     if (!nextUser) {
       setProfile(null);
+      setAccountPlayer(null);
+      setShowStats(false);
       setUsername('');
       setDisplayName('');
       setStatus('');
@@ -44,12 +49,26 @@ export default function AccountProfileModal({ open, onClose }) {
       setUsername(complete ? (data?.username ?? '') : '');
       setDisplayName(complete ? (data?.display_name ?? '') : '');
       setStatus('');
+
+      if (data?.id) {
+        const { data: player } = await supabase
+          .from('players')
+          .select('id,display_name,profile_id,owner_profile_id')
+          .eq('profile_id', data.id)
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        setAccountPlayer(player ?? null);
+      } else {
+        setAccountPlayer(null);
+      }
     }
     setLoading(false);
   }
 
   useEffect(() => {
     if (!open) return;
+    setShowStats(false);
     loadAccount();
     const { data: authListener } = supabase.auth.onAuthStateChange(() => loadAccount());
     return () => authListener?.subscription?.unsubscribe();
@@ -100,23 +119,25 @@ export default function AccountProfileModal({ open, onClose }) {
     const ownerKey = getOwnerKey();
     const { data: linkedPlayer } = await supabase
       .from('players')
-      .select('id')
+      .select('id,display_name,profile_id,owner_profile_id')
       .eq('profile_id', data.id)
       .order('created_at', { ascending: true })
       .limit(1)
       .maybeSingle();
 
     let accountPlayerId = linkedPlayer?.id ?? null;
+    let nextAccountPlayer = linkedPlayer ?? null;
 
     if (accountPlayerId) {
       await supabase
         .from('players')
         .update({ owner_key: ownerKey, display_name: name, is_profile: true })
         .eq('id', accountPlayerId);
+      nextAccountPlayer = { ...linkedPlayer, display_name: name, profile_id: data.id };
     } else {
       const { data: existingLocal } = await supabase
         .from('players')
-        .select('id')
+        .select('id,display_name,profile_id,owner_profile_id')
         .eq('owner_key', ownerKey)
         .eq('display_name', name)
         .order('created_at', { ascending: true })
@@ -129,11 +150,12 @@ export default function AccountProfileModal({ open, onClose }) {
           .from('players')
           .update({ profile_id: data.id, is_profile: true, display_name: name })
           .eq('id', existingLocal.id);
+        nextAccountPlayer = { ...existingLocal, display_name: name, profile_id: data.id };
       } else {
         const { data: createdPlayer, error: playerError } = await supabase
           .from('players')
           .insert({ owner_key: ownerKey, display_name: name, is_profile: true, profile_id: data.id })
-          .select('id')
+          .select('id,display_name,profile_id,owner_profile_id')
           .single();
         if (playerError || !createdPlayer) {
           setLoading(false);
@@ -141,11 +163,13 @@ export default function AccountProfileModal({ open, onClose }) {
           return;
         }
         accountPlayerId = createdPlayer.id;
+        nextAccountPlayer = createdPlayer;
       }
     }
 
     window.dispatchEvent(new CustomEvent('tbd-account-player-changed', { detail: { playerId: accountPlayerId, profileId: data.id, displayName: name } }));
     setProfile(data);
+    setAccountPlayer(nextAccountPlayer);
     setUsername(data.username ?? '');
     setDisplayName(data.display_name ?? '');
     setLoading(false);
@@ -156,6 +180,7 @@ export default function AccountProfileModal({ open, onClose }) {
     setLoading(true);
     await supabase.auth.signOut();
     setLoading(false);
+    setShowStats(false);
     setStatus('Signed out. You can still play as a guest.');
   }
 
@@ -165,32 +190,35 @@ export default function AccountProfileModal({ open, onClose }) {
 
   return <div style={{ position: 'fixed', inset: 0, zIndex: 360, background: 'rgba(0,0,0,.82)', padding: '18px', display: 'grid', placeItems: 'center' }}>
     <div className="card" style={{ width: 'min(560px,96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
-      <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
-        <div><p className="eyebrow">TwoBall account</p><h2 style={{ fontSize: 'clamp(2rem,7vw,3.5rem)' }}>{user ? (profileComplete ? 'My Profile' : 'Complete Your Profile') : 'Save Your Game'}</h2></div>
-        <button className="button secondary" onClick={onClose}>Close</button>
-      </div>
+      {showStats && accountPlayer ? <PlayerProfileStats profile={accountPlayer} onBack={() => setShowStats(false)} /> : <>
+        <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
+          <div><p className="eyebrow">TwoBall account</p><h2 style={{ fontSize: 'clamp(2rem,7vw,3.5rem)' }}>{user ? (profileComplete ? 'My Profile' : 'Complete Your Profile') : 'Save Your Game'}</h2></div>
+          <button className="button secondary" onClick={onClose}>Close</button>
+        </div>
 
-      {!user ? <>
-        <p style={{ marginTop: 0, opacity: .82 }}>Sign in to keep your profile, rounds and stats connected across devices. No account is required to play.</p>
-        <form onSubmit={sendMagicLink} style={{ display: 'grid', gap: '10px' }}>
-          <label htmlFor="twoball-email" style={{ color: '#fff4d6', fontWeight: 900 }}>Email</label>
-          <input id="twoball-email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" />
-          <button className="button primary" type="submit" disabled={loading || !email.trim()}>Email Me a Sign-In Link</button>
-        </form>
-      </> : <form onSubmit={saveProfile} style={{ display: 'grid', gap: '10px' }}>
-        <p style={{ marginTop: 0, opacity: .72, fontSize: '.86rem' }}>{user.email}</p>
-        {!profileComplete && <p style={{ margin: '0 0 4px', lineHeight: 1.45 }}>Choose how you want to appear in TwoBall. You can change both later.</p>}
-        <label htmlFor="twoball-display-name" style={{ color: '#fff4d6', fontWeight: 900 }}>Display Name</label>
-        <input id="twoball-display-name" value={displayName} onChange={event => setDisplayName(event.target.value)} placeholder="Type your display name" autoComplete="nickname" style={{ background: '#fff', color: '#111' }} />
-        <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>This is the name shown on scorecards and to your friends.</p>
-        <label htmlFor="twoball-username" style={{ color: '#fff4d6', fontWeight: 900 }}>Username</label>
-        <input id="twoball-username" value={username} onChange={event => setUsername(cleanUsername(event.target.value))} placeholder="Choose a username" autoCapitalize="none" autoCorrect="off" style={{ background: '#fff', color: '#111' }} />
-        <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>3-24 characters. Uppercase/lowercase letters, numbers and underscores. Friends can search for you without matching capitalization.</p>
-        <button className="button primary" type="submit" disabled={loading || !displayName.trim() || cleanUsername(username).trim().length < 3}>{profileComplete ? 'Update Profile' : 'Save My Profile'}</button>
-        {profileComplete && <button className="button ghost" type="button" onClick={signOut} disabled={loading}>Sign Out</button>}
-      </form>}
+        {!user ? <>
+          <p style={{ marginTop: 0, opacity: .82 }}>Sign in to keep your profile, rounds and stats connected across devices. No account is required to play.</p>
+          <form onSubmit={sendMagicLink} style={{ display: 'grid', gap: '10px' }}>
+            <label htmlFor="twoball-email" style={{ color: '#fff4d6', fontWeight: 900 }}>Email</label>
+            <input id="twoball-email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" />
+            <button className="button primary" type="submit" disabled={loading || !email.trim()}>Email Me a Sign-In Link</button>
+          </form>
+        </> : <form onSubmit={saveProfile} style={{ display: 'grid', gap: '10px' }}>
+          <p style={{ marginTop: 0, opacity: .72, fontSize: '.86rem' }}>{user.email}</p>
+          {!profileComplete && <p style={{ margin: '0 0 4px', lineHeight: 1.45 }}>Choose how you want to appear in TwoBall. You can change both later.</p>}
+          <label htmlFor="twoball-display-name" style={{ color: '#fff4d6', fontWeight: 900 }}>Display Name</label>
+          <input id="twoball-display-name" value={displayName} onChange={event => setDisplayName(event.target.value)} placeholder="Type your display name" autoComplete="nickname" style={{ background: '#fff', color: '#111' }} />
+          <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>This is the name shown on scorecards and to your friends.</p>
+          <label htmlFor="twoball-username" style={{ color: '#fff4d6', fontWeight: 900 }}>Username</label>
+          <input id="twoball-username" value={username} onChange={event => setUsername(cleanUsername(event.target.value))} placeholder="Choose a username" autoCapitalize="none" autoCorrect="off" style={{ background: '#fff', color: '#111' }} />
+          <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>3-24 characters. Uppercase/lowercase letters, numbers and underscores. Friends can search for you without matching capitalization.</p>
+          <button className="button primary" type="submit" disabled={loading || !displayName.trim() || cleanUsername(username).trim().length < 3}>{profileComplete ? 'Update Profile' : 'Save My Profile'}</button>
+          {profileComplete && accountPlayer && <button className="button secondary" type="button" onClick={() => setShowStats(true)}>My Stats</button>}
+          {profileComplete && <button className="button ghost" type="button" onClick={signOut} disabled={loading}>Sign Out</button>}
+        </form>}
 
-      {status && <p className="status-line" style={{ marginBottom: 0 }}>{status}</p>}
+        {status && <p className="status-line" style={{ marginBottom: 0 }}>{status}</p>}
+      </>}
     </div>
   </div>;
 }
