@@ -24,7 +24,7 @@ function currentHoleMissingPlayers() {
   });
 }
 
-function ensureWarning(message) {
+function ensureWarning(message, hole = null) {
   const scorecard = document.querySelector('#scorecard');
   if (!scorecard) return;
   let warning = scorecard.querySelector('[data-tbd-missing-hole-warning]');
@@ -43,6 +43,7 @@ function ensureWarning(message) {
     });
     scorecard.appendChild(warning);
   }
+  if (hole) warning.dataset.tbdMissingHoleNumber = String(hole);
   warning.textContent = message;
   warning.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -66,6 +67,17 @@ function inspectScorecardForMissingHoles() {
   return [...missing].sort((a, b) => a - b);
 }
 
+function warningIssueStillExists() {
+  const warning = document.querySelector('[data-tbd-missing-hole-warning]');
+  if (!warning) return false;
+  const hole = Number(warning.dataset.tbdMissingHoleNumber || 0);
+  if (!hole) return true;
+
+  const currentHole = currentHoleNumber();
+  if (currentHole !== hole) return true;
+  return currentHoleMissingPlayers().length > 0;
+}
+
 export default function MissingHoleGuardEnhancer() {
   useEffect(() => {
     const clickGuard = event => {
@@ -83,10 +95,13 @@ export default function MissingHoleGuardEnhancer() {
       event.stopPropagation();
       event.stopImmediatePropagation?.();
       const names = missingPlayers.join(', ');
-      ensureWarning(`Hole ${hole} is incomplete. Add a score for ${names} before moving to the next hole.`);
+      ensureWarning(`Hole ${hole} is incomplete. Add a score for ${names} before moving to the next hole.`, hole);
     };
 
     const validateRoundComplete = () => {
+      const warning = document.querySelector('[data-tbd-missing-hole-warning]');
+      if (warning && !warningIssueStillExists()) clearWarning();
+
       const completeCard = [...document.querySelectorAll('#scorecard strong')].find(node => text(node) === 'Round complete');
       if (!completeCard) return;
 
@@ -108,6 +123,8 @@ export default function MissingHoleGuardEnhancer() {
             if (detail) detail.textContent = `Missing score${missing.length === 1 ? '' : 's'} on hole${missing.length === 1 ? '' : 's'} ${missing.join(', ')}.`;
           }
           ensureWarning(`You still have unscored hole${missing.length === 1 ? '' : 's'}: ${missing.join(', ')}. Finish ${missing.length === 1 ? 'it' : 'them'} before the round can be complete.`);
+        } else {
+          clearWarning();
         }
 
         if (openedForCheck) {
@@ -118,7 +135,7 @@ export default function MissingHoleGuardEnhancer() {
     };
 
     document.addEventListener('click', clickGuard, true);
-    const interval = window.setInterval(validateRoundComplete, 500);
+    const interval = window.setInterval(validateRoundComplete, 350);
 
     return () => {
       document.removeEventListener('click', clickGuard, true);
