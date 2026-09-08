@@ -11,6 +11,7 @@ import './score-tile-cleanup.css';
 import './app-icon-polish.css';
 import './live-scorecard-fixes.css';
 import './rockpail-footer.css';
+import './home-actions-modern.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
