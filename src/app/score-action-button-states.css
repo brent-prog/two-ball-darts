@@ -1,4 +1,32 @@
 /* Visual distinction for compact scoring action buttons. */
+
+/* Keep every scoring row geometrically stable regardless of result text length. */
+.tbd-player-score-row{
+  grid-template-columns:minmax(0,1fr) 148px!important;
+}
+
+.tbd-player-score-main,
+.tbd-player-name-line,
+.tbd-player-name-input{
+  min-width:0!important;
+}
+
+.tbd-player-score-row > button{
+  width:148px!important;
+  min-width:148px!important;
+  max-width:148px!important;
+  min-height:48px!important;
+  padding:8px 10px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+  line-height:1.08!important;
+}
+
 .tbd-player-score-row:not(.scored) > button{
   background:#d0a948!important;
   border-color:#fff4d6!important;
@@ -39,4 +67,19 @@
 .tbd-player-score-row.scored > button.is-triple-bogey{
   background:linear-gradient(135deg,#65100d,#160202 80%)!important;
   border-color:#9c1915!important;
+}
+
+@media(max-width:520px){
+  .tbd-player-score-row{
+    grid-template-columns:minmax(0,1fr) 124px!important;
+  }
+
+  .tbd-player-score-row > button{
+    width:124px!important;
+    min-width:124px!important;
+    max-width:124px!important;
+    min-height:46px!important;
+    padding:7px 8px!important;
+    font-size:.82rem!important;
+  }
 }
