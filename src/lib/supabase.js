@@ -5,11 +5,14 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publ
 const ownerKeyStorageKey = 'two-ball-darts-owner-key';
 
 const ownerAwareFetch = (input, init = {}) => {
-  const headers = new Headers(init.headers || {});
+  const headers = new Headers(input instanceof Request ? input.headers : undefined);
+  new Headers(init.headers || {}).forEach((value, key) => headers.set(key, value));
+
   if (typeof window !== 'undefined') {
     const ownerKey = window.localStorage.getItem(ownerKeyStorageKey);
     if (ownerKey) headers.set('x-tbd-owner-key', ownerKey);
   }
+
   return fetch(input, { ...init, headers });
 };
 
