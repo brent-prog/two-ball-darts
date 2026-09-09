@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Two Ball Darts app icon">
+  <defs><radialGradient id="bg" cx="45%" cy="35%" r="85%"><stop offset="0" stop-color="#0A3025"/><stop offset="1" stop-color="#02140F"/></radialGradient></defs>
+  <rect x="16" y="16" width="992" height="992" rx="210" fill="url(#bg)"/>
+  <image href="twoball-mark.svg" x="118" y="145" width="788" height="700" preserveAspectRatio="xMidYMid meet"/>
+</svg>
