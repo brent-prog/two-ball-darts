@@ -17,6 +17,7 @@ const ownerAwareFetch = async (input, init = {}) => {
 
   const url = new URL(originalUrl);
   const isNewGameInsert = method === 'POST' && url.pathname.endsWith('/rest/v1/games');
+  const isPlayerInsert = method === 'POST' && url.pathname.endsWith('/rest/v1/players');
 
   if (isNewGameInsert) {
     const rawBody = init.body ?? (input instanceof Request ? await input.clone().text() : null);
@@ -38,6 +39,27 @@ const ownerAwareFetch = async (input, init = {}) => {
 
     headers.set('content-type', 'application/json');
     return fetch(rpcUrl.toString(), { ...init, method: 'POST', headers, body: rpcBody });
+  }
+
+  if (isPlayerInsert) {
+    const rawBody = init.body ?? (input instanceof Request ? await input.clone().text() : null);
+    const parsedBody = rawBody ? JSON.parse(rawBody) : {};
+    const row = Array.isArray(parsedBody) ? parsedBody[0] ?? {} : parsedBody;
+    const isSavedGuest = row?.is_profile === true && !row?.profile_id && Boolean(row?.display_name) && Boolean(row?.owner_key);
+
+    if (isSavedGuest) {
+      const browserOwnerKey = typeof window !== 'undefined'
+        ? window.localStorage.getItem(ownerKeyStorageKey)
+        : row.owner_key;
+      const rpcUrl = new URL(`${supabaseUrl}/rest/v1/rpc/save_two_ball_guest`);
+      rpcUrl.search = url.search;
+      const rpcBody = JSON.stringify({
+        browser_owner_key: browserOwnerKey || row.owner_key,
+        guest_display_name: row.display_name
+      });
+      headers.set('content-type', 'application/json');
+      return fetch(rpcUrl.toString(), { ...init, method: 'POST', headers, body: rpcBody });
+    }
   }
 
   return fetch(input, { ...init, headers });
