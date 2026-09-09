@@ -1,0 +1,182 @@
+/* TwoBall scoring composition preview - visual only, no scoring logic changes */
+
+#scorecard:not(:has(.hole-picker)){
+  position:relative;
+  overflow:hidden;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  padding:0!important;
+  margin-top:0;
+}
+
+#scorecard:not(:has(.hole-picker))>.section-heading{
+  margin:0 0 10px!important;
+  padding:0 2px;
+}
+#scorecard:not(:has(.hole-picker))>.section-heading .eyebrow{
+  color:var(--tbd-muted);
+  font-size:.78rem;
+  letter-spacing:.14em;
+}
+
+/* top navigation block */
+#scorecard:not(:has(.hole-picker))>.section-heading+div{
+  position:relative;
+  z-index:2;
+  display:grid!important;
+  gap:12px!important;
+  margin:0 0 14px!important;
+  padding:14px;
+  border:1px solid rgba(244,239,226,.14);
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(8,31,24,.96),rgba(3,17,13,.98));
+  box-shadow:0 16px 42px rgba(0,0,0,.28);
+}
+
+#scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child{
+  gap:8px!important;
+}
+
+#scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child .button{
+  min-height:50px;
+  border-radius:12px;
+  font-size:1rem;
+}
+
+#scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2){
+  border:0!important;
+  border-radius:0!important;
+  padding:10px 0 2px!important;
+  background:transparent!important;
+  text-align:center!important;
+}
+
+#scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2) span{
+  color:var(--tbd-red)!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  font-size:.8rem!important;
+  letter-spacing:.15em!important;
+}
+
+#scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2) strong{
+  color:var(--tbd-ivory);
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  font-size:clamp(2.35rem,8vw,4rem)!important;
+  line-height:.92;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+
+/* main hole/player area */
+#scorecard:not(:has(.hole-picker))>.active-hole-panel{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  margin:0 0 14px!important;
+  padding:18px!important;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 92% 2%,rgba(14,90,58,.25),transparent 38%),
+    linear-gradient(180deg,rgba(8,31,24,.98),rgba(3,17,13,.99));
+  border:1px solid rgba(244,239,226,.15)!important;
+  box-shadow:0 20px 56px rgba(0,0,0,.34);
+}
+
+#scorecard:not(:has(.hole-picker))>.active-hole-panel:after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:min(330px,48vw);
+  aspect-ratio:1;
+  right:-78px;
+  top:-56px;
+  background:url('/two-ball-darts-board.webp') center/contain no-repeat;
+  opacity:.12;
+  filter:saturate(.85) contrast(1.04);
+  pointer-events:none;
+}
+
+#scorecard:not(:has(.hole-picker))>.active-hole-panel>h3{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  margin:0 0 14px!important;
+  color:var(--tbd-ivory);
+  font-size:clamp(1.8rem,5vw,2.5rem)!important;
+  letter-spacing:.02em;
+}
+
+#scorecard:not(:has(.hole-picker))>.active-hole-panel>h3:after{
+  content:"PAR 3";
+  color:var(--tbd-green);
+  font-size:.72rem;
+  letter-spacing:.14em;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif;
+  font-weight:900;
+}
+
+#scorecard:not(:has(.hole-picker)) .tbd-live-score-list{
+  position:relative;
+  z-index:1;
+  display:grid;
+  gap:10px;
+}
+
+/* keep the scorecard control visually secondary */
+#scorecard:not(:has(.hole-picker))>.active-hole-panel+div{
+  justify-content:center!important;
+  margin-top:4px;
+}
+#scorecard:not(:has(.hole-picker))>.active-hole-panel+div .button{
+  width:min(100%,420px);
+  background:#071c16;
+  border-color:rgba(244,239,226,.2);
+}
+
+/* status reads like a small game message rather than an alert bar */
+#scorecard:not(:has(.hole-picker))>.status-line{
+  margin:12px 0 0;
+  padding:10px 12px;
+  border-radius:10px;
+  background:rgba(14,90,58,.12);
+  color:var(--tbd-muted);
+  text-align:center;
+  font-size:.9rem;
+}
+
+@media(min-width:850px){
+  #scorecard:not(:has(.hole-picker)){
+    width:min(900px,100%);
+    margin-inline:auto;
+  }
+  #scorecard:not(:has(.hole-picker))>.section-heading+div{
+    grid-template-columns:1fr;
+  }
+  #scorecard:not(:has(.hole-picker))>.active-hole-panel:after{
+    width:360px;
+    right:-40px;
+    top:-76px;
+    opacity:.14;
+  }
+}
+
+@media(max-width:700px){
+  #scorecard:not(:has(.hole-picker))>.section-heading{
+    display:none;
+  }
+  #scorecard:not(:has(.hole-picker))>.section-heading+div{
+    border-radius:16px;
+    padding:12px;
+  }
+  #scorecard:not(:has(.hole-picker))>.active-hole-panel{
+    padding:15px!important;
+    border-radius:16px;
+  }
+  #scorecard:not(:has(.hole-picker))>.active-hole-panel:after{
+    width:240px;
+    right:-82px;
+    top:-48px;
+    opacity:.11;
+  }
+}
