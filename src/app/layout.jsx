@@ -15,6 +15,7 @@ import './home-actions-modern.css';
 import './final-scoring-overrides.css';
 import './twoball-rebrand.css';
 import './scoring-rebrand-preview.css';
+import './score-interactions-rebrand.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
