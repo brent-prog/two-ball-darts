@@ -13,6 +13,7 @@ import './live-scorecard-fixes.css';
 import './rockpail-footer.css';
 import './home-actions-modern.css';
 import './final-scoring-overrides.css';
+import './twoball-rebrand.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
@@ -40,8 +41,9 @@ export const metadata = {
   title: 'TWO BALL DARTS',
   description: 'No gimmes. Just throw. Live golf-style darts scoring and official rules.',
   icons: {
-    icon: [{ url: '/two-ball-darts-favicon-clean.svg', type: 'image/svg+xml' }],
-    shortcut: '/two-ball-darts-favicon-clean.svg'
+    icon: [{ url: '/brand/twoball-app-icon.svg', type: 'image/svg+xml' }],
+    shortcut: '/brand/twoball-app-icon.svg',
+    apple: '/brand/twoball-app-icon.svg'
   }
 };
 
