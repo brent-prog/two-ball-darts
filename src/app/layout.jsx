@@ -19,6 +19,7 @@ import './score-interactions-polish.css';
 import './player-rows-rebrand.css';
 import './player-profile-selection-polish.css';
 import './empty-player-final.css';
+import './player-result-colours.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
@@ -40,6 +41,7 @@ import RoundHistoryCards from '@/components/RoundHistoryCards';
 import MissingHoleGuardEnhancer from '@/components/MissingHoleGuardEnhancer';
 import LiveScorecardSyncEnhancer from '@/components/LiveScorecardSyncEnhancer';
 import ScoringFeedbackEnhancer from '@/components/ScoringFeedbackEnhancer';
+import ScoringActionLabelEnhancer from '@/components/ScoringActionLabelEnhancer';
 import OffBoardDartOptionEnhancer from '@/components/OffBoardDartOptionEnhancer';
 
 export const metadata = {
@@ -83,6 +85,7 @@ export default function RootLayout({ children }) {
         <MissingHoleGuardEnhancer />
         <LiveScorecardSyncEnhancer />
         <ScoringFeedbackEnhancer />
+        <ScoringActionLabelEnhancer />
         <OffBoardDartOptionEnhancer />
         {children}
       </body>
