@@ -42,7 +42,6 @@
   border-radius:10px!important;
 }
 
-/* Sections read as roster groups rather than stacked forms. */
 .card:has(#new-player-profile) > section{
   margin-top:14px!important;
   padding-top:14px!important;
@@ -59,7 +58,6 @@
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
 }
 
-/* Saved-player rows. Strong name button, compact Stats utility. */
 .card:has(#new-player-profile) > section > div[style*="display: grid"] > div{
   align-items:stretch!important;
   gap:8px!important;
@@ -102,16 +100,20 @@
   text-transform:uppercase!important;
 }
 
-/* Save Guest is a secondary creation path, visually distinct from selecting an existing player. */
 .card:has(#new-player-profile) form{
   margin-top:16px!important;
   padding:14px!important;
   border:1px solid rgba(244,239,226,.12)!important;
   border-radius:14px!important;
   background:rgba(255,255,255,.025)!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:end!important;
+  column-gap:10px!important;
+  row-gap:8px!important;
 }
 
 .card:has(#new-player-profile) form label{
+  grid-column:1 / -1!important;
   color:var(--tbd-ivory)!important;
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
   font-size:.95rem!important;
@@ -122,7 +124,9 @@
 
 .card:has(#new-player-profile) #new-player-profile{
   width:100%!important;
+  min-width:0!important;
   min-height:48px!important;
+  height:48px!important;
   padding:0 13px!important;
   border:1px solid rgba(244,239,226,.20)!important;
   border-radius:11px!important;
@@ -141,11 +145,17 @@
 }
 
 .card:has(#new-player-profile) form .button.primary{
+  width:auto!important;
+  min-width:138px!important;
   min-height:48px!important;
+  height:48px!important;
+  padding:0 16px!important;
   border-radius:11px!important;
+  font-size:.84rem!important;
+  line-height:1!important;
+  white-space:nowrap!important;
 }
 
-/* One-round guest is intentionally available without competing with saved-player selection. */
 .card:has(#new-player-profile) > div:last-child .button.ghost{
   min-height:46px!important;
   border:1px dashed rgba(244,239,226,.24)!important;
@@ -190,5 +200,13 @@
   .card:has(#new-player-profile) form{
     margin-top:14px!important;
     padding:12px!important;
+    grid-template-columns:minmax(0,1fr) 132px!important;
+  }
+
+  .card:has(#new-player-profile) form .button.primary{
+    min-width:132px!important;
+    width:132px!important;
+    padding:0 10px!important;
+    font-size:.78rem!important;
   }
 }
