@@ -187,17 +187,15 @@
   }
 
   .hero-card .tbd-primary-logo-type strong{
-    font-size:2.55rem!important;
-    letter-spacing:.012em!important;
-    transform:scaleX(1.10)!important;
-    transform-origin:left center!important;
+    font-size:2.45rem!important;
+    letter-spacing:.02em!important;
+    transform:none!important;
   }
 
   .hero-card .tbd-primary-logo-type span{
-    font-size:2rem!important;
-    letter-spacing:.035em!important;
-    transform:scaleX(1.10)!important;
-    transform-origin:left center!important;
+    font-size:1.92rem!important;
+    letter-spacing:.045em!important;
+    transform:none!important;
   }
 
   /* Match the marketing site's tall, condensed headline proportions on desktop. */
