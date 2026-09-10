@@ -12,21 +12,6 @@
   filter:saturate(1.12) brightness(1.10)!important;
   background-size:contain!important;
   background-position:center!important;
-  pointer-events:none!important;
-}
-
-/* Keep title/close controls above all decorative layers and tappable. */
-.tbd-score-modal-title-row{
-  position:relative!important;
-  z-index:20!important;
-  pointer-events:auto!important;
-}
-
-.tbd-score-modal-title-row .button{
-  position:relative!important;
-  z-index:21!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
 }
 
 /* Score cards: standard labels + separate, dominant golf value. */
@@ -46,7 +31,14 @@
   display:block!important;
   position:static!important;
   width:auto!important;
-  background:none!important;
+  min-width:0!important;
+  height:auto!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
   opacity:1!important;
   color:var(--tbd-ivory)!important;
   font-size:1.08rem!important;
@@ -71,6 +63,8 @@
   width:54px!important;
   height:54px!important;
   flex:0 0 54px!important;
+  padding:0!important;
+  margin:0!important;
   border-radius:12px!important;
   border:1px solid rgba(255,255,255,.22)!important;
   background:rgba(0,0,0,.28)!important;
@@ -96,19 +90,33 @@
 .tbd-quick-score-grid .button:nth-child(5)::after{content:'+2'!important;color:#ffb8b8!important;}
 .tbd-quick-score-grid .button:nth-child(6)::after{content:'+3'!important;color:#ff9090!important;}
 
-/* Selected score should stay in its normal colour - indicate edit state with a ring, not an ivory blockout. */
-.tbd-quick-score-grid .button.primary{
+/* Selected score stays in its normal colour. No ivory fill or blockout. */
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary{
   color:var(--tbd-ivory)!important;
-  border-color:#fff4d6!important;
-  box-shadow:0 0 0 3px rgba(255,244,214,.22), inset 0 0 0 1px rgba(255,244,214,.34)!important;
+  outline:2px solid #fff4d6!important;
+  outline-offset:2px!important;
+  box-shadow:0 0 0 2px rgba(255,244,214,.18) inset,0 0 18px rgba(255,244,214,.10)!important;
 }
 
-.tbd-quick-score-grid .button:nth-child(1).primary{background:linear-gradient(180deg,#1b8755,#0b452d)!important;}
-.tbd-quick-score-grid .button:nth-child(2).primary{background:linear-gradient(180deg,#126644,#0a3324)!important;}
-.tbd-quick-score-grid .button:nth-child(3).primary{background:linear-gradient(180deg,#4b4520,#24200f)!important;}
-.tbd-quick-score-grid .button:nth-child(4).primary{background:linear-gradient(180deg,#a92830,#531317)!important;}
-.tbd-quick-score-grid .button:nth-child(5).primary{background:linear-gradient(180deg,#75171c,#33090b)!important;}
-.tbd-quick-score-grid .button:nth-child(6).primary{background:linear-gradient(180deg,#470b0e,#170304)!important;}
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary::before{
+  background:transparent!important;
+  color:var(--tbd-ivory)!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary::after{
+  background:rgba(0,0,0,.28)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary:nth-child(1)::after{color:#d8ffe9!important;}
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary:nth-child(2)::after{color:#b9f4d2!important;}
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary:nth-child(3)::after{color:#ffe293!important;}
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary:nth-child(4)::after{color:#ffe0e0!important;}
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary:nth-child(5)::after{color:#ffb8b8!important;}
+.tbd-score-modal-card .tbd-quick-score-grid .button.primary:nth-child(6)::after{color:#ff9090!important;}
 
 /* Score by Darts result colours */
 .tbd-custom-dart-option.is-green{
