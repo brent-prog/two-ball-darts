@@ -30,6 +30,19 @@
 #scorecard .tbd-player-score-row:not(.scored){
   min-height:92px!important;
   height:92px!important;
+  align-items:center!important;
+}
+
+#scorecard .tbd-player-score-main{
+  align-self:center!important;
+}
+
+/* Keep the current-hole score / Add Score control vertically centred in every row. */
+#scorecard .tbd-player-score-row > .button{
+  align-self:center!important;
+  justify-self:end!important;
+  margin-top:0!important;
+  margin-bottom:0!important;
 }
 
 /* The row colour already communicates Eagle/Birdie/Par/Bogey. Don't repeat the label. */
