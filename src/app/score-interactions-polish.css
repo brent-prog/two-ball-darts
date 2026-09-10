@@ -1,11 +1,11 @@
 /* TwoBall scoring polish - make the agreed scoring hierarchy unmistakable */
 
-/* Keep the entire custom board visibly centred behind Score by Darts. */
+/* Move the full custom board up into the visual centre of the Score by Darts area. */
 .tbd-dart-score-card::before{
   width:min(330px,80vw)!important;
   left:50%!important;
   right:auto!important;
-  top:57%!important;
+  top:38%!important;
   bottom:auto!important;
   transform:translate(-50%,-50%)!important;
   opacity:.36!important;
@@ -86,7 +86,21 @@
   box-shadow:0 0 0 2px rgba(255,244,214,.25) inset,0 0 0 2px rgba(255,244,214,.10)!important;
 }
 
-/* Dart-result semantics. Hazard = water blue. On-board miss = red. */
+/* Score by Darts result colours */
+.tbd-custom-dart-option.is-green{
+  background:linear-gradient(180deg,#11603f,#0b3929)!important;
+  border-color:#2faa73!important;
+  color:#f2fff7!important;
+}
+
+/* Single should read lighter than Double / Triple. */
+.tbd-custom-dart-option.is-gold{
+  background:linear-gradient(180deg,#74b98b,#4f8f69)!important;
+  border-color:#a5d9b5!important;
+  color:#082116!important;
+}
+
+/* Hazard = water blue. */
 .tbd-custom-dart-option.is-hazard,
 .tbd-custom-dart-option[data-tbd-role="hazard"]{
   background:linear-gradient(180deg,#2089ad,#10526b)!important;
@@ -94,14 +108,17 @@
   color:#eefbff!important;
 }
 
+/* On-board miss = red. */
 .tbd-custom-dart-option.is-onboard-miss{
-  background:linear-gradient(180deg,#a5232a,#510e12)!important;
-  border-color:#ef5a62!important;
+  background:linear-gradient(180deg,#b72831,#611116)!important;
+  border-color:#f05b63!important;
   color:#fff2f2!important;
 }
 
 .tbd-custom-dart-option.is-hazard.is-selected,
-.tbd-custom-dart-option.is-onboard-miss.is-selected{
+.tbd-custom-dart-option.is-onboard-miss.is-selected,
+.tbd-custom-dart-option.is-gold.is-selected,
+.tbd-custom-dart-option.is-green.is-selected{
   background:var(--tbd-ivory)!important;
   border-color:var(--tbd-ivory)!important;
   color:#071c16!important;
@@ -112,7 +129,7 @@
     width:min(315px,78vw)!important;
     left:50%!important;
     right:auto!important;
-    top:58%!important;
+    top:36%!important;
     bottom:auto!important;
     transform:translate(-50%,-50%)!important;
     opacity:.34!important;
