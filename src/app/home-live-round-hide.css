@@ -1,0 +1,4 @@
+/* Home screen cleanup: the hero already owns Start/Resume. Hide the duplicate Live Round card entirely. */
+#scorecard:has(.hole-picker){
+  display:none!important;
+}
