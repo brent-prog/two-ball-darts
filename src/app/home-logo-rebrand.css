@@ -70,15 +70,22 @@
 .hero-card .hero-copy h1:before{
   content:"GOLF SCORING.\A TWO DARTS.\A EIGHTEEN HOLES.";
   display:block;
-  white-space:pre-line;
-  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
-  font-size:clamp(3rem,7.6vw,6rem);
-  font-weight:1000;
+  white-space:pre;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Barlow Condensed",sans-serif;
+  font-size:clamp(3rem,7.2vw,5.7rem);
+  font-weight:900;
   line-height:.9;
-  letter-spacing:-.035em;
+  letter-spacing:.005em;
   text-transform:uppercase;
-  color:var(--tbd-ivory,#f4efe2);
-  filter:drop-shadow(0 5px 0 rgba(0,0,0,.22));
+  color:transparent;
+  background:linear-gradient(to bottom,
+    var(--tbd-ivory,#f4efe2) 0 32%,
+    var(--tbd-red,#ef0014) 32% 66%,
+    var(--tbd-ivory,#f4efe2) 66% 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-stroke:.35px currentColor;
+  filter:drop-shadow(0 5px 0 rgba(0,0,0,.28));
 }
 
 .hero-card .hero-copy > p:not(.eyebrow){
@@ -203,9 +210,10 @@
   }
 
   .hero-card .hero-copy h1:before{
-    font-size:clamp(2.7rem,11vw,4rem);
-    line-height:.9;
-    letter-spacing:-.04em;
+    font-size:clamp(2.55rem,10.7vw,3.65rem);
+    line-height:.88;
+    letter-spacing:.002em;
+    white-space:pre;
   }
 
   .hero-card .hero-copy > p:not(.eyebrow):before{
