@@ -18,6 +18,24 @@ function scoreForHole(row, hole) {
   return row.hole_scores?.find(score => Number(score.hole_number) === hole) ?? null;
 }
 
+function scoreTone(score) {
+  if (!score) return 'empty';
+  const relative = Number(score.relative_score) || 0;
+  if (relative <= -2) return 'eagle';
+  if (relative === -1) return 'birdie';
+  if (relative === 0) return 'par';
+  if (relative === 1) return 'bogey';
+  if (relative === 2) return 'double-bogey';
+  return 'triple-bogey';
+}
+
+function totalTone(score) {
+  const value = Number(score) || 0;
+  if (value < 0) return 'is-under';
+  if (value === 0) return 'is-even';
+  return 'is-over';
+}
+
 function completeRound(game) {
   const rows = game.game_players ?? [];
   return rows.length > 0 && rows.every(row => new Set((row.hole_scores ?? []).map(score => Number(score.hole_number))).size === 18);
@@ -57,9 +75,9 @@ function ScorecardModal({ game, onClose }) {
         <button className="button secondary" type="button" onClick={onClose}>Close</button>
       </div>
       <div className="scorecard-table-wrap">
-        <table className="scorecard-table">
+        <table className="scorecard-table saved-round-scorecard">
           <thead><tr><th>Player</th><th>Total</th>{holes.map(hole => <th key={hole}>{hole}</th>)}</tr></thead>
-          <tbody>{(game.game_players ?? []).map(row => <tr key={row.id}><th>{row.players?.display_name || 'Player'}</th><td className="total-score">{fmt(row.total_score)}</td>{holes.map(hole => <td key={hole}>{scoreLabel(scoreForHole(row, hole))}</td>)}</tr>)}</tbody>
+          <tbody>{(game.game_players ?? []).map(row => <tr key={row.id}><th>{row.players?.display_name || 'Player'}</th><td className={`total-score ${totalTone(row.total_score)}`}>{fmt(row.total_score)}</td>{holes.map(hole => { const score = scoreForHole(row, hole); return <td key={hole}><span className={`score-symbol ${scoreTone(score)}`}>{scoreLabel(score)}</span></td>; })}</tr>)}</tbody>
         </table>
       </div>
     </div>
