@@ -127,24 +127,6 @@
   text-transform:none;
 }
 
-.hero-card:before{
-  content:"HOLE 1   PAR 3   2 DARTS";
-  position:absolute;
-  z-index:0;
-  right:26px;
-  top:152px;
-  padding:8px 0 6px;
-  border-top:1px solid rgba(244,239,226,.16);
-  border-bottom:1px solid rgba(244,239,226,.12);
-  color:rgba(244,239,226,.18);
-  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
-  font-size:.72rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  pointer-events:none;
-}
-
 .hero-card:after{
   content:""!important;
   position:absolute!important;
@@ -198,7 +180,6 @@
     transform:none!important;
   }
 
-  /* Match the marketing site's tall, condensed headline proportions on desktop. */
   .hero-card .hero-copy h1{
     max-width:700px!important;
   }
@@ -233,12 +214,6 @@
 
   .hero-card .tbd-primary-logo-mark{
     max-height:94px!important;
-  }
-
-  .hero-card:before{
-    top:170px;
-    right:18px;
-    font-size:.66rem;
   }
 }
 
@@ -288,13 +263,6 @@
   .hero-card .hero-copy > p:not(.eyebrow):after{
     font-size:1rem;
     line-height:1.42;
-  }
-
-  .hero-card:before{
-    top:150px;
-    right:12px;
-    font-size:.58rem;
-    color:rgba(244,239,226,.15);
   }
 
   .hero-card:after{
