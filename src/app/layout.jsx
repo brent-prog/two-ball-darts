@@ -56,9 +56,9 @@ export const metadata = {
   title: 'TWO BALL DARTS',
   description: 'No gimmes. Just throw. Live golf-style darts scoring and official rules.',
   icons: {
-    icon: [{ url: '/brand/twoball-app-icon.svg', type: 'image/svg+xml' }],
-    shortcut: '/brand/twoball-app-icon.svg',
-    apple: '/brand/twoball-app-icon.svg'
+    icon: [{ url: '/two-ball-darts-favicon-clean.svg?v=4', type: 'image/svg+xml' }],
+    shortcut: '/two-ball-darts-favicon-clean.svg?v=4',
+    apple: '/two-ball-darts-app-icon.png'
   }
 };
 
