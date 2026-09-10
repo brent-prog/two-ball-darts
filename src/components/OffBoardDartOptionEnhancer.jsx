@@ -4,49 +4,31 @@ import { useEffect } from 'react';
 
 export default function OffBoardDartOptionEnhancer() {
   useEffect(() => {
-    const installGroup = group => {
-      if (group.dataset.tbdOffboardInstalled === '1') return;
+    const sync = () => {
+      document.querySelectorAll('.tbd-custom-dart-options').forEach(group => {
+        group.querySelectorAll('.tbd-custom-dart-option').forEach(button => {
+          const label = button.textContent?.trim();
 
-      const hazard = [...group.querySelectorAll('.tbd-custom-dart-option')]
-        .find(button => button.textContent?.trim() === 'Hazard');
-      if (!hazard) return;
+          if (label === 'Safe Miss') {
+            button.textContent = 'On-Board Miss';
+            button.classList.remove('is-neutral');
+            button.classList.add('is-onboard-miss');
+          }
 
-      group.dataset.tbdOffboardInstalled = '1';
-      hazard.dataset.tbdRole = 'hazard';
-      hazard.classList.remove('is-red');
-      hazard.classList.add('is-hazard');
+          if (label === 'Hazard') {
+            button.classList.remove('is-red');
+            button.classList.add('is-hazard');
+          }
 
-      const offboard = document.createElement('button');
-      offboard.type = 'button';
-      offboard.className = 'tbd-custom-dart-option is-offboard';
-      offboard.dataset.tbdRole = 'offboard';
-      offboard.textContent = 'Off Board Miss';
-
-      offboard.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-        hazard.click();
-        window.requestAnimationFrame(() => {
-          group.querySelectorAll('.tbd-custom-dart-option').forEach(button => button.classList.remove('is-selected'));
-          offboard.classList.add('is-selected');
+          if (label === 'Off Board Miss') {
+            button.remove();
+          }
         });
       });
-
-      hazard.addEventListener('click', () => {
-        window.requestAnimationFrame(() => {
-          offboard.classList.remove('is-selected');
-        });
-      });
-
-      group.appendChild(offboard);
     };
 
-    const install = () => {
-      document.querySelectorAll('.tbd-custom-dart-options').forEach(installGroup);
-    };
-
-    install();
-    const observer = new MutationObserver(install);
+    sync();
+    const observer = new MutationObserver(sync);
     observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
