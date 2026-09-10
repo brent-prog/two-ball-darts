@@ -1,82 +1,124 @@
-/* TwoBall scoring polish - full centred board, stronger golf scoring hierarchy */
+/* TwoBall scoring polish - make the agreed scoring hierarchy unmistakable */
 
+/* Keep the entire custom board visible and centred behind Score by Darts. */
 .tbd-dart-score-card::before{
-  width:min(520px,92vw)!important;
+  width:min(340px,82vw)!important;
   left:50%!important;
   right:auto!important;
-  top:52%!important;
+  top:54%!important;
   inset:auto!important;
   transform:translate(-50%,-50%)!important;
-  opacity:.30!important;
-  filter:saturate(1.08) brightness(1.08)!important;
+  opacity:.34!important;
+  filter:saturate(1.12) brightness(1.10)!important;
+  background-size:contain!important;
+  background-position:center!important;
 }
 
+/* Score cards: standard labels + separate, dominant golf value. */
 .tbd-quick-score-grid{
   gap:10px!important;
 }
 
 .tbd-quick-score-grid .button{
-  min-height:74px!important;
+  min-height:78px!important;
   padding:12px 14px!important;
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
-  font-size:1.05rem!important;
+  font-size:0!important;
   font-weight:800!important;
-  line-height:1.05!important;
+  line-height:1!important;
+  align-items:center!important;
 }
+
+.tbd-quick-score-grid .button::before{
+  display:block!important;
+  position:static!important;
+  width:auto!important;
+  background:none!important;
+  opacity:1!important;
+  color:var(--tbd-ivory)!important;
+  font-size:1.08rem!important;
+  font-weight:850!important;
+  letter-spacing:.01em!important;
+  text-transform:none!important;
+}
+
+.tbd-quick-score-grid .button:nth-child(1)::before{content:'Eagle'!important;}
+.tbd-quick-score-grid .button:nth-child(2)::before{content:'Birdie'!important;}
+.tbd-quick-score-grid .button:nth-child(3)::before{content:'Par'!important;}
+.tbd-quick-score-grid .button:nth-child(4)::before{content:'Bogey'!important;}
+.tbd-quick-score-grid .button:nth-child(5)::before{content:'Double Bogey'!important;}
+.tbd-quick-score-grid .button:nth-child(6)::before{content:'Triple Bogey'!important;}
 
 .tbd-quick-score-grid .button::after{
-  min-width:48px!important;
-  height:48px!important;
-  font-size:1.35rem!important;
+  position:static!important;
+  transform:none!important;
+  display:grid!important;
+  place-items:center!important;
+  min-width:54px!important;
+  width:54px!important;
+  height:54px!important;
+  flex:0 0 54px!important;
+  border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  background:rgba(0,0,0,.28)!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:1.72rem!important;
   font-weight:1000!important;
-  border-width:2px!important;
+  letter-spacing:-.02em!important;
+  line-height:1!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important;
 }
 
-/* Standard golf progression: two greens, neutral par, increasingly severe reds */
+/* Golf progression - deliberately distinct at a glance. */
 .tbd-quick-score-grid .button:nth-child(1){
-  background:linear-gradient(180deg,#18764c,#0a402a)!important;
-  border-color:#42c986!important;
+  background:linear-gradient(180deg,#1b8755,#0b452d)!important;
+  border-color:#4ee09a!important;
 }
 .tbd-quick-score-grid .button:nth-child(2){
-  background:linear-gradient(180deg,#135f3e,#0a3424)!important;
-  border-color:#2e9f68!important;
+  background:linear-gradient(180deg,#126644,#0a3324)!important;
+  border-color:#2fad73!important;
 }
 .tbd-quick-score-grid .button:nth-child(3){
-  background:linear-gradient(180deg,#34321c,#1b1a10)!important;
-  border-color:#9a8744!important;
+  background:linear-gradient(180deg,#4b4520,#24200f)!important;
+  border-color:#b39a49!important;
 }
 .tbd-quick-score-grid .button:nth-child(4){
-  background:linear-gradient(180deg,#8c2024,#4c1114)!important;
-  border-color:#cb3a40!important;
+  background:linear-gradient(180deg,#a92830,#531317)!important;
+  border-color:#ee5961!important;
 }
 .tbd-quick-score-grid .button:nth-child(5){
-  background:linear-gradient(180deg,#71161a,#350a0c)!important;
-  border-color:#a6252b!important;
+  background:linear-gradient(180deg,#75171c,#33090b)!important;
+  border-color:#bd3238!important;
 }
 .tbd-quick-score-grid .button:nth-child(6){
-  background:linear-gradient(180deg,#520e11,#1e0506)!important;
-  border-color:#7f171c!important;
+  background:linear-gradient(180deg,#470b0e,#170304)!important;
+  border-color:#7e171c!important;
 }
 
-.tbd-quick-score-grid .button:nth-child(1)::after{color:#c5ffde!important;}
-.tbd-quick-score-grid .button:nth-child(2)::after{color:#aaf0c7!important;}
-.tbd-quick-score-grid .button:nth-child(3)::after{color:#ffe28a!important;}
-.tbd-quick-score-grid .button:nth-child(4)::after{color:#ffd1d1!important;}
-.tbd-quick-score-grid .button:nth-child(5)::after{color:#ffabab!important;}
-.tbd-quick-score-grid .button:nth-child(6)::after{color:#ff8888!important;}
+.tbd-quick-score-grid .button:nth-child(1)::after{content:'-2'!important;color:#d8ffe9!important;}
+.tbd-quick-score-grid .button:nth-child(2)::after{content:'-1'!important;color:#b9f4d2!important;}
+.tbd-quick-score-grid .button:nth-child(3)::after{content:'E'!important;color:#ffe293!important;}
+.tbd-quick-score-grid .button:nth-child(4)::after{content:'+1'!important;color:#ffe0e0!important;}
+.tbd-quick-score-grid .button:nth-child(5)::after{content:'+2'!important;color:#ffb8b8!important;}
+.tbd-quick-score-grid .button:nth-child(6)::after{content:'+3'!important;color:#ff9090!important;}
 
-/* Explicit dart-result semantics */
+.tbd-quick-score-grid .button.primary{
+  border-color:#fff4d6!important;
+  box-shadow:0 0 0 2px rgba(255,244,214,.25) inset,0 0 0 2px rgba(255,244,214,.10)!important;
+}
+
+/* Explicit dart-result semantics. Hazard = water blue. Off-board = red. */
 .tbd-custom-dart-option.is-hazard,
 .tbd-custom-dart-option[data-tbd-role="hazard"]{
-  background:linear-gradient(180deg,#1b7e9f,#0e4d64)!important;
-  border-color:#43bce8!important;
+  background:linear-gradient(180deg,#2089ad,#10526b)!important;
+  border-color:#55c9f4!important;
   color:#eefbff!important;
 }
 
 .tbd-custom-dart-option.is-offboard,
 .tbd-custom-dart-option[data-tbd-role="offboard"]{
-  background:linear-gradient(180deg,#941e24,#4a0d11)!important;
-  border-color:#e54e55!important;
+  background:linear-gradient(180deg,#a5232a,#510e12)!important;
+  border-color:#ef5a62!important;
   color:#fff2f2!important;
 }
 
@@ -89,11 +131,21 @@
 
 @media(max-width:620px){
   .tbd-dart-score-card::before{
-    width:min(440px,104vw)!important;
-    top:54%!important;
-    opacity:.27!important;
+    width:min(320px,80vw)!important;
+    top:55%!important;
+    opacity:.32!important;
   }
   .tbd-quick-score-grid .button{
-    min-height:68px!important;
+    min-height:72px!important;
+  }
+  .tbd-quick-score-grid .button::before{
+    font-size:1rem!important;
+  }
+  .tbd-quick-score-grid .button::after{
+    min-width:50px!important;
+    width:50px!important;
+    height:50px!important;
+    flex-basis:50px!important;
+    font-size:1.62rem!important;
   }
 }
