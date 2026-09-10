@@ -25,6 +25,7 @@ import './round-complete-rebrand.css';
 import './live-scorecard-rebrand.css';
 import './home-live-round-hide.css';
 import './player-picker-rebrand.css';
+import './round-history-rebrand.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
