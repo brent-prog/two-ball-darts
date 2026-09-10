@@ -4,63 +4,50 @@ import { useEffect } from 'react';
 
 export default function OffBoardDartOptionEnhancer() {
   useEffect(() => {
-    const syncGroup = group => {
-      const buttons = [...group.querySelectorAll('.tbd-custom-dart-option')];
-      const hazard = buttons.find(button => button.dataset.tbdRole === 'hazard' || button.textContent?.trim() === 'Hazard');
+    const installGroup = group => {
+      if (group.dataset.tbdOffboardInstalled === '1') return;
+
+      const hazard = [...group.querySelectorAll('.tbd-custom-dart-option')]
+        .find(button => button.textContent?.trim() === 'Hazard');
       if (!hazard) return;
 
+      group.dataset.tbdOffboardInstalled = '1';
       hazard.dataset.tbdRole = 'hazard';
       hazard.classList.remove('is-red');
       hazard.classList.add('is-hazard');
 
-      let offboard = group.querySelector('.tbd-custom-dart-option.is-offboard');
-      if (!offboard) {
-        offboard = hazard.cloneNode(true);
-        offboard.textContent = 'Off Board Miss';
-        offboard.dataset.tbdRole = 'offboard';
-        offboard.classList.remove('is-selected', 'is-hazard', 'is-red');
-        offboard.classList.add('is-offboard');
-        group.appendChild(offboard);
+      const offboard = document.createElement('button');
+      offboard.type = 'button';
+      offboard.className = 'tbd-custom-dart-option is-offboard';
+      offboard.dataset.tbdRole = 'offboard';
+      offboard.textContent = 'Off Board Miss';
 
-        offboard.addEventListener('click', event => {
-          event.preventDefault();
-          event.stopPropagation();
-          group.dataset.tbdLastChoice = 'offboard';
-          hazard.click();
-          window.requestAnimationFrame(() => syncGroup(group));
-        });
-      }
-
-      if (!hazard.dataset.tbdChoiceBound) {
-        hazard.dataset.tbdChoiceBound = '1';
-        hazard.addEventListener('click', () => {
-          group.dataset.tbdLastChoice = 'hazard';
-          window.requestAnimationFrame(() => syncGroup(group));
-        });
-      }
-
-      buttons.filter(button => button !== hazard).forEach(button => {
-        if (button.dataset.tbdRole === 'offboard' || button.dataset.tbdOtherBound) return;
-        button.dataset.tbdOtherBound = '1';
-        button.addEventListener('click', () => {
-          group.dataset.tbdLastChoice = '';
-          window.requestAnimationFrame(() => syncGroup(group));
+      offboard.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        hazard.click();
+        window.requestAnimationFrame(() => {
+          group.querySelectorAll('.tbd-custom-dart-option').forEach(button => button.classList.remove('is-selected'));
+          offboard.classList.add('is-selected');
         });
       });
 
-      const hazardSelected = hazard.classList.contains('is-selected');
-      const offboardSelected = hazardSelected && group.dataset.tbdLastChoice === 'offboard';
-      offboard.classList.toggle('is-selected', offboardSelected);
-      hazard.classList.toggle('is-selected', hazardSelected && !offboardSelected);
+      hazard.addEventListener('click', () => {
+        window.requestAnimationFrame(() => {
+          offboard.classList.remove('is-selected');
+        });
+      });
+
+      group.appendChild(offboard);
     };
 
-    const sync = () => {
-      document.querySelectorAll('.tbd-custom-dart-options').forEach(syncGroup);
+    const install = () => {
+      document.querySelectorAll('.tbd-custom-dart-options').forEach(installGroup);
     };
 
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    install();
+    const observer = new MutationObserver(install);
+    observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
 
