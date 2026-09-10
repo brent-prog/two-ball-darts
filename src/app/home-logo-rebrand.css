@@ -168,6 +168,35 @@
   content:none!important;
 }
 
+/* Desktop keeps the logo completely inside its own grid column. */
+@media(min-width:901px){
+  .hero-card{
+    grid-template-columns:286px minmax(0,1fr)!important;
+    gap:42px!important;
+  }
+
+  .hero-card .tbd-primary-logo{
+    width:286px!important;
+    grid-template-columns:88px minmax(0,1fr)!important;
+    gap:12px!important;
+    margin:0!important;
+  }
+
+  .hero-card .tbd-primary-logo-mark{
+    max-height:94px!important;
+  }
+
+  .hero-card .tbd-primary-logo-type strong{
+    font-size:2.55rem!important;
+    transform:scaleX(1)!important;
+  }
+
+  .hero-card .tbd-primary-logo-type span{
+    font-size:2rem!important;
+    transform:scaleX(1)!important;
+  }
+}
+
 @media(max-width:900px){
   .hero-card{
     grid-template-columns:1fr!important;
