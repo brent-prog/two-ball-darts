@@ -29,6 +29,7 @@ import './round-history-rebrand.css';
 import './home-logo-rebrand.css';
 import './how-to-play-rebrand.css';
 import './saved-scorecard-rebrand.css';
+import './home-hero-cleanup.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
