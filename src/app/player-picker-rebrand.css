@@ -1,0 +1,194 @@
+/* TwoBall player picker - compact, game-first selection flow. */
+
+/* Main Add Player / Players picker card. */
+.card:has(#new-player-profile){
+  width:min(560px,96vw)!important;
+  max-height:88vh!important;
+  padding:18px!important;
+  border:1px solid rgba(244,239,226,.18)!important;
+  border-radius:20px!important;
+  background:
+    radial-gradient(circle at 100% 0,rgba(14,90,58,.18),transparent 34%),
+    linear-gradient(180deg,#081f18 0%,#03130f 100%)!important;
+  box-shadow:0 28px 70px rgba(0,0,0,.5)!important;
+}
+
+.card:has(#new-player-profile) .section-heading{
+  margin-bottom:12px!important;
+  padding-bottom:12px!important;
+  border-bottom:1px solid rgba(244,239,226,.12)!important;
+}
+
+.card:has(#new-player-profile) .section-heading .eyebrow{
+  color:var(--tbd-red)!important;
+  font-size:.7rem!important;
+  letter-spacing:.15em!important;
+}
+
+.card:has(#new-player-profile) .section-heading h2{
+  margin-top:2px!important;
+  color:var(--tbd-ivory)!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:clamp(2rem,7vw,3.1rem)!important;
+  font-weight:1000!important;
+  line-height:.92!important;
+  text-transform:uppercase!important;
+}
+
+.card:has(#new-player-profile) .section-heading > .button{
+  min-height:42px!important;
+  height:42px!important;
+  padding:0 14px!important;
+  border-radius:10px!important;
+}
+
+/* Sections read as roster groups rather than stacked forms. */
+.card:has(#new-player-profile) > section{
+  margin-top:14px!important;
+  padding-top:14px!important;
+  border-top:1px solid rgba(244,239,226,.10)!important;
+}
+
+.card:has(#new-player-profile) > section:first-of-type{
+  margin-top:0!important;
+  padding-top:0!important;
+  border-top:0!important;
+}
+
+.card:has(#new-player-profile) > section p{
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+}
+
+/* Saved-player rows. Strong name button, compact Stats utility. */
+.card:has(#new-player-profile) > section > div[style*="display: grid"] > div{
+  align-items:stretch!important;
+  gap:8px!important;
+}
+
+.card:has(#new-player-profile) > section .button.secondary{
+  min-height:48px!important;
+  padding:0 14px!important;
+  border:1px solid rgba(244,239,226,.18)!important;
+  border-radius:12px!important;
+  background:#0b281f!important;
+  color:var(--tbd-ivory)!important;
+  font-size:1rem!important;
+  font-weight:900!important;
+  letter-spacing:.01em!important;
+  text-transform:none!important;
+  box-shadow:none!important;
+}
+
+.card:has(#new-player-profile) > section .button.secondary:not(:disabled):active{
+  background:#12382c!important;
+  transform:translateY(1px)!important;
+}
+
+.card:has(#new-player-profile) > section .button.secondary:disabled{
+  opacity:.42!important;
+  border-color:rgba(244,239,226,.10)!important;
+}
+
+.card:has(#new-player-profile) > section .button.ghost{
+  min-width:62px!important;
+  min-height:48px!important;
+  padding:0 10px!important;
+  border:1px solid rgba(244,239,226,.12)!important;
+  border-radius:12px!important;
+  background:rgba(255,255,255,.025)!important;
+  color:var(--tbd-muted)!important;
+  font-size:.78rem!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+}
+
+/* Save Guest is a secondary creation path, visually distinct from selecting an existing player. */
+.card:has(#new-player-profile) form{
+  margin-top:16px!important;
+  padding:14px!important;
+  border:1px solid rgba(244,239,226,.12)!important;
+  border-radius:14px!important;
+  background:rgba(255,255,255,.025)!important;
+}
+
+.card:has(#new-player-profile) form label{
+  color:var(--tbd-ivory)!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:.95rem!important;
+  font-weight:1000!important;
+  letter-spacing:.04em!important;
+  text-transform:uppercase!important;
+}
+
+.card:has(#new-player-profile) #new-player-profile{
+  width:100%!important;
+  min-height:48px!important;
+  padding:0 13px!important;
+  border:1px solid rgba(244,239,226,.20)!important;
+  border-radius:11px!important;
+  background:#071c16!important;
+  color:var(--tbd-ivory)!important;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-size:1rem!important;
+  font-weight:700!important;
+  box-shadow:none!important;
+}
+
+.card:has(#new-player-profile) #new-player-profile:focus{
+  outline:2px solid rgba(239,0,20,.5)!important;
+  outline-offset:1px!important;
+  border-color:var(--tbd-red)!important;
+}
+
+.card:has(#new-player-profile) form .button.primary{
+  min-height:48px!important;
+  border-radius:11px!important;
+}
+
+/* One-round guest is intentionally available without competing with saved-player selection. */
+.card:has(#new-player-profile) > div:last-child .button.ghost{
+  min-height:46px!important;
+  border:1px dashed rgba(244,239,226,.24)!important;
+  border-radius:12px!important;
+  background:transparent!important;
+  color:var(--tbd-ivory)!important;
+  font-weight:900!important;
+}
+
+.card:has(#new-player-profile) .status-line{
+  margin:12px 0 0!important;
+  padding:9px 11px!important;
+  border-radius:10px!important;
+  background:rgba(14,90,58,.13)!important;
+  color:var(--tbd-muted)!important;
+  text-align:center!important;
+  font-size:.84rem!important;
+}
+
+@media(max-width:520px){
+  .card:has(#new-player-profile){
+    width:calc(100vw - 20px)!important;
+    max-height:91vh!important;
+    padding:14px!important;
+    border-radius:16px!important;
+  }
+
+  .card:has(#new-player-profile) .section-heading h2{
+    font-size:2.25rem!important;
+  }
+
+  .card:has(#new-player-profile) > section{
+    margin-top:12px!important;
+    padding-top:12px!important;
+  }
+
+  .card:has(#new-player-profile) > section .button.secondary,
+  .card:has(#new-player-profile) > section .button.ghost{
+    min-height:46px!important;
+  }
+
+  .card:has(#new-player-profile) form{
+    margin-top:14px!important;
+    padding:12px!important;
+  }
+}
