@@ -1,11 +1,11 @@
-/* Home hero primary TwoBall logo - clean mark + wordmark. */
+/* Home hero primary TwoBall logo - clean mark + extra-bold wordmark. */
 .hero-card .tbd-primary-logo{
-  width:min(360px,100%)!important;
+  width:min(380px,100%)!important;
   aspect-ratio:auto!important;
   display:grid!important;
   grid-template-columns:minmax(110px,145px) minmax(0,1fr)!important;
   align-items:center!important;
-  gap:20px!important;
+  gap:18px!important;
   filter:none!important;
 }
 
@@ -21,35 +21,39 @@
 .hero-card .tbd-primary-logo-type{
   min-width:0!important;
   display:grid!important;
-  gap:2px!important;
+  gap:0!important;
   align-content:center!important;
-  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Barlow Condensed",sans-serif!important;
   text-transform:uppercase!important;
-  line-height:.84!important;
+  line-height:.8!important;
 }
 
 .hero-card .tbd-primary-logo-type strong{
   display:block!important;
   color:var(--tbd-ivory,#f4efe2)!important;
-  font-size:clamp(2.25rem,6.8vw,4.4rem)!important;
-  font-weight:1000!important;
-  letter-spacing:-.035em!important;
+  font-size:clamp(2.45rem,7.1vw,4.7rem)!important;
+  font-weight:900!important;
+  letter-spacing:.005em!important;
   white-space:nowrap!important;
+  transform:scaleX(1.04);
+  transform-origin:left center;
 }
 
 .hero-card .tbd-primary-logo-type span{
   display:block!important;
   color:var(--tbd-red,#ef0014)!important;
-  font-size:clamp(1.7rem,5.3vw,3.35rem)!important;
-  font-weight:1000!important;
-  letter-spacing:.035em!important;
+  font-size:clamp(1.95rem,5.7vw,3.7rem)!important;
+  font-weight:900!important;
+  letter-spacing:.025em!important;
+  transform:scaleX(1.03);
+  transform-origin:left center;
 }
 
 .hero-card{
   position:relative!important;
   isolation:isolate!important;
   overflow:hidden!important;
-  grid-template-columns:minmax(280px,360px) minmax(0,1fr)!important;
+  grid-template-columns:minmax(280px,380px) minmax(0,1fr)!important;
   gap:30px!important;
   background:
     linear-gradient(180deg,rgba(7,28,22,.93),rgba(2,20,15,.985)),
@@ -171,9 +175,9 @@
   }
 
   .hero-card .tbd-primary-logo{
-    width:min(520px,100%)!important;
+    width:min(540px,100%)!important;
     grid-template-columns:minmax(92px,125px) minmax(0,1fr)!important;
-    gap:16px!important;
+    gap:14px!important;
     margin:0 auto!important;
   }
 
@@ -194,7 +198,7 @@
   .hero-card .tbd-primary-logo{
     width:100%!important;
     grid-template-columns:92px minmax(0,1fr)!important;
-    gap:14px!important;
+    gap:12px!important;
   }
 
   .hero-card .tbd-primary-logo-mark{
@@ -202,11 +206,13 @@
   }
 
   .hero-card .tbd-primary-logo-type strong{
-    font-size:clamp(2rem,10.5vw,3rem)!important;
+    font-size:clamp(2.15rem,11vw,3.15rem)!important;
+    transform:scaleX(1.02);
   }
 
   .hero-card .tbd-primary-logo-type span{
-    font-size:clamp(1.45rem,7.9vw,2.25rem)!important;
+    font-size:clamp(1.65rem,8.5vw,2.45rem)!important;
+    transform:scaleX(1.02);
   }
 
   .hero-card .hero-copy h1:before{
