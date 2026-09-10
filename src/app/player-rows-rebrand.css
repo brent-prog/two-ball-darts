@@ -1,0 +1,233 @@
+/* TwoBall live player rows - rebrand pass */
+
+#scorecard .tbd-live-score-list{
+  gap:10px!important;
+}
+
+#scorecard .tbd-player-score-row{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:12px!important;
+  min-height:76px!important;
+  padding:12px 12px 12px 14px!important;
+  border:1px solid rgba(244,239,226,.16)!important;
+  border-radius:16px!important;
+  background:linear-gradient(180deg,rgba(8,31,24,.97),rgba(4,20,15,.98))!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+
+#scorecard .tbd-player-score-row::before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:rgba(244,239,226,.14);
+}
+
+#scorecard .tbd-player-score-row.scored::before{
+  background:var(--tbd-red);
+}
+
+#scorecard .tbd-player-score-row.has-honours{
+  border-color:rgba(228,193,90,.42)!important;
+  box-shadow:0 0 0 1px rgba(228,193,90,.10) inset!important;
+}
+
+#scorecard .tbd-player-score-main{
+  min-width:0!important;
+  display:grid!important;
+  gap:5px!important;
+}
+
+#scorecard .tbd-player-name-line{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0!important;
+}
+
+#scorecard .tbd-player-name-line::before{
+  display:none!important;
+  content:none!important;
+}
+
+#scorecard .tbd-player-total-score{
+  order:3!important;
+  margin-left:auto!important;
+  width:auto!important;
+  min-width:48px!important;
+  height:34px!important;
+  padding:0 10px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid rgba(244,239,226,.22)!important;
+  border-radius:999px!important;
+  background:#0d241d!important;
+  color:var(--tbd-ivory)!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:1.05rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+  box-shadow:none!important;
+}
+
+#scorecard .tbd-player-total-score.is-under{
+  background:#0e4b34!important;
+  border-color:#29986a!important;
+  color:#c8f6dc!important;
+}
+
+#scorecard .tbd-player-total-score.is-even{
+  background:#2e2b18!important;
+  border-color:#8e7d3d!important;
+  color:#ffe293!important;
+}
+
+#scorecard .tbd-player-total-score.is-over{
+  background:#4d1416!important;
+  border-color:#9b2a30!important;
+  color:#ffc2c5!important;
+}
+
+#scorecard .tbd-player-total-score.is-leader{
+  background:#123525!important;
+  border-color:#49c889!important;
+  color:#e8fff2!important;
+  box-shadow:0 0 0 1px rgba(73,200,137,.18) inset!important;
+}
+
+#scorecard .tbd-player-total-score.is-leader::after{
+  content:'LEADER'!important;
+  display:block!important;
+  margin-top:1px!important;
+  font-size:.42rem!important;
+  letter-spacing:.08em!important;
+  line-height:1!important;
+  color:#8eddb0!important;
+}
+
+#scorecard .tbd-player-total-score.is-empty-round{
+  background:#0b1f19!important;
+  border-color:rgba(244,239,226,.14)!important;
+  color:rgba(244,239,226,.55)!important;
+}
+
+#scorecard .tbd-honours-chip{
+  order:2!important;
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  border:1px solid #b79d4c!important;
+  border-radius:999px!important;
+  background:#342f17!important;
+  color:#ffe293!important;
+  font-size:.72rem!important;
+  font-weight:1000!important;
+  box-shadow:none!important;
+}
+
+#scorecard .tbd-player-name-input{
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--tbd-ivory)!important;
+  box-shadow:none!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:1.28rem!important;
+  font-weight:800!important;
+  line-height:1.05!important;
+  text-overflow:ellipsis!important;
+}
+
+#scorecard button.tbd-player-name-input{
+  text-decoration:none!important;
+}
+
+#scorecard input.tbd-player-name-input:focus{
+  outline:none!important;
+  box-shadow:none!important;
+}
+
+#scorecard .tbd-hole-status{
+  margin:0!important;
+  padding:0!important;
+  color:var(--tbd-muted)!important;
+  font-size:.8rem!important;
+  font-style:normal!important;
+  font-weight:700!important;
+  line-height:1.1!important;
+  letter-spacing:.01em!important;
+}
+
+#scorecard .tbd-player-score-row.scored .tbd-hole-status{
+  color:rgba(244,239,226,.84)!important;
+}
+
+#scorecard .tbd-player-score-row > .button{
+  width:auto!important;
+  min-width:92px!important;
+  max-width:none!important;
+  height:40px!important;
+  min-height:40px!important;
+  margin:0!important;
+  padding:0 12px!important;
+  border-radius:10px!important;
+  border:1px solid rgba(244,239,226,.18)!important;
+  background:#102820!important;
+  color:var(--tbd-ivory)!important;
+  box-shadow:none!important;
+  font-size:.82rem!important;
+  font-weight:900!important;
+  letter-spacing:.025em!important;
+  text-transform:uppercase!important;
+}
+
+#scorecard .tbd-player-score-row:not(.scored) > .button{
+  background:linear-gradient(180deg,#f31327,var(--tbd-red-dark))!important;
+  border-color:#ff2638!important;
+  color:#fff!important;
+}
+
+#scorecard .tbd-player-score-row.scored > .button{
+  background:#0b211a!important;
+  border-color:rgba(244,239,226,.20)!important;
+  color:rgba(244,239,226,.88)!important;
+}
+
+@media(max-width:520px){
+  #scorecard .tbd-player-score-row{
+    min-height:70px!important;
+    gap:9px!important;
+    padding:10px 10px 10px 12px!important;
+  }
+
+  #scorecard .tbd-player-name-input{
+    font-size:1.14rem!important;
+  }
+
+  #scorecard .tbd-player-total-score{
+    min-width:44px!important;
+    height:32px!important;
+    padding:0 8px!important;
+    font-size:.98rem!important;
+  }
+
+  #scorecard .tbd-player-score-row > .button{
+    min-width:82px!important;
+    height:38px!important;
+    min-height:38px!important;
+    padding:0 10px!important;
+    font-size:.76rem!important;
+  }
+}
