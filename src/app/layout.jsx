@@ -18,6 +18,7 @@ import './score-interactions-rebrand.css';
 import './score-interactions-polish.css';
 import './player-rows-rebrand.css';
 import './player-profile-selection-polish.css';
+import './empty-player-final.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
