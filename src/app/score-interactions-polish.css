@@ -86,7 +86,7 @@
   box-shadow:0 0 0 2px rgba(255,244,214,.25) inset,0 0 0 2px rgba(255,244,214,.10)!important;
 }
 
-/* Explicit dart-result semantics. Hazard = water blue. Off-board = red. */
+/* Dart-result semantics. Hazard = water blue. On-board miss = red. */
 .tbd-custom-dart-option.is-hazard,
 .tbd-custom-dart-option[data-tbd-role="hazard"]{
   background:linear-gradient(180deg,#2089ad,#10526b)!important;
@@ -94,15 +94,14 @@
   color:#eefbff!important;
 }
 
-.tbd-custom-dart-option.is-offboard,
-.tbd-custom-dart-option[data-tbd-role="offboard"]{
+.tbd-custom-dart-option.is-onboard-miss{
   background:linear-gradient(180deg,#a5232a,#510e12)!important;
   border-color:#ef5a62!important;
   color:#fff2f2!important;
 }
 
 .tbd-custom-dart-option.is-hazard.is-selected,
-.tbd-custom-dart-option.is-offboard.is-selected{
+.tbd-custom-dart-option.is-onboard-miss.is-selected{
   background:var(--tbd-ivory)!important;
   border-color:var(--tbd-ivory)!important;
   color:#071c16!important;
