@@ -21,6 +21,7 @@ import './player-profile-selection-polish.css';
 import './empty-player-final.css';
 import './player-result-colours.css';
 import './scored-row-action-final.css';
+import './round-complete-rebrand.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
