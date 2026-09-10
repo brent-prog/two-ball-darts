@@ -1,5 +1,38 @@
-/* Scored player row - show the hole result as the action and remove duplicate result text. */
+/* Final scored-row treatment. Keep geometry stable and keep the hierarchy simple. */
 
+/* Cumulative round score belongs to the LEFT of the player name. */
+#scorecard .tbd-player-name-line{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+
+#scorecard .tbd-player-total-score{
+  order:1!important;
+  margin-left:0!important;
+  flex:0 0 auto!important;
+}
+
+#scorecard .tbd-player-name-input{
+  order:2!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+
+#scorecard .tbd-honours-chip{
+  order:3!important;
+  flex:0 0 auto!important;
+}
+
+/* Every player row remains the same height whether scored or not. */
+#scorecard .tbd-player-score-row,
+#scorecard .tbd-player-score-row.scored,
+#scorecard .tbd-player-score-row:not(.scored){
+  min-height:92px!important;
+  height:92px!important;
+}
+
+/* The row colour already communicates Eagle/Birdie/Par/Bogey. Don't repeat the label. */
 #scorecard .tbd-player-score-row.scored .tbd-hole-status{
   display:none!important;
 }
@@ -9,34 +42,72 @@
   gap:0!important;
 }
 
+/* Scored action is a compact score tile only. Hide the source label completely. */
 #scorecard .tbd-player-score-row.scored > .button{
-  min-width:112px!important;
-  min-height:48px!important;
-  height:48px!important;
-  padding:0 14px!important;
-  border-radius:12px!important;
-  border:1px solid rgba(244,239,226,.26)!important;
-  background:rgba(0,0,0,.24)!important;
-  color:var(--tbd-ivory)!important;
-  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
-  font-size:.92rem!important;
-  font-weight:900!important;
-  letter-spacing:.015em!important;
-  text-transform:none!important;
-  line-height:1.05!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+  width:66px!important;
+  min-width:66px!important;
+  max-width:66px!important;
+  height:52px!important;
+  min-height:52px!important;
+  max-height:52px!important;
+  padding:0!important;
+  border-radius:14px!important;
+  font-size:0!important;
+  line-height:0!important;
+  letter-spacing:0!important;
+  text-indent:-9999px!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  position:relative!important;
 }
+
+#scorecard .tbd-player-score-row.scored > .button::after{
+  position:absolute!important;
+  inset:0!important;
+  display:grid!important;
+  place-items:center!important;
+  text-indent:0!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:1.42rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  letter-spacing:-.02em!important;
+  color:inherit!important;
+}
+
+#scorecard .tbd-player-score-row.scored > .button.is-eagle::after{content:'-2'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-birdie::after{content:'-1'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-par::after{content:'E'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-bogey::after{content:'+1'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-double-bogey::after{content:'+2'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-triple-bogey::after{content:'+3'!important;}
 
 #scorecard .tbd-player-score-row.scored > .button:active{
   transform:translateY(1px)!important;
 }
 
 @media(max-width:520px){
+  #scorecard .tbd-player-score-row,
+  #scorecard .tbd-player-score-row.scored,
+  #scorecard .tbd-player-score-row:not(.scored){
+    min-height:88px!important;
+    height:88px!important;
+  }
+
+  #scorecard .tbd-player-name-line{
+    gap:8px!important;
+  }
+
   #scorecard .tbd-player-score-row.scored > .button{
-    min-width:104px!important;
-    min-height:46px!important;
-    height:46px!important;
-    padding:0 12px!important;
-    font-size:.86rem!important;
+    width:62px!important;
+    min-width:62px!important;
+    max-width:62px!important;
+    height:50px!important;
+    min-height:50px!important;
+    max-height:50px!important;
+  }
+
+  #scorecard .tbd-player-score-row.scored > .button::after{
+    font-size:1.32rem!important;
   }
 }
