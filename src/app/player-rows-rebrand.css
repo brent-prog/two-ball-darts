@@ -47,7 +47,7 @@
 #scorecard .tbd-player-name-line{
   display:flex!important;
   align-items:center!important;
-  gap:8px!important;
+  gap:10px!important;
   min-width:0!important;
 }
 
@@ -56,24 +56,33 @@
   content:none!important;
 }
 
+/* Cumulative round score - fixed circular badge, always left of player name. */
 #scorecard .tbd-player-total-score{
-  order:3!important;
-  margin-left:auto!important;
-  width:auto!important;
-  min-width:48px!important;
-  height:34px!important;
-  padding:0 10px!important;
-  display:grid!important;
-  place-items:center!important;
-  border:1px solid rgba(244,239,226,.22)!important;
-  border-radius:999px!important;
+  order:1!important;
+  flex:0 0 54px!important;
+  width:54px!important;
+  min-width:54px!important;
+  max-width:54px!important;
+  height:54px!important;
+  min-height:54px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:2px solid rgba(244,239,226,.22)!important;
+  border-radius:50%!important;
   background:#0d241d!important;
   color:var(--tbd-ivory)!important;
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
-  font-size:1.05rem!important;
-  font-weight:900!important;
-  line-height:1!important;
+  font-size:1.34rem!important;
+  font-weight:1000!important;
+  line-height:.9!important;
+  letter-spacing:-.02em!important;
+  box-sizing:border-box!important;
   box-shadow:none!important;
+  text-align:center!important;
 }
 
 #scorecard .tbd-player-total-score.is-under{
@@ -104,21 +113,35 @@
 #scorecard .tbd-player-total-score.is-leader::after{
   content:'LEADER'!important;
   display:block!important;
-  margin-top:1px!important;
+  margin-top:4px!important;
   font-size:.42rem!important;
+  font-weight:900!important;
   letter-spacing:.08em!important;
   line-height:1!important;
   color:#8eddb0!important;
 }
 
+/* A cumulative zero is EVEN. The component used to display '-' when the current hole was unscored. */
 #scorecard .tbd-player-total-score.is-empty-round{
-  background:#0b1f19!important;
-  border-color:rgba(244,239,226,.14)!important;
-  color:rgba(244,239,226,.55)!important;
+  background:#2e2b18!important;
+  border-color:#8e7d3d!important;
+  color:transparent!important;
+  font-size:0!important;
+}
+
+#scorecard .tbd-player-total-score.is-empty-round::before{
+  content:'E'!important;
+  display:block!important;
+  color:#ffe293!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:1.34rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
 }
 
 #scorecard .tbd-honours-chip{
-  order:2!important;
+  order:3!important;
+  flex:0 0 28px!important;
   width:28px!important;
   min-width:28px!important;
   height:28px!important;
@@ -132,7 +155,7 @@
 }
 
 #scorecard .tbd-player-name-input{
-  order:1!important;
+  order:2!important;
   flex:1 1 auto!important;
   min-width:0!important;
   height:auto!important;
@@ -212,15 +235,26 @@
     padding:10px 10px 10px 12px!important;
   }
 
+  #scorecard .tbd-player-name-line{
+    gap:9px!important;
+  }
+
   #scorecard .tbd-player-name-input{
     font-size:1.14rem!important;
   }
 
   #scorecard .tbd-player-total-score{
-    min-width:44px!important;
-    height:32px!important;
-    padding:0 8px!important;
-    font-size:.98rem!important;
+    flex-basis:52px!important;
+    width:52px!important;
+    min-width:52px!important;
+    max-width:52px!important;
+    height:52px!important;
+    min-height:52px!important;
+    font-size:1.28rem!important;
+  }
+
+  #scorecard .tbd-player-total-score.is-empty-round::before{
+    font-size:1.28rem!important;
   }
 
   #scorecard .tbd-player-score-row > .button{
