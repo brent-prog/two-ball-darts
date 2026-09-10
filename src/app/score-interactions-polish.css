@@ -12,6 +12,21 @@
   filter:saturate(1.12) brightness(1.10)!important;
   background-size:contain!important;
   background-position:center!important;
+  pointer-events:none!important;
+}
+
+/* Keep title/close controls above all decorative layers and tappable. */
+.tbd-score-modal-title-row{
+  position:relative!important;
+  z-index:20!important;
+  pointer-events:auto!important;
+}
+
+.tbd-score-modal-title-row .button{
+  position:relative!important;
+  z-index:21!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
 }
 
 /* Score cards: standard labels + separate, dominant golf value. */
@@ -81,10 +96,19 @@
 .tbd-quick-score-grid .button:nth-child(5)::after{content:'+2'!important;color:#ffb8b8!important;}
 .tbd-quick-score-grid .button:nth-child(6)::after{content:'+3'!important;color:#ff9090!important;}
 
+/* Selected score should stay in its normal colour - indicate edit state with a ring, not an ivory blockout. */
 .tbd-quick-score-grid .button.primary{
+  color:var(--tbd-ivory)!important;
   border-color:#fff4d6!important;
-  box-shadow:0 0 0 2px rgba(255,244,214,.25) inset,0 0 0 2px rgba(255,244,214,.10)!important;
+  box-shadow:0 0 0 3px rgba(255,244,214,.22), inset 0 0 0 1px rgba(255,244,214,.34)!important;
 }
+
+.tbd-quick-score-grid .button:nth-child(1).primary{background:linear-gradient(180deg,#1b8755,#0b452d)!important;}
+.tbd-quick-score-grid .button:nth-child(2).primary{background:linear-gradient(180deg,#126644,#0a3324)!important;}
+.tbd-quick-score-grid .button:nth-child(3).primary{background:linear-gradient(180deg,#4b4520,#24200f)!important;}
+.tbd-quick-score-grid .button:nth-child(4).primary{background:linear-gradient(180deg,#a92830,#531317)!important;}
+.tbd-quick-score-grid .button:nth-child(5).primary{background:linear-gradient(180deg,#75171c,#33090b)!important;}
+.tbd-quick-score-grid .button:nth-child(6).primary{background:linear-gradient(180deg,#470b0e,#170304)!important;}
 
 /* Score by Darts result colours */
 .tbd-custom-dart-option.is-green{
