@@ -11,43 +11,61 @@
 }
 
 #scorecard:not(:has(.hole-picker))>.section-heading{
-  margin:0 0 10px!important;
+  margin:0 0 8px!important;
   padding:0 2px;
 }
 #scorecard:not(:has(.hole-picker))>.section-heading .eyebrow{
   color:var(--tbd-muted);
-  font-size:.78rem;
+  font-size:.74rem;
   letter-spacing:.14em;
 }
 
-/* top navigation block */
+/* Compact top navigation block */
 #scorecard:not(:has(.hole-picker))>.section-heading+div{
   position:relative;
   z-index:2;
   display:grid!important;
-  gap:12px!important;
-  margin:0 0 14px!important;
-  padding:14px;
+  gap:8px!important;
+  margin:0 0 10px!important;
+  padding:10px;
   border:1px solid rgba(244,239,226,.14);
-  border-radius:18px;
+  border-radius:16px;
   background:linear-gradient(180deg,rgba(8,31,24,.96),rgba(3,17,13,.98));
-  box-shadow:0 16px 42px rgba(0,0,0,.28);
+  box-shadow:0 12px 30px rgba(0,0,0,.24);
 }
 
 #scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child{
   gap:8px!important;
+  align-items:center!important;
 }
 
 #scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child .button{
-  min-height:50px;
-  border-radius:12px;
-  font-size:1rem;
+  min-height:46px!important;
+  height:46px!important;
+  border-radius:12px!important;
+  font-size:.92rem!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
 }
 
+/* Scoring menu should feel like part of nav, not a stray floating circle. */
+#scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child>div:first-child .button{
+  width:46px!important;
+  min-width:46px!important;
+  max-width:46px!important;
+  padding:0!important;
+  border-radius:12px!important;
+  font-size:1.15rem!important;
+}
+
+/* Current-hole label becomes compact secondary information. */
 #scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2){
   border:0!important;
   border-radius:0!important;
-  padding:10px 0 2px!important;
+  padding:5px 0 0!important;
   background:transparent!important;
   text-align:center!important;
 }
@@ -55,17 +73,19 @@
 #scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2) span{
   color:var(--tbd-red)!important;
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
-  font-size:.8rem!important;
-  letter-spacing:.15em!important;
+  font-size:.68rem!important;
+  letter-spacing:.16em!important;
+  line-height:1!important;
 }
 
 #scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2) strong{
   color:var(--tbd-ivory);
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
-  font-size:clamp(2.35rem,8vw,4rem)!important;
-  line-height:.92;
+  font-size:clamp(1.8rem,6vw,2.65rem)!important;
+  line-height:.95!important;
   letter-spacing:.01em;
   text-transform:uppercase;
+  margin-top:2px!important;
 }
 
 /* main hole/player area */
@@ -73,14 +93,14 @@
   position:relative;
   overflow:hidden;
   isolation:isolate;
-  margin:0 0 14px!important;
-  padding:18px!important;
-  border-radius:20px;
+  margin:0 0 12px!important;
+  padding:14px!important;
+  border-radius:18px;
   background:
     radial-gradient(circle at 92% 2%,rgba(14,90,58,.25),transparent 38%),
     linear-gradient(180deg,rgba(8,31,24,.98),rgba(3,17,13,.99));
   border:1px solid rgba(244,239,226,.15)!important;
-  box-shadow:0 20px 56px rgba(0,0,0,.34);
+  box-shadow:0 18px 46px rgba(0,0,0,.30);
 }
 
 #scorecard:not(:has(.hole-picker))>.active-hole-panel:after{
@@ -97,23 +117,32 @@
   pointer-events:none;
 }
 
+/* Hole / Par plaque stays golf-forward but wastes less vertical space. */
 #scorecard:not(:has(.hole-picker))>.active-hole-panel>h3{
-  display:flex;
-  align-items:baseline;
-  gap:10px;
-  margin:0 0 14px!important;
-  color:var(--tbd-ivory);
-  font-size:clamp(1.8rem,5vw,2.5rem)!important;
-  letter-spacing:.02em;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  margin:0 0 12px!important;
+  min-height:0!important;
+  padding:8px 14px!important;
+  border-radius:999px!important;
+  color:#071c16!important;
+  background:linear-gradient(135deg,#f0d761,#d9b83f)!important;
+  border:2px solid rgba(255,244,214,.72)!important;
+  box-shadow:0 5px 0 rgba(103,88,30,.38)!important;
+  font-size:clamp(1.5rem,5vw,2rem)!important;
+  line-height:1!important;
+  letter-spacing:.01em!important;
+  font-weight:1000!important;
 }
 
 #scorecard:not(:has(.hole-picker))>.active-hole-panel>h3:after{
   content:"PAR 3";
-  color:var(--tbd-green);
-  font-size:.72rem;
-  letter-spacing:.14em;
+  color:#0e5a3a!important;
+  font-size:.66rem!important;
+  letter-spacing:.14em!important;
   font-family:Inter,ui-sans-serif,system-ui,sans-serif;
-  font-weight:900;
+  font-weight:1000!important;
 }
 
 #scorecard:not(:has(.hole-picker)) .tbd-live-score-list{
@@ -126,7 +155,7 @@
 /* keep the scorecard control visually secondary */
 #scorecard:not(:has(.hole-picker))>.active-hole-panel+div{
   justify-content:center!important;
-  margin-top:4px;
+  margin-top:2px;
 }
 #scorecard:not(:has(.hole-picker))>.active-hole-panel+div .button{
   width:min(100%,420px);
@@ -166,12 +195,38 @@
     display:none;
   }
   #scorecard:not(:has(.hole-picker))>.section-heading+div{
-    border-radius:16px;
-    padding:12px;
+    border-radius:15px;
+    padding:9px!important;
+    gap:6px!important;
+    margin-bottom:9px!important;
+  }
+  #scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child{
+    grid-template-columns:46px minmax(0,1fr) minmax(0,1fr)!important;
+  }
+  #scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child .button{
+    min-height:44px!important;
+    height:44px!important;
+    font-size:.86rem!important;
+  }
+  #scorecard:not(:has(.hole-picker))>.section-heading+div>div:first-child>div:first-child .button{
+    width:44px!important;
+    min-width:44px!important;
+    max-width:44px!important;
+  }
+  #scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2){
+    padding-top:3px!important;
+  }
+  #scorecard:not(:has(.hole-picker))>.section-heading+div>div:nth-child(2) strong{
+    font-size:clamp(1.7rem,7vw,2.2rem)!important;
   }
   #scorecard:not(:has(.hole-picker))>.active-hole-panel{
-    padding:15px!important;
+    padding:12px!important;
     border-radius:16px;
+  }
+  #scorecard:not(:has(.hole-picker))>.active-hole-panel>h3{
+    margin-bottom:10px!important;
+    padding:7px 12px!important;
+    font-size:clamp(1.4rem,6vw,1.8rem)!important;
   }
   #scorecard:not(:has(.hole-picker))>.active-hole-panel:after{
     width:240px;
