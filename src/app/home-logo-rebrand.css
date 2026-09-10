@@ -196,11 +196,14 @@
     transform:scaleX(1)!important;
   }
 
-  /* Large Impact gets visually too heavy on desktop. Use the slightly lighter condensed stack here only. */
+  /* Large desktop type needs more breathing room than the mobile lockup. */
   .hero-card .hero-copy h1:before{
     font-family:"Arial Narrow Bold","Barlow Condensed",Haettenschweiler,Impact,sans-serif!important;
     font-weight:800!important;
-    letter-spacing:.012em!important;
+    line-height:.96!important;
+    letter-spacing:.024em!important;
+    transform:scaleX(1.025)!important;
+    transform-origin:left center!important;
     -webkit-text-stroke:0!important;
     filter:drop-shadow(0 4px 0 rgba(0,0,0,.24))!important;
   }
