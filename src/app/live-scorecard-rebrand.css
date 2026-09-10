@@ -1,0 +1,162 @@
+/* TwoBall live scorecard rebrand - preserve table behaviour, replace the old paper scorecard look. */
+
+#scorecard .scorecard-table-wrap{
+  margin-top:14px!important;
+  border:1px solid rgba(244,239,226,.16)!important;
+  border-radius:16px!important;
+  background:#061b15!important;
+  box-shadow:0 16px 34px rgba(0,0,0,.28)!important;
+  overflow:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+
+#scorecard .scorecard-table{
+  background:#061b15!important;
+  color:#f5e8c6!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+}
+
+#scorecard .scorecard-table th,
+#scorecard .scorecard-table td{
+  height:52px!important;
+  padding:6px!important;
+  border-right:1px solid rgba(244,239,226,.10)!important;
+  border-bottom:1px solid rgba(244,239,226,.10)!important;
+  background:#09231b!important;
+  color:#f5e8c6!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-weight:800!important;
+}
+
+#scorecard .scorecard-table thead th{
+  background:#0c3a2b!important;
+  color:#fff4d6!important;
+  font-size:.82rem!important;
+  font-weight:1000!important;
+  letter-spacing:.05em!important;
+  text-transform:uppercase!important;
+}
+
+#scorecard .scorecard-table thead tr:first-child th{
+  border-bottom:2px solid #d9142b!important;
+}
+
+#scorecard .scorecard-table .par-row th,
+#scorecard .scorecard-table .par-row td{
+  height:42px!important;
+  background:#17372a!important;
+  color:#d8c38a!important;
+  font-size:.78rem!important;
+  font-weight:900!important;
+}
+
+#scorecard .scorecard-table tbody th:first-child{
+  background:#0b2b21!important;
+  color:#fff4d6!important;
+  text-align:left!important;
+  font-size:.95rem!important;
+  font-weight:1000!important;
+}
+
+#scorecard .scorecard-table tbody td{
+  background:#0a211a!important;
+}
+
+/* Cumulative score gets its own compact game badge rather than a red table block. */
+#scorecard .scorecard-table tbody td.total-score{
+  background:#0a211a!important;
+  color:#fff4d6!important;
+  font-size:0!important;
+  font-weight:1000!important;
+}
+
+#scorecard .scorecard-table tbody td.total-score::after{
+  content:attr(data-score);
+}
+
+/* Existing text remains the fallback; style the cell as a compact badge visually. */
+#scorecard .scorecard-table tbody td.total-score{
+  font-size:1rem!important;
+  color:#fff4d6!important;
+  box-shadow:inset 0 0 0 1px rgba(244,239,226,.11)!important;
+}
+
+/* Golf symbols stay, but fit the darker TwoBall surface. */
+#scorecard .scorecard-table .score-symbol{
+  min-width:32px!important;
+  width:32px!important;
+  height:32px!important;
+  padding:0!important;
+  background:#f1ead9!important;
+  color:#0a211a!important;
+  font-size:.88rem!important;
+  font-weight:1000!important;
+  box-shadow:none!important;
+}
+
+#scorecard .scorecard-table .score-symbol.eagle{
+  background:#78d7a2!important;
+}
+
+#scorecard .scorecard-table .score-symbol.birdie{
+  background:#a8e4bf!important;
+}
+
+#scorecard .scorecard-table .score-symbol.par{
+  background:#f1ead9!important;
+}
+
+#scorecard .scorecard-table .score-symbol.bogey,
+#scorecard .scorecard-table .score-symbol.double-bogey,
+#scorecard .scorecard-table .score-symbol.triple-bogey{
+  background:#f1b2b6!important;
+}
+
+/* Sticky player/score columns stay visually anchored while scrolling holes. */
+#scorecard .scorecard-table th:first-child,
+#scorecard .scorecard-table td:first-child{
+  box-shadow:3px 0 0 rgba(0,0,0,.34)!important;
+}
+
+#scorecard .scorecard-table th:nth-child(2),
+#scorecard .scorecard-table td:nth-child(2){
+  box-shadow:3px 0 0 rgba(0,0,0,.34)!important;
+}
+
+#scorecard .scorecard-table thead th:first-child,
+#scorecard .scorecard-table thead th:nth-child(2){
+  background:#0c3a2b!important;
+}
+
+#scorecard .scorecard-table .par-row th:first-child,
+#scorecard .scorecard-table .par-row td:nth-child(2){
+  background:#17372a!important;
+  color:#d8c38a!important;
+}
+
+@media(max-width:700px){
+  #scorecard .scorecard-table th,
+  #scorecard .scorecard-table td{
+    height:48px!important;
+    font-size:.78rem!important;
+  }
+
+  #scorecard .scorecard-table .par-row th,
+  #scorecard .scorecard-table .par-row td{
+    height:38px!important;
+  }
+
+  #scorecard .scorecard-table tbody th:first-child{
+    font-size:.88rem!important;
+  }
+
+  #scorecard .scorecard-table .score-symbol{
+    min-width:30px!important;
+    width:30px!important;
+    height:30px!important;
+    font-size:.82rem!important;
+  }
+}
