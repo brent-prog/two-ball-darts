@@ -17,6 +17,7 @@ import './twoball-rebrand.css';
 import './scoring-rebrand-preview.css';
 import './score-interactions-rebrand.css';
 import './score-interactions-polish.css';
+import './player-rows-rebrand.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
