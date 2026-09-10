@@ -100,40 +100,48 @@
   text-transform:uppercase!important;
 }
 
+/* New Guest - one compact row: label, name, save. */
 .card:has(#new-player-profile) form{
   margin-top:16px!important;
-  padding:14px!important;
+  padding:12px 14px!important;
   border:1px solid rgba(244,239,226,.12)!important;
   border-radius:14px!important;
   background:rgba(255,255,255,.025)!important;
-  grid-template-columns:minmax(0,1fr) auto!important;
-  align-items:end!important;
-  column-gap:10px!important;
-  row-gap:8px!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
 }
 
 .card:has(#new-player-profile) form label{
-  grid-column:1 / -1!important;
+  grid-column:auto!important;
+  margin:0!important;
   color:var(--tbd-ivory)!important;
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
-  font-size:.95rem!important;
+  font-size:0!important;
   font-weight:1000!important;
   letter-spacing:.04em!important;
   text-transform:uppercase!important;
+  white-space:nowrap!important;
+}
+
+.card:has(#new-player-profile) form label::after{
+  content:'New Guest';
+  font-size:.88rem!important;
 }
 
 .card:has(#new-player-profile) #new-player-profile{
   width:100%!important;
   min-width:0!important;
-  min-height:48px!important;
-  height:48px!important;
-  padding:0 13px!important;
+  min-height:44px!important;
+  height:44px!important;
+  padding:0 12px!important;
   border:1px solid rgba(244,239,226,.20)!important;
-  border-radius:11px!important;
+  border-radius:10px!important;
   background:#071c16!important;
   color:var(--tbd-ivory)!important;
   font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
-  font-size:1rem!important;
+  font-size:.96rem!important;
   font-weight:700!important;
   box-shadow:none!important;
 }
@@ -146,14 +154,21 @@
 
 .card:has(#new-player-profile) form .button.primary{
   width:auto!important;
-  min-width:138px!important;
-  min-height:48px!important;
-  height:48px!important;
-  padding:0 16px!important;
-  border-radius:11px!important;
-  font-size:.84rem!important;
+  min-width:70px!important;
+  min-height:44px!important;
+  height:44px!important;
+  padding:0 14px!important;
+  border-radius:10px!important;
+  font-size:0!important;
   line-height:1!important;
   white-space:nowrap!important;
+}
+
+.card:has(#new-player-profile) form .button.primary::after{
+  content:'Save';
+  font-size:.82rem!important;
+  font-weight:1000!important;
+  letter-spacing:.04em!important;
 }
 
 .card:has(#new-player-profile) > div:last-child .button.ghost{
@@ -199,14 +214,24 @@
 
   .card:has(#new-player-profile) form{
     margin-top:14px!important;
-    padding:12px!important;
-    grid-template-columns:minmax(0,1fr) 132px!important;
+    padding:10px!important;
+    grid-template-columns:auto minmax(0,1fr) 64px!important;
+    gap:8px!important;
+  }
+
+  .card:has(#new-player-profile) form label::after{
+    font-size:.8rem!important;
+  }
+
+  .card:has(#new-player-profile) #new-player-profile,
+  .card:has(#new-player-profile) form .button.primary{
+    min-height:42px!important;
+    height:42px!important;
   }
 
   .card:has(#new-player-profile) form .button.primary{
-    min-width:132px!important;
-    width:132px!important;
-    padding:0 10px!important;
-    font-size:.78rem!important;
+    min-width:64px!important;
+    width:64px!important;
+    padding:0 8px!important;
   }
 }
