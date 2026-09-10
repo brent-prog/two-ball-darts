@@ -1,6 +1,5 @@
 /* TwoBall live scorecard - high-contrast golf scorecard treatment. */
 
-/* Keep React-owned scorecard content ahead of the injected feedback/contact control. */
 #scorecard{
   display:flex!important;
   flex-direction:column!important;
@@ -85,15 +84,31 @@
   background:#eee2c5!important;
 }
 
+/* Cumulative score uses the same under / even / over language as the live player rows. */
 #scorecard .scorecard-table tbody td.total-score{
-  background:#0b4a38!important;
+  background:#17372a!important;
   color:#fff4d6!important;
-  font-size:1.08rem!important;
+  font-size:1.12rem!important;
   font-weight:1000!important;
   box-shadow:none!important;
 }
 
-/* Golf symbols - larger, centred, and very legible. */
+#scorecard .scorecard-table tbody td.total-score.is-under{
+  background:#0f6b45!important;
+  color:#eafff2!important;
+}
+
+#scorecard .scorecard-table tbody td.total-score.is-even{
+  background:#6d5b22!important;
+  color:#fff2b8!important;
+}
+
+#scorecard .scorecard-table tbody td.total-score.is-over{
+  background:#8c1f27!important;
+  color:#fff0f0!important;
+}
+
+/* Hole cells get subtle result colour while keeping the golf symbols obvious. */
 #scorecard .scorecard-table .score-symbol{
   display:inline-grid!important;
   place-items:center!important;
@@ -102,7 +117,6 @@
   height:34px!important;
   padding:0!important;
   margin:0 auto!important;
-  background:transparent!important;
   color:#102017!important;
   font-size:.96rem!important;
   font-weight:1000!important;
@@ -110,22 +124,36 @@
   box-shadow:none!important;
 }
 
-#scorecard .scorecard-table .score-symbol.eagle,
+#scorecard .scorecard-table .score-symbol.eagle{
+  background:#58c889!important;
+  color:#062317!important;
+}
+
 #scorecard .scorecard-table .score-symbol.birdie{
-  background:#b9dfc5!important;
+  background:#9addb6!important;
+  color:#0b2e20!important;
 }
 
 #scorecard .scorecard-table .score-symbol.par{
-  background:transparent!important;
+  background:#f3ead5!important;
+  color:#102017!important;
 }
 
-#scorecard .scorecard-table .score-symbol.bogey,
-#scorecard .scorecard-table .score-symbol.double-bogey,
+#scorecard .scorecard-table .score-symbol.bogey{
+  background:#ef9aa0!important;
+  color:#4a0f13!important;
+}
+
+#scorecard .scorecard-table .score-symbol.double-bogey{
+  background:#df7078!important;
+  color:#fff3f3!important;
+}
+
 #scorecard .scorecard-table .score-symbol.triple-bogey{
-  background:#f2b8bc!important;
+  background:#b93640!important;
+  color:#fff!important;
 }
 
-/* Sticky Player + Score columns remain readable while holes scroll. */
 #scorecard .scorecard-table th:first-child,
 #scorecard .scorecard-table td:first-child{
   box-shadow:3px 0 0 rgba(16,32,23,.30)!important;
