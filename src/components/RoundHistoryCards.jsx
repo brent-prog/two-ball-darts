@@ -68,17 +68,24 @@ function scoreLabel(score) {
 
 function ScorecardModal({ game, onClose }) {
   if (!game) return null;
+  const rows = game.game_players ?? [];
   return <div style={{ position: 'fixed', inset: 0, zIndex: 700, background: 'rgba(0,0,0,.84)', padding: '16px', display: 'grid', placeItems: 'center' }}>
     <div className="card" style={{ width: 'min(1120px,96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
       <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
         <div><p className="eyebrow">Round scorecard</p><h2 style={{ fontSize: 'clamp(1.8rem,6vw,3rem)' }}>{new Date(game.played_at).toLocaleDateString()}</h2></div>
         <button className="button secondary" type="button" onClick={onClose}>Close</button>
       </div>
-      <div className="scorecard-table-wrap">
-        <table className="scorecard-table saved-round-scorecard">
-          <thead><tr><th>Player</th><th>Total</th>{holes.map(hole => <th key={hole}>{hole}</th>)}</tr></thead>
-          <tbody>{(game.game_players ?? []).map(row => <tr key={row.id}><th>{row.players?.display_name || 'Player'}</th><td className={`total-score ${totalTone(row.total_score)}`}>{fmt(row.total_score)}</td>{holes.map(hole => { const score = scoreForHole(row, hole); return <td key={hole}><span className={`score-symbol ${scoreTone(score)}`}>{scoreLabel(score)}</span></td>; })}</tr>)}</tbody>
+      <div className="saved-scorecard-shell">
+        <table className="saved-scorecard-fixed" aria-label="Player and total score">
+          <thead><tr><th>Player</th><th>Total</th></tr></thead>
+          <tbody>{rows.map(row => <tr key={row.id}><th>{row.players?.display_name || 'Player'}</th><td className={`total-score ${totalTone(row.total_score)}`}>{fmt(row.total_score)}</td></tr>)}</tbody>
         </table>
+        <div className="saved-scorecard-scroll">
+          <table className="scorecard-table saved-round-scorecard">
+            <thead><tr>{holes.map(hole => <th key={hole}>{hole}</th>)}</tr></thead>
+            <tbody>{rows.map(row => <tr key={row.id}>{holes.map(hole => { const score = scoreForHole(row, hole); return <td key={hole}><span className={`score-symbol ${scoreTone(score)}`}>{scoreLabel(score)}</span></td>; })}</tr>)}</tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>;
