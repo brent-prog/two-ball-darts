@@ -1,0 +1,4 @@
+.hero-card:before{
+  content:none!important;
+  display:none!important;
+}
