@@ -45,14 +45,81 @@
   letter-spacing:.035em!important;
 }
 
-/* Let the copy, not a giant crest, own the hero. */
+/* Golf translated onto a dartboard - unmistakable course language without clip-art. */
 .hero-card{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
   grid-template-columns:minmax(280px,360px) minmax(0,1fr)!important;
   gap:30px!important;
+  background:
+    radial-gradient(ellipse at 92% 16%,rgba(74,130,83,.28) 0 10%,transparent 10.5%),
+    radial-gradient(ellipse at 84% 28%,rgba(107,154,89,.18) 0 15%,transparent 15.5%),
+    radial-gradient(ellipse at 102% 44%,rgba(189,172,117,.14) 0 9%,transparent 9.5%),
+    repeating-radial-gradient(ellipse at 86% 28%,transparent 0 32px,rgba(244,239,226,.055) 33px 35px,transparent 36px 56px),
+    linear-gradient(180deg,rgba(7,28,22,.97),rgba(2,20,15,.99))!important;
 }
 
+/* Subtle scorecard language on the right edge. */
+.hero-card:before{
+  content:"HOLE   1\A PAR    3\A ·      2 DARTS";
+  white-space:pre;
+  position:absolute;
+  z-index:0;
+  right:22px;
+  top:118px;
+  width:118px;
+  padding:12px 10px;
+  border-top:1px solid rgba(244,239,226,.22);
+  border-bottom:1px solid rgba(244,239,226,.16);
+  color:rgba(244,239,226,.22);
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  font-size:.78rem;
+  font-weight:900;
+  line-height:1.75;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  text-align:left;
+  pointer-events:none;
+}
+
+/* Keep the real TwoBall board as the dart-side cue, tucked into the course. */
 .hero-card:after{
-  opacity:.07!important;
+  content:""!important;
+  position:absolute!important;
+  z-index:0!important;
+  width:min(360px,54vw)!important;
+  aspect-ratio:1!important;
+  right:-96px!important;
+  bottom:-112px!important;
+  background:url('/two-ball-darts-board.webp') center/contain no-repeat!important;
+  opacity:.16!important;
+  filter:saturate(.82) contrast(1.05)!important;
+  pointer-events:none!important;
+}
+
+.hero-card > *{
+  position:relative;
+  z-index:1;
+}
+
+/* A tee-to-green line visually connects the top identity to the board below. */
+.hero-copy{
+  position:relative!important;
+}
+
+.hero-copy:before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  right:-16px;
+  top:12%;
+  width:104px;
+  height:48%;
+  border-right:2px solid rgba(244,239,226,.07);
+  border-radius:50%;
+  transform:rotate(8deg);
+  pointer-events:none;
 }
 
 @media(max-width:900px){
@@ -66,9 +133,25 @@
     gap:16px!important;
     margin:0 auto!important;
   }
+
+  .hero-card:before{
+    right:18px;
+    top:210px;
+    width:104px;
+    font-size:.7rem;
+    opacity:.8;
+  }
 }
 
 @media(max-width:560px){
+  .hero-card{
+    background:
+      radial-gradient(ellipse at 88% 8%,rgba(74,130,83,.24) 0 11%,transparent 11.5%),
+      radial-gradient(ellipse at 98% 21%,rgba(107,154,89,.15) 0 14%,transparent 14.5%),
+      repeating-radial-gradient(ellipse at 92% 20%,transparent 0 26px,rgba(244,239,226,.045) 27px 29px,transparent 30px 46px),
+      linear-gradient(180deg,rgba(7,28,22,.97),rgba(2,20,15,.99))!important;
+  }
+
   .hero-card .tbd-primary-logo{
     width:100%!important;
     grid-template-columns:92px minmax(0,1fr)!important;
@@ -85,5 +168,22 @@
 
   .hero-card .tbd-primary-logo-type span{
     font-size:clamp(1.45rem,7.9vw,2.25rem)!important;
+  }
+
+  .hero-card:before{
+    top:158px;
+    right:12px;
+    width:86px;
+    padding:8px 6px;
+    font-size:.62rem;
+    line-height:1.6;
+    color:rgba(244,239,226,.18);
+  }
+
+  .hero-card:after{
+    width:250px!important;
+    right:-96px!important;
+    bottom:-86px!important;
+    opacity:.13!important;
   }
 }
