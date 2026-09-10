@@ -2,39 +2,49 @@
 
 import { useEffect } from 'react';
 
-const LABELS = [
-  [/^Add Score$/i, 'Add'],
-  [/^Eagle\s+-2$/i, 'EAG -2'],
-  [/^Birdie\s+-1$/i, 'BRD -1'],
-  [/^Par\s+(E|0)$/i, 'PAR 0'],
-  [/^Bogey\s+\+1$/i, 'BOG +1'],
-  [/^Double Bogey\s+\+2$/i, 'DBG +2'],
-  [/^Triple Bogey\s+\+3$/i, 'TBG +3']
+const RESULT_CLASSES = [
+  ['result-eagle', /^Eagle\s+-2$/i],
+  ['result-birdie', /^Birdie\s+-1$/i],
+  ['result-par', /^Par\s+(E|0)$/i],
+  ['result-bogey', /^Bogey\s+\+1$/i],
+  ['result-double-bogey', /^Double Bogey\s+\+2$/i],
+  ['result-triple-bogey', /^Triple Bogey\s+\+3$/i]
 ];
 
-function compactLabel(value) {
-  const text = value?.replace(/\s+/g, ' ').trim() || '';
-  for (const [pattern, label] of LABELS) {
-    if (pattern.test(text)) return label;
-  }
-  return null;
-}
+const RESULT_CLASS_NAMES = RESULT_CLASSES.map(([name]) => name);
 
 export default function ScoringActionLabelEnhancer() {
   useEffect(() => {
-    function refresh() {
-      document.querySelectorAll('.tbd-player-score-row > button.button').forEach(button => {
-        const current = button.textContent?.trim() || '';
-        const next = compactLabel(current);
-        if (next && current !== next) button.textContent = next;
+    const refresh = () => {
+      document.querySelectorAll('.tbd-player-score-row').forEach(row => {
+        const button = row.querySelector(':scope > button.button');
+        const status = row.querySelector('.tbd-hole-status')?.textContent?.replace(/\s+/g, ' ').trim() || '';
+
+        row.classList.remove(...RESULT_CLASS_NAMES);
+
+        for (const [className, pattern] of RESULT_CLASSES) {
+          if (pattern.test(status)) {
+            row.classList.add(className);
+            break;
+          }
+        }
+
+        if (button) {
+          button.textContent = row.classList.contains('scored') ? 'EDIT' : 'ADD';
+        }
       });
-    }
+    };
 
     refresh();
-    const observer = new MutationObserver(refresh);
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
-    return () => observer.disconnect();
+    const handleClick = event => {
+      if (!event.target.closest('.tbd-score-modal-card, .tbd-player-score-row, .tbd-player-name-input')) return;
+      window.setTimeout(refresh, 0);
+      window.setTimeout(refresh, 120);
+    };
+
+    document.addEventListener('click', handleClick, true);
+    return () => document.removeEventListener('click', handleClick, true);
   }, []);
 
   return null;

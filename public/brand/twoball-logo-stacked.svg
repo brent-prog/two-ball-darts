@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1180" role="img" aria-label="Two Ball Darts">
+  <image href="twoball-mark.svg" x="105" y="20" width="690" height="670" preserveAspectRatio="xMidYMid meet"/>
+  <g text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, Arial, sans-serif" font-weight="900">
+    <text x="450" y="860" font-size="170" letter-spacing="-2" fill="#F4EFE2">TWO BALL</text>
+    <text x="450" y="1025" font-size="160" letter-spacing="7" fill="#EF0014">DARTS</text>
+    <text x="450" y="1115" font-size="48" letter-spacing="10" font-weight="700" fill="#F4EFE2">NO GIMMES. JUST THROW.</text>
+  </g>
+</svg>

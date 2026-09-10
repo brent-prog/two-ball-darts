@@ -1,0 +1,177 @@
+/* Round-complete presentation. Uses disabled Next Hole as the Hole 18 state signal. */
+
+#scorecard:has(button.primary[disabled]) .active-hole-panel{
+  display:flex!important;
+  flex-direction:column!important;
+  border-color:rgba(208,169,72,.38)!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.28)!important;
+}
+
+#scorecard:has(button.primary[disabled]) .active-hole-panel > h3{
+  order:1!important;
+  background:linear-gradient(135deg,#d0a948,#f1d671)!important;
+  border-color:#fff1b2!important;
+  color:#02140f!important;
+}
+
+#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list){
+  order:2!important;
+  position:relative!important;
+  margin:4px 0 16px!important;
+  padding:18px 18px 16px!important;
+  border:2px solid #d0a948!important;
+  border-radius:18px!important;
+  background:linear-gradient(135deg,rgba(208,169,72,.22),rgba(12,58,41,.92) 46%,rgba(2,20,15,.98))!important;
+  box-shadow:0 14px 32px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,244,214,.08)!important;
+  text-align:center!important;
+  overflow:hidden!important;
+}
+
+#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list)::before{
+  content:'18 HOLES COMPLETE'!important;
+  display:block!important;
+  margin-bottom:8px!important;
+  color:#d0a948!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:.78rem!important;
+  font-weight:1000!important;
+  letter-spacing:.16em!important;
+  line-height:1!important;
+}
+
+#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list)::after{
+  content:''!important;
+  position:absolute!important;
+  inset:-40% auto auto 52%!important;
+  width:240px!important;
+  height:240px!important;
+  border-radius:999px!important;
+  background:radial-gradient(circle,rgba(208,169,72,.15),transparent 68%)!important;
+  pointer-events:none!important;
+}
+
+#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list) > strong{
+  position:relative!important;
+  z-index:1!important;
+  display:block!important;
+  color:#fff4d6!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:clamp(1.8rem,6vw,2.5rem)!important;
+  font-weight:1000!important;
+  letter-spacing:.01em!important;
+  line-height:.95!important;
+  text-transform:uppercase!important;
+}
+
+#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list) > span{
+  display:none!important;
+}
+
+#scorecard:has(button.primary[disabled]) .tbd-live-score-list{
+  order:3!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:12px!important;
+}
+
+#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader){
+  order:-1!important;
+  position:relative!important;
+  border-color:#f1d671!important;
+  box-shadow:inset 6px 0 0 #f1d671,0 0 0 1px rgba(241,214,113,.20),0 16px 34px rgba(0,0,0,.30)!important;
+  padding-top:18px!important;
+}
+
+#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader)::after{
+  content:'WINNER'!important;
+  position:absolute!important;
+  top:8px!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  z-index:4!important;
+  min-width:92px!important;
+  padding:6px 14px!important;
+  border:1px solid rgba(255,244,214,.55)!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#f1d671,#d0a948)!important;
+  color:#02140f!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:.72rem!important;
+  font-weight:1000!important;
+  letter-spacing:.14em!important;
+  line-height:1!important;
+  text-align:center!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.24)!important;
+}
+
+#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader) .tbd-player-total-score{
+  border-color:#f1d671!important;
+  background:#d0a948!important;
+  color:#02140f!important;
+  box-shadow:none!important;
+}
+
+#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader) .tbd-player-total-score::after{
+  color:#17352a!important;
+}
+
+#scorecard:has(button.primary[disabled]) button.primary[disabled]{
+  position:relative!important;
+  color:transparent!important;
+  opacity:.62!important;
+  background:linear-gradient(180deg,#5c4f21,#332b12)!important;
+  border-color:#a68c3a!important;
+}
+
+#scorecard:has(button.primary[disabled]) button.primary[disabled]::after{
+  content:'FINISHED'!important;
+  position:absolute!important;
+  inset:0!important;
+  display:grid!important;
+  place-items:center!important;
+  color:#fff4d6!important;
+  font-size:.92rem!important;
+  font-weight:1000!important;
+  letter-spacing:.07em!important;
+}
+
+#scorecard:has(button.primary[disabled]) > div:last-of-type .button.secondary{
+  background:linear-gradient(180deg,#f31327,#a90d19)!important;
+  border-color:#ff3041!important;
+  color:#fff!important;
+  box-shadow:0 10px 22px rgba(185,15,26,.22)!important;
+}
+
+#scorecard:has(button.primary[disabled]) .status-line{
+  margin-top:14px!important;
+  padding:10px 12px!important;
+  border-radius:12px!important;
+  border:1px solid rgba(244,239,226,.14)!important;
+  background:rgba(4,20,15,.82)!important;
+  color:rgba(244,239,226,.72)!important;
+  font-size:.82rem!important;
+  line-height:1.35!important;
+}
+
+@media(max-width:520px){
+  #scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list){
+    margin:2px 0 14px!important;
+    padding:16px 14px 14px!important;
+  }
+
+  #scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list) > strong{
+    font-size:1.8rem!important;
+  }
+
+  #scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader){
+    padding-top:20px!important;
+  }
+
+  #scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader)::after{
+    top:7px!important;
+    font-size:.68rem!important;
+    min-width:86px!important;
+    padding:5px 12px!important;
+  }
+}

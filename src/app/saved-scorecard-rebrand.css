@@ -1,0 +1,259 @@
+/* Saved round scorecard - separate fixed identity pane + horizontally scrolling holes. */
+[data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard){
+  padding:10px!important;
+  align-items:start!important;
+  overflow-y:auto!important;
+  background:rgba(0,8,6,.92)!important;
+}
+
+[data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) > .card{
+  width:min(1040px,100%)!important;
+  max-height:none!important;
+  margin:10px auto 32px!important;
+  padding:18px!important;
+  overflow:visible!important;
+  border:1px solid rgba(244,239,226,.18)!important;
+  border-radius:20px!important;
+  background:linear-gradient(180deg,#071c16,#02140f)!important;
+  box-shadow:0 28px 80px rgba(0,0,0,.52)!important;
+}
+
+[data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) .section-heading{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:12px!important;
+  align-items:center!important;
+  margin:-2px -2px 14px!important;
+  padding:8px 2px 12px!important;
+  border-bottom:1px solid rgba(244,239,226,.12)!important;
+}
+
+[data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) .section-heading .eyebrow{
+  margin:0 0 3px!important;
+  color:var(--tbd-red,#ef0014)!important;
+  font-size:.76rem!important;
+  letter-spacing:.12em!important;
+  text-transform:uppercase!important;
+}
+
+[data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) .section-heading h2{
+  margin:0!important;
+  color:var(--tbd-ivory,#f4efe2)!important;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Barlow Condensed",sans-serif!important;
+  font-size:clamp(2rem,6vw,3.2rem)!important;
+  line-height:.92!important;
+}
+
+[data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) .section-heading .button{
+  min-width:82px!important;
+  min-height:42px!important;
+  padding:8px 14px!important;
+}
+
+.saved-scorecard-shell{
+  display:grid!important;
+  grid-template-columns:172px minmax(0,1fr)!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  border:2px solid rgba(245,232,198,.38)!important;
+  border-radius:14px!important;
+  background:#ead9aa!important;
+  box-shadow:0 14px 28px rgba(0,0,0,.30)!important;
+}
+
+.saved-scorecard-fixed,
+.saved-round-scorecard{
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  table-layout:fixed!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+}
+
+.saved-scorecard-fixed{
+  width:172px!important;
+  min-width:172px!important;
+  max-width:172px!important;
+  z-index:2!important;
+  background:#ead9aa!important;
+  box-shadow:4px 0 0 rgba(16,32,23,.44)!important;
+}
+
+.saved-scorecard-fixed th,
+.saved-scorecard-fixed td{
+  height:48px!important;
+  padding:5px!important;
+  border-right:1px solid rgba(16,32,23,.28)!important;
+  border-bottom:1px solid rgba(16,32,23,.28)!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-size:.9rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+
+.saved-scorecard-fixed thead th{
+  height:46px!important;
+  background:#0b4a38!important;
+  color:#fff4d6!important;
+  text-transform:uppercase!important;
+  border-bottom:3px solid var(--tbd-red,#ef0014)!important;
+}
+
+.saved-scorecard-fixed th:first-child,
+.saved-scorecard-fixed td:first-child{
+  width:108px!important;
+  min-width:108px!important;
+  max-width:108px!important;
+  background:#ead9aa!important;
+  color:#102017!important;
+}
+
+.saved-scorecard-fixed th:nth-child(2),
+.saved-scorecard-fixed td:nth-child(2){
+  width:64px!important;
+  min-width:64px!important;
+  max-width:64px!important;
+}
+
+.saved-scorecard-fixed thead th:first-child,
+.saved-scorecard-fixed thead th:nth-child(2){
+  background:#0b4a38!important;
+  color:#fff4d6!important;
+}
+
+.saved-scorecard-fixed td.total-score{
+  color:#fff4d6!important;
+  font-size:1rem!important;
+  font-weight:1000!important;
+}
+
+.saved-scorecard-fixed td.total-score.is-under{background:#0f6b45!important;color:#eafff2!important}
+.saved-scorecard-fixed td.total-score.is-even{background:#6d5b22!important;color:#fff2b8!important}
+.saved-scorecard-fixed td.total-score.is-over{background:#8c1f27!important;color:#fff0f0!important}
+
+.saved-scorecard-scroll{
+  min-width:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:contain!important;
+}
+
+.saved-round-scorecard{
+  display:table!important;
+  width:max-content!important;
+  min-width:max-content!important;
+  margin:0!important;
+  background:#ead9aa!important;
+  color:#102017!important;
+}
+
+.saved-round-scorecard thead{display:table-header-group!important}
+.saved-round-scorecard tbody{display:table-row-group!important}
+.saved-round-scorecard tr{display:table-row!important;width:auto!important}
+
+/* Reset global scorecard sticky/order rules. Every column in this table is a hole and must scroll. */
+.saved-round-scorecard th,
+.saved-round-scorecard td,
+.saved-round-scorecard th:first-child,
+.saved-round-scorecard td:first-child,
+.saved-round-scorecard th:nth-child(2),
+.saved-round-scorecard td:nth-child(2),
+.saved-round-scorecard th:last-child,
+.saved-round-scorecard td:last-child{
+  display:table-cell!important;
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  order:initial!important;
+  flex:none!important;
+  width:46px!important;
+  min-width:46px!important;
+  max-width:46px!important;
+  height:48px!important;
+  padding:5px!important;
+  border-right:1px solid rgba(16,32,23,.28)!important;
+  border-bottom:1px solid rgba(16,32,23,.28)!important;
+  background:#f3ead5!important;
+  color:#102017!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-size:.9rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+  box-shadow:none!important;
+  transform:none!important;
+  -webkit-transform:none!important;
+}
+
+.saved-round-scorecard thead th,
+.saved-round-scorecard thead th:first-child,
+.saved-round-scorecard thead th:nth-child(2),
+.saved-round-scorecard thead th:last-child{
+  height:46px!important;
+  background:#0b4a38!important;
+  color:#fff4d6!important;
+  text-transform:uppercase!important;
+  border-bottom:3px solid var(--tbd-red,#ef0014)!important;
+}
+
+.saved-round-scorecard tbody tr:nth-child(even) td{background:#eee2c5!important}
+
+.saved-round-scorecard .score-symbol{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:32px!important;
+  min-width:32px!important;
+  height:32px!important;
+  padding:0!important;
+  margin:0 auto!important;
+  color:#102017!important;
+  font-size:.88rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
+}
+
+.saved-round-scorecard .score-symbol.eagle{background:#58c889!important;color:#062317!important;border-radius:50%!important;outline:2px solid #168c57!important;outline-offset:-4px!important}
+.saved-round-scorecard .score-symbol.birdie{background:#9addb6!important;color:#0b2e20!important;border-radius:50%!important;outline:2px solid #2a9f69!important;outline-offset:-2px!important}
+.saved-round-scorecard .score-symbol.par{background:transparent!important;color:#102017!important}
+.saved-round-scorecard .score-symbol.bogey{background:#ef9aa0!important;color:#4a0f13!important;border-radius:2px!important}
+.saved-round-scorecard .score-symbol.double-bogey{background:#df7078!important;color:#fff3f3!important;border:3px double #7a1720!important}
+.saved-round-scorecard .score-symbol.triple-bogey{background:#b93640!important;color:#fff!important;border:3px solid #681018!important;box-shadow:inset 0 0 0 2px #ef9aa0!important}
+.saved-round-scorecard .score-symbol.empty{color:rgba(16,32,23,.28)!important}
+
+@media(max-width:560px){
+  [data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard){padding:5px!important}
+  [data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) > .card{margin:5px auto 24px!important;padding:12px!important;border-radius:16px!important}
+  [data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) .section-heading{margin:0 0 10px!important;padding:5px 0 10px!important}
+  [data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) .section-heading h2{font-size:2.25rem!important}
+  [data-tbd-round-history-host] > div:has(> .card .saved-round-scorecard) .section-heading .button{min-width:74px!important;min-height:40px!important;padding:7px 11px!important}
+
+  .saved-scorecard-shell{grid-template-columns:154px minmax(0,1fr)!important}
+  .saved-scorecard-fixed{width:154px!important;min-width:154px!important;max-width:154px!important}
+  .saved-scorecard-fixed th,
+  .saved-scorecard-fixed td{height:46px!important;font-size:.84rem!important;padding:4px!important}
+
+  .saved-scorecard-fixed th:first-child,
+  .saved-scorecard-fixed td:first-child{width:96px!important;min-width:96px!important;max-width:96px!important}
+  .saved-scorecard-fixed th:nth-child(2),
+  .saved-scorecard-fixed td:nth-child(2){width:58px!important;min-width:58px!important;max-width:58px!important}
+
+  .saved-round-scorecard th,
+  .saved-round-scorecard td,
+  .saved-round-scorecard th:first-child,
+  .saved-round-scorecard td:first-child,
+  .saved-round-scorecard th:nth-child(2),
+  .saved-round-scorecard td:nth-child(2),
+  .saved-round-scorecard th:last-child,
+  .saved-round-scorecard td:last-child{
+    width:42px!important;
+    min-width:42px!important;
+    max-width:42px!important;
+    height:46px!important;
+    font-size:.84rem!important;
+    padding:4px!important;
+  }
+
+  .saved-round-scorecard .score-symbol{width:30px!important;min-width:30px!important;height:30px!important;font-size:.84rem!important}
+}

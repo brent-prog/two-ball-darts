@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" aria-hidden="true">
+  <defs>
+    <linearGradient id="fairway" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d5d3e"/>
+      <stop offset="1" stop-color="#2e7a4b"/>
+    </linearGradient>
+    <pattern id="stripes" width="52" height="52" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+      <rect width="26" height="52" fill="#ffffff" opacity=".035"/>
+      <rect x="26" width="26" height="52" fill="#000000" opacity=".035"/>
+    </pattern>
+    <filter id="soft"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+
+  <rect width="900" height="1200" fill="#082218"/>
+
+  <!-- tree masses -->
+  <g fill="#0d3a26" opacity=".95">
+    <circle cx="72" cy="110" r="72"/><circle cx="142" cy="66" r="58"/><circle cx="225" cy="92" r="68"/>
+    <circle cx="820" cy="98" r="76"/><circle cx="850" cy="178" r="64"/><circle cx="748" cy="170" r="74"/>
+    <circle cx="62" cy="372" r="86"/><circle cx="104" cy="474" r="72"/><circle cx="36" cy="560" r="86"/>
+    <circle cx="847" cy="422" r="82"/><circle cx="810" cy="518" r="74"/><circle cx="862" cy="612" r="92"/>
+    <circle cx="95" cy="915" r="82"/><circle cx="45" cy="1010" r="86"/><circle cx="142" cy="1080" r="96"/>
+    <circle cx="815" cy="940" r="92"/><circle cx="850" cy="1050" r="86"/><circle cx="745" cy="1114" r="88"/>
+  </g>
+
+  <!-- water hazard -->
+  <path d="M0 565c88-38 152-18 184 33 36 58 23 132-35 190C105 832 49 850 0 839z" fill="#164f58" opacity=".62"/>
+  <path d="M0 581c80-30 133-12 160 31 28 43 17 101-30 148-37 37-84 53-130 48z" fill="#2a7480" opacity=".28"/>
+
+  <!-- teeing ground -->
+  <rect x="318" y="1032" width="244" height="98" rx="34" fill="#3f8450" opacity=".72"/>
+  <rect x="338" y="1052" width="204" height="58" rx="26" fill="#61a567" opacity=".5"/>
+  <circle cx="385" cy="1080" r="11" fill="#f4efe2" opacity=".78"/>
+  <circle cx="515" cy="1080" r="11" fill="#f4efe2" opacity=".78"/>
+
+  <!-- fairway body -->
+  <path d="M422 1084C356 985 338 905 366 814c31-101 96-159 100-264 4-98-43-178-21-272 19-83 78-151 182-200 62-29 113-38 173-27-16 120-55 220-119 300-57 71-92 131-82 227 10 92 67 166 40 260-30 103-130 169-166 269-31 86-18 177 31 263z" fill="url(#fairway)" opacity=".86"/>
+  <path d="M422 1084C356 985 338 905 366 814c31-101 96-159 100-264 4-98-43-178-21-272 19-83 78-151 182-200 62-29 113-38 173-27-16 120-55 220-119 300-57 71-92 131-82 227 10 92 67 166 40 260-30 103-130 169-166 269-31 86-18 177 31 263z" fill="url(#stripes)" opacity="1"/>
+
+  <!-- rough edge -->
+  <path d="M420 1090C345 986 326 900 355 808c32-104 94-164 99-261 4-101-46-180-25-274 20-89 84-161 194-212 68-32 127-43 190-31" fill="none" stroke="#5c9360" stroke-width="24" opacity=".16"/>
+
+  <!-- green -->
+  <ellipse cx="705" cy="124" rx="132" ry="88" fill="#68a96b" opacity=".68" transform="rotate(-13 705 124)"/>
+  <ellipse cx="705" cy="124" rx="106" ry="67" fill="#7db978" opacity=".48" transform="rotate(-13 705 124)"/>
+  <g opacity=".11" stroke="#ffffff" stroke-width="7">
+    <path d="M615 94c43 20 104 26 173 1"/><path d="M608 118c54 18 117 21 188-5"/><path d="M615 143c52 15 108 14 172-9"/>
+  </g>
+
+  <!-- cup and flag -->
+  <circle cx="722" cy="124" r="9" fill="#05110d" opacity=".92"/>
+  <path d="M722 124V38" stroke="#f4efe2" stroke-width="5"/>
+  <path d="M724 40l61 20-61 20z" fill="#ef0014"/>
+
+  <!-- bunkers -->
+  <path d="M770 182c41-8 77 1 91 25-24 24-60 37-103 31-11-20-6-40 12-56z" fill="#d8c58f" opacity=".68"/>
+  <path d="M545 383c27-33 72-49 110-35-5 34-30 63-69 77-26-4-42-19-41-42z" fill="#d8c58f" opacity=".58"/>
+  <path d="M445 745c32-28 72-34 103-13-11 33-40 56-80 59-23-9-31-25-23-46z" fill="#d8c58f" opacity=".52"/>
+
+  <!-- yardage / scorecard cues -->
+  <g font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#f4efe2" opacity=".16" text-anchor="middle">
+    <text x="490" y="935" font-size="28">50</text>
+    <text x="505" y="725" font-size="28">100</text>
+    <text x="560" y="485" font-size="28">150</text>
+  </g>
+  <g fill="none" stroke="#f4efe2" opacity=".07" stroke-width="2">
+    <path d="M330 930c95-36 189-36 283 4"/>
+    <path d="M360 728c83-29 164-26 246 10"/>
+    <path d="M411 492c73-25 143-20 215 11"/>
+  </g>
+
+  <!-- subtle path -->
+  <path d="M270 1120c86-133 73-220 127-312 54-93 127-126 144-216 17-91-24-159 3-246 24-76 73-121 148-160" fill="none" stroke="#b99b64" stroke-width="10" stroke-linecap="round" opacity=".12" stroke-dasharray="18 20"/>
+</svg>

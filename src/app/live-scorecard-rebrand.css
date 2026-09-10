@@ -1,0 +1,244 @@
+/* TwoBall live scorecard - high-contrast golf scorecard treatment. */
+
+#scorecard{
+  display:flex!important;
+  flex-direction:column!important;
+}
+
+#scorecard [data-tbd-scoring-feedback]{
+  order:99!important;
+}
+
+#scorecard .scorecard-table-wrap{
+  width:100%!important;
+  max-width:100%!important;
+  margin:14px auto 0!important;
+  border:2px solid rgba(245,232,198,.24)!important;
+  border-radius:16px!important;
+  background:#ead9aa!important;
+  box-shadow:0 16px 34px rgba(0,0,0,.28)!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+
+#scorecard .scorecard-table{
+  width:max-content!important;
+  min-width:100%!important;
+  margin:0 auto!important;
+  background:#ead9aa!important;
+  color:#102017!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  table-layout:fixed!important;
+}
+
+#scorecard .scorecard-table th,
+#scorecard .scorecard-table td{
+  height:54px!important;
+  padding:6px!important;
+  border-right:1px solid rgba(16,32,23,.24)!important;
+  border-bottom:1px solid rgba(16,32,23,.24)!important;
+  background:#f3ead5!important;
+  color:#102017!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:.94rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+
+#scorecard .scorecard-table thead th{
+  height:52px!important;
+  background:#0b4a38!important;
+  color:#fff4d6!important;
+  font-size:.9rem!important;
+  font-weight:1000!important;
+  letter-spacing:.035em!important;
+  text-transform:uppercase!important;
+}
+
+#scorecard .scorecard-table thead tr:first-child th{
+  border-bottom:3px solid #e3152b!important;
+}
+
+#scorecard .scorecard-table .par-row th,
+#scorecard .scorecard-table .par-row td{
+  height:42px!important;
+  background:#d8c38a!important;
+  color:#17352a!important;
+  font-size:.84rem!important;
+  font-weight:1000!important;
+}
+
+#scorecard .scorecard-table tbody th:first-child{
+  background:#ead9aa!important;
+  color:#102017!important;
+  text-align:center!important;
+  font-size:.98rem!important;
+  font-weight:1000!important;
+}
+
+#scorecard .scorecard-table tbody tr:nth-child(even) td:not(.total-score){
+  background:#eee2c5!important;
+}
+
+/* Cumulative score uses the same under / even / over language as the live player rows. */
+#scorecard .scorecard-table tbody td.total-score{
+  background:#17372a!important;
+  color:#fff4d6!important;
+  font-size:1.12rem!important;
+  font-weight:1000!important;
+  box-shadow:none!important;
+}
+
+#scorecard .scorecard-table tbody td.total-score.is-under{
+  background:#0f6b45!important;
+  color:#eafff2!important;
+}
+
+#scorecard .scorecard-table tbody td.total-score.is-even{
+  background:#6d5b22!important;
+  color:#fff2b8!important;
+}
+
+#scorecard .scorecard-table tbody td.total-score.is-over{
+  background:#8c1f27!important;
+  color:#fff0f0!important;
+}
+
+/* Hole cells get subtle result colour while keeping the golf symbols obvious. */
+#scorecard .scorecard-table .score-symbol{
+  display:inline-grid!important;
+  place-items:center!important;
+  min-width:34px!important;
+  width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  margin:0 auto!important;
+  color:#102017!important;
+  font-size:.96rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  box-shadow:none!important;
+}
+
+#scorecard .scorecard-table .score-symbol.eagle{
+  background:#58c889!important;
+  color:#062317!important;
+}
+
+#scorecard .scorecard-table .score-symbol.birdie{
+  background:#9addb6!important;
+  color:#0b2e20!important;
+}
+
+#scorecard .scorecard-table .score-symbol.par{
+  background:#f3ead5!important;
+  color:#102017!important;
+}
+
+#scorecard .scorecard-table .score-symbol.bogey{
+  background:#ef9aa0!important;
+  color:#4a0f13!important;
+}
+
+#scorecard .scorecard-table .score-symbol.double-bogey{
+  background:#df7078!important;
+  color:#fff3f3!important;
+}
+
+#scorecard .scorecard-table .score-symbol.triple-bogey{
+  background:#b93640!important;
+  color:#fff!important;
+}
+
+#scorecard .scorecard-table th:first-child,
+#scorecard .scorecard-table td:first-child{
+  box-shadow:3px 0 0 rgba(16,32,23,.30)!important;
+}
+
+#scorecard .scorecard-table th:nth-child(2),
+#scorecard .scorecard-table td:nth-child(2){
+  box-shadow:3px 0 0 rgba(16,32,23,.30)!important;
+}
+
+#scorecard .scorecard-table thead th:first-child,
+#scorecard .scorecard-table thead th:nth-child(2){
+  background:#0b4a38!important;
+}
+
+#scorecard .scorecard-table .par-row th:first-child,
+#scorecard .scorecard-table .par-row td:nth-child(2){
+  background:#d8c38a!important;
+  color:#17352a!important;
+}
+
+@media(max-width:700px){
+  #scorecard .scorecard-table-wrap{
+    border-radius:14px!important;
+  }
+
+  #scorecard .scorecard-table th,
+  #scorecard .scorecard-table td{
+    width:48px!important;
+    min-width:48px!important;
+    max-width:48px!important;
+    height:52px!important;
+    padding:5px!important;
+    font-size:.88rem!important;
+  }
+
+  #scorecard .scorecard-table th:first-child,
+  #scorecard .scorecard-table td:first-child{
+    width:94px!important;
+    min-width:94px!important;
+    max-width:94px!important;
+    text-align:center!important;
+  }
+
+  #scorecard .scorecard-table th:nth-child(2),
+  #scorecard .scorecard-table td:nth-child(2){
+    left:94px!important;
+    width:62px!important;
+    min-width:62px!important;
+    max-width:62px!important;
+  }
+
+  #scorecard .scorecard-table .par-row th,
+  #scorecard .scorecard-table .par-row td{
+    height:40px!important;
+  }
+
+  #scorecard .scorecard-table .score-symbol{
+    min-width:34px!important;
+    width:34px!important;
+    height:34px!important;
+    font-size:.92rem!important;
+  }
+}
+
+@media(max-width:390px){
+  #scorecard .scorecard-table th,
+  #scorecard .scorecard-table td{
+    width:44px!important;
+    min-width:44px!important;
+    max-width:44px!important;
+  }
+
+  #scorecard .scorecard-table th:first-child,
+  #scorecard .scorecard-table td:first-child{
+    width:88px!important;
+    min-width:88px!important;
+    max-width:88px!important;
+  }
+
+  #scorecard .scorecard-table th:nth-child(2),
+  #scorecard .scorecard-table td:nth-child(2){
+    left:88px!important;
+    width:58px!important;
+    min-width:58px!important;
+    max-width:58px!important;
+  }
+}

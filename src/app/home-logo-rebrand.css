@@ -1,0 +1,259 @@
+/* Home hero primary TwoBall logo - compact brand lockup above a dominant message. */
+.hero-card .tbd-primary-logo{
+  width:min(305px,100%)!important;
+  aspect-ratio:auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(92px,112px) minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:14px!important;
+  margin-bottom:18px!important;
+  filter:none!important;
+}
+
+.hero-card .tbd-primary-logo-mark{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:116px!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.3))!important;
+}
+
+.hero-card .tbd-primary-logo-type{
+  min-width:0!important;
+  display:grid!important;
+  gap:0!important;
+  align-content:center!important;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Barlow Condensed",sans-serif!important;
+  text-transform:uppercase!important;
+  line-height:.8!important;
+}
+
+.hero-card .tbd-primary-logo-type strong{
+  display:block!important;
+  color:var(--tbd-ivory,#f4efe2)!important;
+  font-size:clamp(2rem,5.5vw,3.7rem)!important;
+  font-weight:900!important;
+  letter-spacing:.005em!important;
+  white-space:nowrap!important;
+  transform:scaleX(1.03);
+  transform-origin:left center;
+}
+
+.hero-card .tbd-primary-logo-type span{
+  display:block!important;
+  color:var(--tbd-red,#ef0014)!important;
+  font-size:clamp(1.58rem,4.4vw,2.9rem)!important;
+  font-weight:900!important;
+  letter-spacing:.025em!important;
+  transform:scaleX(1.02);
+  transform-origin:left center;
+}
+
+.hero-card{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  grid-template-columns:minmax(240px,305px) minmax(0,1fr)!important;
+  gap:38px!important;
+  background:
+    linear-gradient(180deg,rgba(7,28,22,.93),rgba(2,20,15,.985)),
+    url('/brand/twoball-golf-course-bg.svg') right center/cover no-repeat!important;
+}
+
+.hero-card .hero-copy > .eyebrow{
+  display:none!important;
+}
+
+.hero-card .hero-copy h1{
+  margin:0 0 18px!important;
+  max-width:760px!important;
+  font-size:0!important;
+  line-height:1!important;
+  text-shadow:none!important;
+}
+
+.hero-card .hero-copy h1:before{
+  content:"GOLF SCORING.\A TWO DARTS.\A EIGHTEEN HOLES.";
+  display:block;
+  white-space:pre;
+  font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Barlow Condensed",sans-serif;
+  font-size:clamp(3rem,7.2vw,5.7rem);
+  font-weight:900;
+  line-height:.9;
+  letter-spacing:.005em;
+  text-transform:uppercase;
+  color:transparent;
+  background:linear-gradient(to bottom,
+    var(--tbd-ivory,#f4efe2) 0 32%,
+    var(--tbd-red,#ef0014) 32% 66%,
+    var(--tbd-ivory,#f4efe2) 66% 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-stroke:.35px currentColor;
+  filter:drop-shadow(0 5px 0 rgba(0,0,0,.28));
+}
+
+.hero-card .hero-copy > p:not(.eyebrow){
+  margin:0 0 22px!important;
+  max-width:700px!important;
+  font-size:0!important;
+  line-height:1!important;
+}
+
+.hero-card .hero-copy > p:not(.eyebrow):before{
+  content:"No gimmes. Just throw.";
+  display:block;
+  margin-bottom:10px;
+  color:var(--tbd-gold,#d0a948);
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  font-size:clamp(1.35rem,3.4vw,2rem);
+  font-weight:1000;
+  line-height:1;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+}
+
+.hero-card .hero-copy > p:not(.eyebrow):after{
+  content:"Play the numbers 1 through 18 as holes. Throw exactly two darts at each. Lowest score wins.";
+  display:block;
+  max-width:660px;
+  color:var(--tbd-ivory,#f4efe2);
+  font-family:Inter,Arial,Helvetica,sans-serif;
+  font-size:clamp(1rem,2.5vw,1.22rem);
+  font-weight:500;
+  line-height:1.48;
+  letter-spacing:0;
+  text-transform:none;
+}
+
+.hero-card:before{
+  content:"HOLE 1   PAR 3   2 DARTS";
+  position:absolute;
+  z-index:0;
+  right:26px;
+  top:152px;
+  padding:8px 0 6px;
+  border-top:1px solid rgba(244,239,226,.16);
+  border-bottom:1px solid rgba(244,239,226,.12);
+  color:rgba(244,239,226,.18);
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+
+.hero-card:after{
+  content:""!important;
+  position:absolute!important;
+  z-index:0!important;
+  width:min(330px,48vw)!important;
+  aspect-ratio:1!important;
+  right:-92px!important;
+  bottom:-105px!important;
+  background:url('/two-ball-darts-board.webp') center/contain no-repeat!important;
+  opacity:.13!important;
+  filter:saturate(.82) contrast(1.04)!important;
+  pointer-events:none!important;
+}
+
+.hero-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.hero-copy:before{
+  content:none!important;
+}
+
+@media(max-width:900px){
+  .hero-card{
+    grid-template-columns:1fr!important;
+    gap:20px!important;
+    background:
+      linear-gradient(180deg,rgba(7,28,22,.93),rgba(2,20,15,.985)),
+      url('/brand/twoball-golf-course-bg.svg') 58% center/cover no-repeat!important;
+  }
+
+  .hero-card .tbd-primary-logo{
+    width:min(360px,78%)!important;
+    grid-template-columns:minmax(76px,92px) minmax(0,1fr)!important;
+    gap:12px!important;
+    margin:0 0 30px!important;
+  }
+
+  .hero-card .tbd-primary-logo-mark{
+    max-height:94px!important;
+  }
+
+  .hero-card:before{
+    top:170px;
+    right:18px;
+    font-size:.66rem;
+  }
+}
+
+@media(max-width:560px){
+  .hero-card{
+    background:
+      linear-gradient(180deg,rgba(7,28,22,.91),rgba(2,20,15,.985)),
+      url('/brand/twoball-golf-course-bg.svg') 62% center/auto 112% no-repeat!important;
+  }
+
+  .hero-card .tbd-primary-logo{
+    width:76%!important;
+    grid-template-columns:72px minmax(0,1fr)!important;
+    gap:10px!important;
+    margin:0 0 28px!important;
+  }
+
+  .hero-card .tbd-primary-logo-mark{
+    max-height:82px!important;
+  }
+
+  .hero-card .tbd-primary-logo-type strong{
+    font-size:clamp(1.72rem,8.8vw,2.42rem)!important;
+    transform:scaleX(1.01);
+  }
+
+  .hero-card .tbd-primary-logo-type span{
+    font-size:clamp(1.32rem,6.8vw,1.88rem)!important;
+    transform:scaleX(1.01);
+  }
+
+  .hero-card .hero-copy h1{
+    max-width:92%!important;
+  }
+
+  .hero-card .hero-copy h1:before{
+    font-size:clamp(2.55rem,10.7vw,3.65rem);
+    line-height:.88;
+    letter-spacing:.002em;
+    white-space:pre;
+  }
+
+  .hero-card .hero-copy > p:not(.eyebrow):before{
+    font-size:1.2rem;
+  }
+
+  .hero-card .hero-copy > p:not(.eyebrow):after{
+    font-size:1rem;
+    line-height:1.42;
+  }
+
+  .hero-card:before{
+    top:150px;
+    right:12px;
+    font-size:.58rem;
+    color:rgba(244,239,226,.15);
+  }
+
+  .hero-card:after{
+    width:245px!important;
+    right:-96px!important;
+    bottom:-82px!important;
+    opacity:.11!important;
+  }
+}

@@ -1,0 +1,147 @@
+/* Result-driven live player cards - strong, consistent game-state styling */
+
+#scorecard .tbd-player-score-row{
+  min-height:96px!important;
+  height:96px!important;
+}
+
+#scorecard .tbd-player-score-row.scored{
+  border-width:2px!important;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+
+/* Use the tone class already applied to the result button so the whole row gets the right result styling. */
+#scorecard .tbd-player-score-row.scored:has(> .button.is-eagle){
+  background:linear-gradient(135deg,#17734a 0%,#0a3d29 58%,#061f17 100%)!important;
+  border-color:#4ee09a!important;
+  box-shadow:inset 6px 0 0 #67efaa,0 10px 24px rgba(0,0,0,.22)!important;
+}
+#scorecard .tbd-player-score-row.scored:has(> .button.is-birdie){
+  background:linear-gradient(135deg,#125f3f 0%,#0a3526 58%,#061c15 100%)!important;
+  border-color:#35bd7d!important;
+  box-shadow:inset 6px 0 0 #41cf8a,0 10px 24px rgba(0,0,0,.22)!important;
+}
+#scorecard .tbd-player-score-row.scored:has(> .button.is-par){
+  background:linear-gradient(135deg,#514920 0%,#2c2813 58%,#17140b 100%)!important;
+  border-color:#c3a84e!important;
+  box-shadow:inset 6px 0 0 #d0b65d,0 10px 24px rgba(0,0,0,.22)!important;
+}
+#scorecard .tbd-player-score-row.scored:has(> .button.is-bogey){
+  background:linear-gradient(135deg,#96232a 0%,#5a1519 58%,#2a090b 100%)!important;
+  border-color:#ef5962!important;
+  box-shadow:inset 6px 0 0 #ff6870,0 10px 24px rgba(0,0,0,.24)!important;
+}
+#scorecard .tbd-player-score-row.scored:has(> .button.is-double-bogey){
+  background:linear-gradient(135deg,#76161b 0%,#430d10 58%,#210506 100%)!important;
+  border-color:#cf3940!important;
+  box-shadow:inset 6px 0 0 #e24850,0 10px 24px rgba(0,0,0,.26)!important;
+}
+#scorecard .tbd-player-score-row.scored:has(> .button.is-triple-bogey){
+  background:linear-gradient(135deg,#500b0e 0%,#2b0608 58%,#120203 100%)!important;
+  border-color:#8f1e24!important;
+  box-shadow:inset 6px 0 0 #a8272d,0 10px 24px rgba(0,0,0,.28)!important;
+}
+
+/* Scored action is now just the hole number result - compact and consistent. */
+#scorecard .tbd-player-score-row.scored > .button{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  min-height:54px!important;
+  height:54px!important;
+  padding:0!important;
+  border-width:2px!important;
+  border-radius:14px!important;
+  color:#fff7e6!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:0!important;
+  font-weight:1000!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.35)!important;
+}
+
+#scorecard .tbd-player-score-row.scored > .button::after{
+  display:block!important;
+  font-size:1.45rem!important;
+  font-weight:1000!important;
+  line-height:1!important;
+}
+
+#scorecard .tbd-player-score-row.scored > .button.is-eagle::after{content:'-2'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-birdie::after{content:'-1'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-par::after{content:'E'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-bogey::after{content:'+1'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-double-bogey::after{content:'+2'!important;}
+#scorecard .tbd-player-score-row.scored > .button.is-triple-bogey::after{content:'+3'!important;}
+
+#scorecard .tbd-player-score-row.scored > .button.is-eagle{
+  background:linear-gradient(180deg,#22a965,#117240)!important;
+  border-color:#74f0ae!important;
+  box-shadow:0 6px 16px rgba(18,111,65,.28),inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+#scorecard .tbd-player-score-row.scored > .button.is-birdie{
+  background:linear-gradient(180deg,#188c56,#0e5c39)!important;
+  border-color:#50d994!important;
+  box-shadow:0 6px 16px rgba(12,84,50,.28),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+#scorecard .tbd-player-score-row.scored > .button.is-par{
+  background:linear-gradient(180deg,#b5963e,#736126)!important;
+  border-color:#ead47b!important;
+  color:#fff8dc!important;
+  box-shadow:0 6px 16px rgba(95,77,24,.28),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+#scorecard .tbd-player-score-row.scored > .button.is-bogey{
+  background:linear-gradient(180deg,#df3844,#9a1d26)!important;
+  border-color:#ff7981!important;
+  box-shadow:0 6px 16px rgba(132,21,28,.30),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+#scorecard .tbd-player-score-row.scored > .button.is-double-bogey{
+  background:linear-gradient(180deg,#b8252f,#77151b)!important;
+  border-color:#f05861!important;
+  box-shadow:0 6px 16px rgba(103,15,21,.30),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+#scorecard .tbd-player-score-row.scored > .button.is-triple-bogey{
+  background:linear-gradient(180deg,#86161d,#510b10)!important;
+  border-color:#c33b43!important;
+  box-shadow:0 6px 16px rgba(72,7,11,.32),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+
+/* Result is already represented by the coloured row/button, so don't repeat it beneath the player name. */
+#scorecard .tbd-player-score-row.scored .tbd-hole-status{
+  display:none!important;
+}
+
+#scorecard .tbd-player-score-row.scored .tbd-player-name-input{
+  color:#fff7e6!important;
+  font-weight:900!important;
+}
+
+/* Keep unscored rows the exact same height too. */
+#scorecard .tbd-player-score-row:not(.scored){
+  min-height:96px!important;
+  height:96px!important;
+}
+
+@media(max-width:520px){
+  #scorecard .tbd-player-score-row,
+  #scorecard .tbd-player-score-row:not(.scored){
+    min-height:92px!important;
+    height:92px!important;
+  }
+
+  #scorecard .tbd-player-score-row.scored > .button{
+    width:68px!important;
+    min-width:68px!important;
+    max-width:68px!important;
+    min-height:52px!important;
+    height:52px!important;
+  }
+
+  #scorecard .tbd-player-score-row.scored > .button::after{
+    font-size:1.34rem!important;
+  }
+}

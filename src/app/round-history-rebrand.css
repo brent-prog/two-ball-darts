@@ -1,0 +1,149 @@
+/* TwoBall round history - compact, scannable saved-round cards. */
+
+[data-tbd-round-history-host]{
+  padding:18px!important;
+  border:1px solid rgba(244,239,226,.16)!important;
+  border-radius:20px!important;
+  background:linear-gradient(180deg,rgba(7,28,22,.96),rgba(2,20,15,.98))!important;
+  box-shadow:0 20px 54px rgba(0,0,0,.30)!important;
+}
+
+[data-tbd-round-history-host] > .section-heading{
+  margin:0 0 12px!important;
+}
+
+[data-tbd-round-history-host] > .section-heading h2{
+  margin:0!important;
+  color:var(--tbd-ivory)!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:clamp(1.8rem,6vw,2.6rem)!important;
+  font-weight:1000!important;
+  line-height:.95!important;
+  text-transform:uppercase!important;
+}
+
+[data-tbd-rich-round-history]{
+  gap:10px!important;
+}
+
+[data-tbd-rich-round-history] > article{
+  padding:14px!important;
+  border:1px solid rgba(244,239,226,.14)!important;
+  border-radius:16px!important;
+  background:linear-gradient(180deg,#0a2a20,#061b15)!important;
+  box-shadow:none!important;
+}
+
+[data-tbd-rich-round-history] > article > div:first-child{
+  align-items:center!important;
+}
+
+[data-tbd-rich-round-history] > article > div:first-child span{
+  color:var(--tbd-muted)!important;
+  font-size:.72rem!important;
+  letter-spacing:.06em!important;
+}
+
+[data-tbd-rich-round-history] > article > div:first-child strong{
+  margin-top:2px!important;
+  color:var(--tbd-ivory)!important;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif!important;
+  font-size:1.15rem!important;
+  line-height:1!important;
+}
+
+[data-tbd-rich-round-history] > article > div:first-child .button{
+  min-height:38px!important;
+  height:38px!important;
+  padding:0 12px!important;
+  border-radius:9px!important;
+  font-size:.74rem!important;
+}
+
+/* Winner/in-progress summary */
+[data-tbd-rich-round-history] > article > div:nth-child(2){
+  margin-top:10px!important;
+  padding:10px 12px!important;
+  border-radius:12px!important;
+}
+
+[data-tbd-rich-round-history] > article > div:nth-child(2) strong{
+  font-size:1.12rem!important;
+  line-height:1.05!important;
+}
+
+/* Player score list */
+[data-tbd-rich-round-history] > article > div:nth-child(3){
+  gap:0!important;
+  margin-top:8px!important;
+}
+
+[data-tbd-rich-round-history] > article > div:nth-child(3) > div{
+  min-height:38px!important;
+  padding:7px 0!important;
+}
+
+[data-tbd-rich-round-history] > article > div:nth-child(3) span{
+  font-size:.95rem!important;
+}
+
+[data-tbd-rich-round-history] > article > div:nth-child(3) strong{
+  min-width:42px!important;
+  text-align:center!important;
+  font-size:1.05rem!important;
+}
+
+/* Personal stats are useful, but should not dominate the card. */
+[data-tbd-rich-round-history] > article > div:nth-child(4):not(:last-child){
+  margin-top:10px!important;
+  gap:6px!important;
+}
+
+[data-tbd-rich-round-history] > article > div:nth-child(4):not(:last-child) > div{
+  padding:8px 5px!important;
+  border-radius:10px!important;
+}
+
+/* Resume is the primary action for incomplete rounds. */
+[data-tbd-rich-round-history] > article .button.primary{
+  min-height:42px!important;
+  height:42px!important;
+  border-radius:10px!important;
+}
+
+[data-tbd-rich-round-history] > article .button.ghost{
+  min-height:42px!important;
+  height:42px!important;
+  color:var(--tbd-muted)!important;
+}
+
+[data-tbd-rich-round-history] > .button.secondary{
+  min-height:44px!important;
+  border-radius:11px!important;
+}
+
+@media(max-width:520px){
+  [data-tbd-round-history-host]{
+    padding:14px!important;
+    border-radius:16px!important;
+  }
+
+  [data-tbd-round-history-host] > .section-heading h2{
+    font-size:2rem!important;
+  }
+
+  [data-tbd-rich-round-history] > article{
+    padding:12px!important;
+    border-radius:14px!important;
+  }
+
+  [data-tbd-rich-round-history] > article > div:nth-child(2){
+    margin-top:8px!important;
+    padding:9px 10px!important;
+  }
+
+  [data-tbd-rich-round-history] > article > div:nth-child(3) > div{
+    min-height:34px!important;
+    padding:6px 0!important;
+  }
+}

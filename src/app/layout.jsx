@@ -2,7 +2,6 @@ import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
 import './player-row-overrides.css';
-import './player-profile-selection-polish.css';
 import './honours-position-fix.css';
 import './hole-spin-animation.css';
 import './score-action-button-states.css';
@@ -13,6 +12,23 @@ import './live-scorecard-fixes.css';
 import './rockpail-footer.css';
 import './home-actions-modern.css';
 import './final-scoring-overrides.css';
+import './twoball-rebrand.css';
+import './scoring-rebrand-preview.css';
+import './score-interactions-rebrand.css';
+import './score-interactions-polish.css';
+import './player-rows-rebrand.css';
+import './player-profile-selection-polish.css';
+import './empty-player-final.css';
+import './player-result-colours.css';
+import './scored-row-action-final.css';
+import './round-complete-rebrand.css';
+import './live-scorecard-rebrand.css';
+import './home-live-round-hide.css';
+import './player-picker-rebrand.css';
+import './round-history-rebrand.css';
+import './home-logo-rebrand.css';
+import './how-to-play-rebrand.css';
+import './saved-scorecard-rebrand.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
@@ -34,14 +50,15 @@ import RoundHistoryCards from '@/components/RoundHistoryCards';
 import MissingHoleGuardEnhancer from '@/components/MissingHoleGuardEnhancer';
 import LiveScorecardSyncEnhancer from '@/components/LiveScorecardSyncEnhancer';
 import ScoringFeedbackEnhancer from '@/components/ScoringFeedbackEnhancer';
-import ScoringActionLabelEnhancer from '@/components/ScoringActionLabelEnhancer';
+import OffBoardDartOptionEnhancer from '@/components/OffBoardDartOptionEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
   description: 'No gimmes. Just throw. Live golf-style darts scoring and official rules.',
   icons: {
-    icon: [{ url: '/two-ball-darts-favicon-clean.svg', type: 'image/svg+xml' }],
-    shortcut: '/two-ball-darts-favicon-clean.svg'
+    icon: [{ url: '/brand/twoball-app-icon.svg', type: 'image/svg+xml' }],
+    shortcut: '/brand/twoball-app-icon.svg',
+    apple: '/brand/twoball-app-icon.svg'
   }
 };
 
@@ -76,7 +93,7 @@ export default function RootLayout({ children }) {
         <MissingHoleGuardEnhancer />
         <LiveScorecardSyncEnhancer />
         <ScoringFeedbackEnhancer />
-        <ScoringActionLabelEnhancer />
+        <OffBoardDartOptionEnhancer />
         {children}
       </body>
     </html>
