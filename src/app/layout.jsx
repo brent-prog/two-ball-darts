@@ -16,6 +16,7 @@ import './final-scoring-overrides.css';
 import './twoball-rebrand.css';
 import './scoring-rebrand-preview.css';
 import './score-interactions-rebrand.css';
+import './score-interactions-polish.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
@@ -38,6 +39,7 @@ import MissingHoleGuardEnhancer from '@/components/MissingHoleGuardEnhancer';
 import LiveScorecardSyncEnhancer from '@/components/LiveScorecardSyncEnhancer';
 import ScoringFeedbackEnhancer from '@/components/ScoringFeedbackEnhancer';
 import ScoringActionLabelEnhancer from '@/components/ScoringActionLabelEnhancer';
+import OffBoardDartOptionEnhancer from '@/components/OffBoardDartOptionEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -81,6 +83,7 @@ export default function RootLayout({ children }) {
         <LiveScorecardSyncEnhancer />
         <ScoringFeedbackEnhancer />
         <ScoringActionLabelEnhancer />
+        <OffBoardDartOptionEnhancer />
         {children}
       </body>
     </html>
