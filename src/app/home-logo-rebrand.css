@@ -188,12 +188,16 @@
 
   .hero-card .tbd-primary-logo-type strong{
     font-size:2.55rem!important;
-    transform:scaleX(1)!important;
+    letter-spacing:.012em!important;
+    transform:scaleX(1.10)!important;
+    transform-origin:left center!important;
   }
 
   .hero-card .tbd-primary-logo-type span{
     font-size:2rem!important;
-    transform:scaleX(1)!important;
+    letter-spacing:.035em!important;
+    transform:scaleX(1.10)!important;
+    transform-origin:left center!important;
   }
 
   /* Match the marketing site's tall, condensed headline proportions on desktop. */
