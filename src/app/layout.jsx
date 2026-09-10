@@ -39,6 +39,7 @@ import MissingHoleGuardEnhancer from '@/components/MissingHoleGuardEnhancer';
 import LiveScorecardSyncEnhancer from '@/components/LiveScorecardSyncEnhancer';
 import ScoringFeedbackEnhancer from '@/components/ScoringFeedbackEnhancer';
 import ScoringActionLabelEnhancer from '@/components/ScoringActionLabelEnhancer';
+import OffBoardDartOptionEnhancer from '@/components/OffBoardDartOptionEnhancer';
 
 export const metadata = {
   title: 'TWO BALL DARTS',
@@ -82,6 +83,7 @@ export default function RootLayout({ children }) {
         <LiveScorecardSyncEnhancer />
         <ScoringFeedbackEnhancer />
         <ScoringActionLabelEnhancer />
+        <OffBoardDartOptionEnhancer />
         {children}
       </body>
     </html>
