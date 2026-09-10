@@ -45,13 +45,16 @@ const ownerAwareFetch = async (input, init = {}) => {
     const rawBody = init.body ?? (input instanceof Request ? await input.clone().text() : null);
     const parsedBody = rawBody ? JSON.parse(rawBody) : {};
     const row = Array.isArray(parsedBody) ? parsedBody[0] ?? {} : parsedBody;
-    const isSavedGuest = row?.is_profile === true && !row?.profile_id && Boolean(row?.display_name) && Boolean(row?.owner_key);
+    const browserOwnerKey = typeof window !== 'undefined'
+      ? window.localStorage.getItem(ownerKeyStorageKey)
+      : row.owner_key;
+    const isUnnamedProfileLink = Boolean(row?.profile_id);
+    const isSavedGuest = row?.is_profile === true && !isUnnamedProfileLink && Boolean(row?.display_name) && Boolean(browserOwnerKey || row?.owner_key);
+    const isRoundGuest = row?.is_profile !== true && !isUnnamedProfileLink && Boolean(row?.display_name) && Boolean(browserOwnerKey || row?.owner_key);
 
-    if (isSavedGuest) {
-      const browserOwnerKey = typeof window !== 'undefined'
-        ? window.localStorage.getItem(ownerKeyStorageKey)
-        : row.owner_key;
-      const rpcUrl = new URL(`${supabaseUrl}/rest/v1/rpc/save_two_ball_guest`);
+    if (isSavedGuest || isRoundGuest) {
+      const rpcName = isSavedGuest ? 'save_two_ball_guest' : 'save_two_ball_round_guest';
+      const rpcUrl = new URL(`${supabaseUrl}/rest/v1/rpc/${rpcName}`);
       rpcUrl.search = url.search;
       const rpcBody = JSON.stringify({
         browser_owner_key: browserOwnerKey || row.owner_key,
