@@ -45,7 +45,6 @@
   letter-spacing:.035em!important;
 }
 
-/* Golf translated onto a dartboard - use an actual fairway/green/flag silhouette. */
 .hero-card{
   position:relative!important;
   isolation:isolate!important;
@@ -57,7 +56,6 @@
     url('/brand/twoball-golf-course-bg.svg') right center/cover no-repeat!important;
 }
 
-/* Home copy leads with the game proposition, then the tagline. */
 .hero-card .hero-copy > .eyebrow{
   display:none!important;
 }
@@ -76,16 +74,10 @@
   font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
   font-size:clamp(3rem,7.6vw,6rem);
   font-weight:1000;
-  line-height:.88;
+  line-height:.9;
   letter-spacing:-.035em;
   text-transform:uppercase;
-  color:transparent;
-  background:linear-gradient(to bottom,
-    var(--tbd-ivory,#f4efe2) 0 31%,
-    var(--tbd-red,#ef0014) 31% 65%,
-    var(--tbd-ivory,#f4efe2) 65% 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
+  color:var(--tbd-ivory,#f4efe2);
   filter:drop-shadow(0 5px 0 rgba(0,0,0,.22));
 }
 
@@ -122,7 +114,6 @@
   text-transform:none;
 }
 
-/* Compact golf-scorecard cue - quiet enough not to compete with the headline. */
 .hero-card:before{
   content:"HOLE 1   PAR 3   2 DARTS";
   position:absolute;
@@ -141,7 +132,6 @@
   pointer-events:none;
 }
 
-/* Keep the real TwoBall board as the darts-side cue. */
 .hero-card:after{
   content:""!important;
   position:absolute!important;
@@ -213,8 +203,9 @@
   }
 
   .hero-card .hero-copy h1:before{
-    font-size:clamp(3.25rem,14vw,4.6rem);
-    line-height:.86;
+    font-size:clamp(2.7rem,11vw,4rem);
+    line-height:.9;
+    letter-spacing:-.04em;
   }
 
   .hero-card .hero-copy > p:not(.eyebrow):before{
