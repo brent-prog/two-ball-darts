@@ -49,6 +49,17 @@ function symbolStyle(score) {
   return base;
 }
 
+function classifyTotalCell(cell) {
+  if (!cell) return;
+  cell.classList.remove('is-under', 'is-even', 'is-over');
+  const raw = text(cell);
+  const score = raw.toUpperCase() === 'E' ? 0 : Number(raw.replace('+', ''));
+  if (!Number.isFinite(score)) return;
+  if (score < 0) cell.classList.add('is-under');
+  else if (score > 0) cell.classList.add('is-over');
+  else cell.classList.add('is-even');
+}
+
 function syncVisibleScorecard() {
   const hole = activeHole();
   const liveRows = [...document.querySelectorAll('.tbd-live-score-list > *')];
@@ -57,6 +68,8 @@ function syncVisibleScorecard() {
 
   const scoreRows = [...table.querySelectorAll('tbody tr')];
   if (scoreRows.length !== liveRows.length) return;
+
+  scoreRows.forEach(row => classifyTotalCell(row.querySelector('td.total-score')));
 
   liveRows.forEach((liveRow, index) => {
     const meta = metaForRow(liveRow);
@@ -76,6 +89,7 @@ function syncVisibleScorecard() {
       symbol.setAttribute('data-tbd-live-score-symbol', 'true');
       cell.appendChild(symbol);
     }
+    symbol.className = `score-symbol ${meta.score < 0 ? (meta.score === -2 ? 'eagle' : 'birdie') : meta.score === 0 ? 'par' : meta.score === 1 ? 'bogey' : meta.score === 2 ? 'double-bogey' : 'triple-bogey'}`;
     symbol.textContent = meta.strokes;
     Object.assign(symbol.style, symbolStyle(meta.score));
   });
