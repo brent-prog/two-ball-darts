@@ -40,7 +40,6 @@
   padding-inline:14px!important;
 }
 
-/* Quick score: simple, fast, golf-first */
 .tbd-quick-score-grid{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
   gap:8px!important;
@@ -108,7 +107,6 @@
   transform:none!important;
 }
 
-/* Score by darts: distinct assisted workflow */
 .tbd-dart-score-card{
   position:relative!important;
   overflow:hidden!important;
@@ -116,8 +114,7 @@
   border:1px solid rgba(244,239,226,.14)!important;
   border-radius:16px!important;
   padding:14px!important;
-  background:
-    linear-gradient(180deg,rgba(7,28,22,.94),rgba(3,18,14,.98))!important;
+  background:linear-gradient(180deg,rgba(7,28,22,.94),rgba(3,18,14,.98))!important;
   box-shadow:none!important;
 }
 
@@ -130,7 +127,8 @@
   top:-48px!important;
   inset:auto!important;
   background:url('/two-ball-darts-board.webp') center/contain no-repeat!important;
-  opacity:.09!important;
+  opacity:.21!important;
+  filter:saturate(1.08) brightness(1.06)!important;
   pointer-events:none!important;
 }
 
@@ -148,9 +146,7 @@
   gap:10px!important;
 }
 
-.tbd-custom-dart-picker{
-  gap:7px!important;
-}
+.tbd-custom-dart-picker{gap:7px!important;}
 
 .tbd-custom-dart-picker-heading{
   color:var(--tbd-ivory)!important;
@@ -179,7 +175,12 @@
 .tbd-custom-dart-option.is-green{background:#0d3b2a!important;border-color:rgba(52,194,126,.35)!important;}
 .tbd-custom-dart-option.is-gold{background:#2d2a16!important;border-color:rgba(228,193,90,.35)!important;color:var(--tbd-ivory)!important;}
 .tbd-custom-dart-option.is-neutral{background:#12231d!important;border-color:rgba(244,239,226,.14)!important;color:var(--tbd-ivory)!important;}
-.tbd-custom-dart-option.is-red{background:#3a1212!important;border-color:rgba(239,0,20,.34)!important;}
+/* Hazard = water */
+.tbd-custom-dart-option.is-red{
+  background:linear-gradient(180deg,#176b86,#0d4258)!important;
+  border-color:rgba(79,198,255,.58)!important;
+  color:#e9f9ff!important;
+}
 
 .tbd-custom-dart-option.is-selected{
   background:var(--tbd-ivory)!important;
@@ -240,27 +241,10 @@
 }
 
 @media(max-width:620px){
-  .tbd-score-modal-shell{
-    align-items:end!important;
-    padding:0!important;
-  }
-  .tbd-score-modal-card{
-    width:100%!important;
-    max-height:94dvh!important;
-    border-radius:20px 20px 0 0!important;
-    padding:14px!important;
-  }
-  .tbd-quick-score-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  }
-  .tbd-quick-score-grid .button{
-    min-height:56px!important;
-  }
-  .tbd-dart-select-grid{
-    grid-template-columns:1fr 1fr!important;
-  }
-  .tbd-custom-dart-option{
-    min-height:42px!important;
-    font-size:.76rem!important;
-  }
+  .tbd-score-modal-shell{align-items:end!important;padding:0!important;}
+  .tbd-score-modal-card{width:100%!important;max-height:94dvh!important;border-radius:20px 20px 0 0!important;padding:14px!important;}
+  .tbd-quick-score-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .tbd-quick-score-grid .button{min-height:56px!important;}
+  .tbd-dart-select-grid{grid-template-columns:1fr 1fr!important;}
+  .tbd-custom-dart-option{min-height:42px!important;font-size:.76rem!important;}
 }
