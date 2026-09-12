@@ -1,0 +1,25 @@
+/* Keep TwoBall display typography identical across Android, iPhone and desktop. */
+:root{
+  --tbd-display-font:"Barlow Condensed",sans-serif;
+}
+
+h1,
+h2,
+h3,
+.eyebrow,
+.button,
+.score-buttons button,
+.hero-card .tbd-primary-logo-type,
+.hero-card .hero-copy h1:before,
+.hero-card .hero-copy > p:not(.eyebrow):before,
+.tbd-modal-eyebrow,
+.tbd-score-modal h3,
+.tbd-dart-assist-title{
+  font-family:var(--tbd-display-font)!important;
+}
+
+.hero-card .tbd-primary-logo-type strong,
+.hero-card .tbd-primary-logo-type span,
+.hero-card .hero-copy h1:before{
+  font-weight:900!important;
+}
