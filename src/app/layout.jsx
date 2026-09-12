@@ -74,9 +74,46 @@ export const viewport = {
   themeColor: '#02140f'
 };
 
+const staleAssetRecovery = `
+(function(){
+  var key='tbd-stale-reload';
+  function recover(){
+    try{
+      if(sessionStorage.getItem(key)==='1') return;
+      sessionStorage.setItem(key,'1');
+    }catch(e){}
+    try{
+      var url=new URL(location.href);
+      url.searchParams.set('_tbd_refresh',Date.now().toString());
+      location.replace(url.toString());
+    }catch(e){
+      location.reload();
+    }
+  }
+  function isChunkMessage(value){
+    var text=String(value||'');
+    return /ChunkLoadError|Loading chunk|Failed to fetch dynamically imported module|Importing a module script failed/i.test(text);
+  }
+  addEventListener('error',function(event){
+    var target=event.target;
+    var src=target && (target.src||target.href);
+    if(src && /\/_next\/static\//.test(src)) recover();
+    else if(isChunkMessage(event.message||event.error)) recover();
+  },true);
+  addEventListener('unhandledrejection',function(event){
+    if(isChunkMessage(event.reason && (event.reason.message||event.reason))) recover();
+  });
+  addEventListener('pageshow',function(){
+    try{ sessionStorage.removeItem(key); }catch(e){}
+  },{once:true});
+})();`;
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: staleAssetRecovery }} />
+      </head>
       <body>
         <FreshOpenTopGuard />
         <PersistentLeaderBadgeEnhancer />
