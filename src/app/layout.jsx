@@ -1,3 +1,6 @@
+import '@fontsource/barlow-condensed/400.css';
+import '@fontsource/barlow-condensed/700.css';
+import '@fontsource/barlow-condensed/900.css';
 import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
@@ -31,6 +34,7 @@ import './how-to-play-rebrand.css';
 import './saved-scorecard-rebrand.css';
 import './home-hero-cleanup.css';
 import './android-responsive-polish.css';
+import './display-font-consistency.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
