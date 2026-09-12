@@ -1,0 +1,162 @@
+/* Android Chrome / small-screen hardening. Loaded last so it can safely contain layout overflow. */
+html{
+  width:100%;
+  max-width:100%;
+  overflow-x:clip;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+body{
+  width:100%;
+  max-width:100%;
+  min-height:100dvh;
+  overflow-x:clip;
+}
+
+img,
+svg,
+video,
+canvas{
+  max-width:100%;
+}
+
+.app-shell,
+.hero-card,
+.card,
+.quick-stats,
+.section-heading,
+.active-hole-panel,
+.tbd-live-score-list,
+.tbd-player-score-row,
+.tbd-score-modal-card{
+  min-width:0;
+  max-width:100%;
+}
+
+.hero-card > *,
+.section-heading > *,
+.actions-inline > *,
+.hero-actions > *,
+.tbd-player-score-row > *,
+.tbd-player-name-line > *,
+.tbd-score-modal-head > *{
+  min-width:0;
+}
+
+.scorecard-table-wrap{
+  max-width:100%;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x pan-y;
+}
+
+.tbd-score-modal{
+  min-height:100dvh;
+  padding:
+    max(12px,env(safe-area-inset-top))
+    max(12px,env(safe-area-inset-right))
+    max(12px,env(safe-area-inset-bottom))
+    max(12px,env(safe-area-inset-left));
+}
+
+.tbd-score-modal-card{
+  max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overscroll-behavior:contain;
+}
+
+@media(max-width:700px){
+  .app-shell{
+    width:calc(100% - 16px)!important;
+    padding-top:8px!important;
+    padding-bottom:32px!important;
+  }
+
+  .hero-card,
+  .card{
+    padding-left:14px!important;
+    padding-right:14px!important;
+  }
+
+  .section-heading{
+    gap:10px!important;
+  }
+
+  .hero-actions,
+  .actions-inline{
+    gap:8px!important;
+  }
+
+  .hero-actions .button,
+  .actions-inline .button{
+    min-height:48px;
+    padding-left:14px;
+    padding-right:14px;
+  }
+
+  .tbd-player-score-row{
+    gap:10px!important;
+    padding:10px!important;
+  }
+
+  .tbd-score-modal{
+    place-items:end center;
+  }
+
+  .tbd-score-modal-card{
+    width:100%!important;
+    border-radius:20px 20px 14px 14px!important;
+  }
+}
+
+@media(max-width:480px){
+  .hero-card,
+  .card{
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+
+  .quick-stats{
+    grid-template-columns:1fr!important;
+  }
+
+  .quick-stats div{
+    padding:10px 12px!important;
+  }
+
+  .hole-picker{
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    gap:4px!important;
+  }
+
+  .hole-picker button{
+    min-width:0!important;
+    padding:9px 0!important;
+  }
+
+  .button{
+    max-width:100%;
+    white-space:normal;
+    text-align:center;
+  }
+
+  .tbd-score-choice-grid{
+    gap:8px!important;
+  }
+}
+
+@media(max-width:390px){
+  .app-shell{
+    width:calc(100% - 12px)!important;
+  }
+
+  .hero-card,
+  .card{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+
+  .hero-actions .button,
+  .actions-inline .button{
+    width:100%;
+  }
+}
