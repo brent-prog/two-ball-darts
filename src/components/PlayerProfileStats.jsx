@@ -228,7 +228,7 @@ export default function PlayerProfileStats({ profile, onBack }) {
           <p className="eyebrow">{myPlayer ? 'Friend Profile' : 'Player Profile'}</p>
           <h2 style={{ fontSize: 'clamp(2rem, 7vw, 3.4rem)' }}>{profile.display_name}</h2>
         </div>
-        <button className="button secondary" onClick={onBack}>Back</button>
+        <button className="button primary" onClick={onBack}>Close</button>
       </div>
 
       {status && <p className="status-line">{status}</p>}
