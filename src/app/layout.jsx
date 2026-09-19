@@ -1,4 +1,4 @@
-import '@fontsource/anton/400.css';
+import '@fontsource/bebas-neue/400.css';
 import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
