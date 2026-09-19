@@ -193,7 +193,7 @@ export default function AccountProfileModal({ open, onClose }) {
       {showStats && accountPlayer ? <PlayerProfileStats profile={accountPlayer} onBack={() => setShowStats(false)} /> : <>
         <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
           <div><p className="eyebrow">TwoBall account</p><h2 style={{ fontSize: 'clamp(2rem,7vw,3.5rem)' }}>{user ? (profileComplete ? 'My Profile' : 'Complete Your Profile') : 'Save Your Game'}</h2></div>
-          <button className="button secondary" onClick={onClose}>Close</button>
+          <button className="button primary" onClick={onClose}>Close</button>
         </div>
 
         {!user ? <>
