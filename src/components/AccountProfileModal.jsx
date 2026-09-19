@@ -12,6 +12,7 @@ export default function AccountProfileModal({ open, onClose }) {
   const [profile, setProfile] = useState(null);
   const [accountPlayer, setAccountPlayer] = useState(null);
   const [showStats, setShowStats] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -29,6 +30,7 @@ export default function AccountProfileModal({ open, onClose }) {
       setProfile(null);
       setAccountPlayer(null);
       setShowStats(false);
+      setEditing(false);
       setUsername('');
       setDisplayName('');
       setStatus('');
@@ -46,6 +48,7 @@ export default function AccountProfileModal({ open, onClose }) {
     else {
       const complete = Boolean(data?.username && data?.display_name?.trim());
       setProfile(data ?? null);
+      setEditing(!complete);
       setUsername(complete ? (data?.username ?? '') : '');
       setDisplayName(complete ? (data?.display_name ?? '') : '');
       setStatus('');
@@ -69,6 +72,7 @@ export default function AccountProfileModal({ open, onClose }) {
   useEffect(() => {
     if (!open) return;
     setShowStats(false);
+    setEditing(false);
     loadAccount();
     const { data: authListener } = supabase.auth.onAuthStateChange(() => loadAccount());
     return () => authListener?.subscription?.unsubscribe();
@@ -172,6 +176,7 @@ export default function AccountProfileModal({ open, onClose }) {
     setAccountPlayer(nextAccountPlayer);
     setUsername(data.username ?? '');
     setDisplayName(data.display_name ?? '');
+    setEditing(false);
     setLoading(false);
     setStatus('Profile saved. Your TwoBall player identity is synced across devices.');
   }
@@ -181,7 +186,15 @@ export default function AccountProfileModal({ open, onClose }) {
     await supabase.auth.signOut();
     setLoading(false);
     setShowStats(false);
+    setEditing(false);
     setStatus('Signed out. You can still play as a guest.');
+  }
+
+  function cancelEdit() {
+    setUsername(profile?.username ?? '');
+    setDisplayName(profile?.display_name ?? '');
+    setEditing(false);
+    setStatus('');
   }
 
   if (!open) return null;
@@ -203,7 +216,23 @@ export default function AccountProfileModal({ open, onClose }) {
             <input id="twoball-email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" />
             <button className="button primary" type="submit" disabled={loading || !email.trim()}>Email Me a Sign-In Link</button>
           </form>
-        </> : <form onSubmit={saveProfile} style={{ display: 'grid', gap: '10px' }}>
+        </> : profileComplete && !editing ? <div style={{ display: 'grid', gap: '12px' }}>
+          <p style={{ marginTop: 0, opacity: .72, fontSize: '.86rem' }}>{user.email}</p>
+
+          <div style={{ display: 'grid', gap: '6px', padding: '14px', border: '1px solid rgba(244,239,226,.18)', borderRadius: '12px', background: 'rgba(255,255,255,.035)' }}>
+            <span style={{ color: '#a7b3a9', fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.06em' }}>Display Name</span>
+            <strong style={{ color: '#fff4d6', fontSize: '1.15rem' }}>{profile.display_name}</strong>
+          </div>
+
+          <div style={{ display: 'grid', gap: '6px', padding: '14px', border: '1px solid rgba(244,239,226,.18)', borderRadius: '12px', background: 'rgba(255,255,255,.035)' }}>
+            <span style={{ color: '#a7b3a9', fontSize: '.78rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.06em' }}>Username</span>
+            <strong style={{ color: '#fff4d6', fontSize: '1.15rem' }}>@{profile.username}</strong>
+          </div>
+
+          <button className="button primary" type="button" onClick={() => { setEditing(true); setStatus(''); }}>Edit Profile</button>
+          {accountPlayer && <button className="button secondary" type="button" onClick={() => setShowStats(true)}>My Stats</button>}
+          <button className="button ghost" type="button" onClick={signOut} disabled={loading}>Sign Out</button>
+        </div> : <form onSubmit={saveProfile} style={{ display: 'grid', gap: '10px' }}>
           <p style={{ marginTop: 0, opacity: .72, fontSize: '.86rem' }}>{user.email}</p>
           {!profileComplete && <p style={{ margin: '0 0 4px', lineHeight: 1.45 }}>Choose how you want to appear in TwoBall. You can change both later.</p>}
           <label htmlFor="twoball-display-name" style={{ color: '#fff4d6', fontWeight: 900 }}>Display Name</label>
@@ -212,9 +241,8 @@ export default function AccountProfileModal({ open, onClose }) {
           <label htmlFor="twoball-username" style={{ color: '#fff4d6', fontWeight: 900 }}>Username</label>
           <input id="twoball-username" value={username} onChange={event => setUsername(cleanUsername(event.target.value))} placeholder="Choose a username" autoCapitalize="none" autoCorrect="off" style={{ background: '#fff', color: '#111' }} />
           <p style={{ margin: '-4px 0 4px', opacity: .66, fontSize: '.78rem' }}>3-24 characters. Uppercase/lowercase letters, numbers and underscores. Friends can search for you without matching capitalization.</p>
-          <button className="button primary" type="submit" disabled={loading || !displayName.trim() || cleanUsername(username).trim().length < 3}>{profileComplete ? 'Update Profile' : 'Save My Profile'}</button>
-          {profileComplete && accountPlayer && <button className="button secondary" type="button" onClick={() => setShowStats(true)}>My Stats</button>}
-          {profileComplete && <button className="button ghost" type="button" onClick={signOut} disabled={loading}>Sign Out</button>}
+          <button className="button primary" type="submit" disabled={loading || !displayName.trim() || cleanUsername(username).trim().length < 3}>{profileComplete ? 'Save Changes' : 'Save My Profile'}</button>
+          {profileComplete && <button className="button secondary" type="button" onClick={cancelEdit} disabled={loading}>Cancel</button>}
         </form>}
 
         {status && <p className="status-line" style={{ marginBottom: 0 }}>{status}</p>}
