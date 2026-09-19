@@ -1,4 +1,6 @@
-import '@fontsource/bebas-neue/400.css';
+import '@fontsource/barlow-condensed/400.css';
+import '@fontsource/barlow-condensed/700.css';
+import '@fontsource/barlow-condensed/900.css';
 import './globals.css';
 import './mobile-fixes.css';
 import './rule-result-polish.css';
