@@ -293,7 +293,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
       </> : selectedProfile ? <PlayerProfileStats profile={selectedProfile} onBack={() => setSelectedProfile(null)} /> : <>
         <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
           <div><p className="eyebrow">{browseOnly ? 'Your TwoBall players' : 'Round players'}</p><h2 style={{ fontSize: 'clamp(2rem, 7vw, 3.5rem)' }}>{browseOnly ? 'Players' : 'Add Player'}</h2></div>
-          <button className="button secondary" onClick={onClose}>Close</button>
+          <button className="button primary" onClick={onClose}>Close</button>
         </div>
 
         {me && <section><p style={{ margin: '0 0 10px', color: '#fff4d6', fontWeight: 900 }}>You</p><div style={{ display: 'grid', gap: '8px' }}>{renderPlayer(me)}</div></section>}
