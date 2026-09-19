@@ -1,6 +1,6 @@
 /* Keep TwoBall display typography identical across Android, iPhone and desktop. */
 :root{
-  --tbd-display-font:"Anton",sans-serif;
+  --tbd-display-font:"Bebas Neue",sans-serif;
 }
 
 h1,
@@ -24,4 +24,9 @@ h3,
 .hero-card .hero-copy h1:before{
   font-family:var(--tbd-display-font)!important;
   font-weight:400!important;
+}
+
+.hero-card .hero-copy h1:before{
+  letter-spacing:.005em!important;
+  line-height:.91!important;
 }
