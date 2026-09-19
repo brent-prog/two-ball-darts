@@ -162,7 +162,7 @@ export default function FriendsModal({ open, onClose }) {
     <div className="card" style={{ width: 'min(620px,96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}>
       <div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}>
         <div><p className="eyebrow">TwoBall network</p><h2 style={{ fontSize: 'clamp(2rem,7vw,3.5rem)' }}>Friends</h2></div>
-        <button className="button secondary" onClick={onClose}>Close</button>
+        <button className="button primary" onClick={onClose}>Close</button>
       </div>
 
       {myProfile && <form onSubmit={searchUsername} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) auto', gap: '8px', marginBottom: '18px' }}>
