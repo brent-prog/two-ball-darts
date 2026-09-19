@@ -1,6 +1,6 @@
 /* Keep TwoBall display typography identical across Android, iPhone and desktop. */
 :root{
-  --tbd-display-font:"Barlow Condensed",sans-serif;
+  --tbd-display-font:"Anton",sans-serif;
 }
 
 h1,
@@ -16,10 +16,12 @@ h3,
 .tbd-score-modal h3,
 .tbd-dart-assist-title{
   font-family:var(--tbd-display-font)!important;
+  font-weight:400!important;
 }
 
 .hero-card .tbd-primary-logo-type strong,
 .hero-card .tbd-primary-logo-type span,
 .hero-card .hero-copy h1:before{
-  font-weight:900!important;
+  font-family:var(--tbd-display-font)!important;
+  font-weight:400!important;
 }
