@@ -592,7 +592,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (!draftHydrated || !showScoringMode || !hasRoundScores(players)) return;
+    if (!draftHydrated || !showScoringMode || isSaving || !hasRoundScores(players)) return;
     if (autosaveTimeoutRef.current) window.clearTimeout(autosaveTimeoutRef.current);
     const snapshot = players.map(player => ({ ...player, scores: { ...player.scores } }));
     autosaveTimeoutRef.current = window.setTimeout(() => {
@@ -605,11 +605,18 @@ export default function Home() {
         autosaveTimeoutRef.current = null;
       }
     };
-  }, [draftHydrated, players, showScoringMode]);
+  }, [draftHydrated, players, showScoringMode, isSaving]);
 
   async function saveRound() {
     if (savedGameId && !isRoundDirty) { setStatus('Round already saved. Change a player or score to save updates.'); return; }
+    if (autosaveTimeoutRef.current) {
+      window.clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
     setIsSaving(true); setStatus('Saving round...');
+    while (autosaveInFlightRef.current) {
+      await new Promise(resolve => window.setTimeout(resolve, 50));
+    }
     const ownerKey = getOwnerKey(); const roundLabel = currentRoundComplete(players) ? 'Official 18' : 'Incomplete round'; let gameId = savedGameId; let createdNewGame = false;
     try {
       if (gameId) { const { error: gameUpdateError } = await supabase.from('games').update({ course_name: roundLabel, status: 'complete' }).eq('id', gameId).eq('owner_key', ownerKey); if (gameUpdateError) throw new Error(gameUpdateError.message || 'Could not update saved round.'); }
