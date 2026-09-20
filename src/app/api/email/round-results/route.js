@@ -71,7 +71,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
               <tr>
                 <td style="padding:28px 24px 24px;">
                   <div style="text-align:center;margin:0 0 24px;">
-                    <img src="${LOGO_URL}" alt="Two Ball Darts" width="320" style="display:inline-block;width:320px;max-width:86%;height:auto;border:0;outline:none;text-decoration:none;" />
+                    <img src="cid:twoball-logo" alt="Two Ball Darts" width="320" style="display:inline-block;width:320px;max-width:86%;height:auto;border:0;outline:none;text-decoration:none;" />
                   </div>
                   <div style="height:1px;background:#315447;margin:0 0 22px;"></div>
                   <div style="font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:#d0a948;font-weight:900;">Final Results</div>
@@ -234,7 +234,14 @@ export async function POST(request) {
         replyTo: 'info@twoballdarts.com',
         subject,
         html: emailHtml(payload),
-        text: emailText(payload)
+        text: emailText(payload),
+        attachments: [
+          {
+            path: LOGO_URL,
+            filename: 'twoball-logo.png',
+            contentId: 'twoball-logo'
+          }
+        ]
       },
       { idempotencyKey: `twoball-results-${gameId}-${recipient.profileId}` }
     );
