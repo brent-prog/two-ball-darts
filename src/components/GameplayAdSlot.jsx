@@ -35,6 +35,12 @@ const DEFAULT_CREATIVES = [
     imageSrc: '/tiger-plumbing-app-banner.webp',
     imageAlt: 'Tiger Plumbing - A leak is a hazard. You don’t play through.',
     href: 'https://www.tigerplumbing.ca/'
+  },
+  {
+    id: 'inflight-institute',
+    imageSrc: '/inflight-institute-app-banner.webp',
+    imageAlt: 'Inflight Institute - Your career could take off from here.',
+    href: 'https://www.inflightinstitute.com/'
   }
 ];
 
