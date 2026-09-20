@@ -172,3 +172,18 @@
 @media(prefers-reduced-motion:reduce){
   #scorecard .tbd-ad-motion span{animation:none!important;}
 }
+
+#scorecard .tbd-gameplay-ad .tbd-ad-image{
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:88px;
+  object-fit:cover;
+  object-position:center;
+}
+
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-image{
+    min-height:76px;
+  }
+}
