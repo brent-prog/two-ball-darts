@@ -195,7 +195,7 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
   return <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`}>
     <div className="tbd-player-score-main">
       <div className="tbd-player-name-line">
-        <span className={badgeClasses.join(' ')}>{scored || totalScore !== 0 ? fmt(totalScore) : '-'}</span>
+        <span className={badgeClasses.join(' ')}>{fmt(totalScore)}</span>
         {hasHonours && <span className="tbd-honours-chip">H</span>}
         {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
       </div>
