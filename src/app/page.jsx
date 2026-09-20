@@ -161,6 +161,11 @@ function SavedScorecard({ game, rows, onClose }) {
   return <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.78)', padding: '24px', display: 'grid', placeItems: 'center' }}><div className="card" style={{ width: 'min(1180px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0 }}><div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}><div><p className="eyebrow">Viewing saved round</p><h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.6rem)' }}>{game.title}</h2><p style={{ margin: '6px 0 0' }}>{new Date(game.played_at).toLocaleString()}</p></div><button className="button primary" onClick={onClose}>Close</button></div><LiveScorecard players={savedPlayers} /></div></div>;
 }
 
+
+function RoundCompleteModal({ players, onClose, onMainMenu, onNewRound }) {
+  return <div style={{ position: 'fixed', inset: 0, zIndex: 320, background: 'rgba(0,0,0,.82)', padding: '16px', display: 'grid', placeItems: 'center' }}><div className="card" style={{ width: 'min(1180px, 98vw)', maxHeight: '92vh', overflow: 'auto', margin: 0 }}><div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}><div><p className="eyebrow">18 holes complete</p><h2 style={{ fontSize: 'clamp(2rem, 7vw, 4rem)' }}>Round Complete</h2></div></div><LiveScorecard players={players} /><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px', marginTop: '16px' }}><button className="button secondary" onClick={onClose}>Back to Round</button><button className="button secondary" onClick={onMainMenu}>Main Menu</button><button className="button primary" onClick={onNewRound}>Start New Round</button></div></div></div>;
+}
+
 function HowToPlayModal({ onClose }) {
   const cheatRows = [
     ['Eagle', 'Both darts hit double/triple target', '-2'],
@@ -253,6 +258,7 @@ export default function Home() {
   const [selectedGame, setSelectedGame] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [showScorecard, setShowScorecard] = useState(false);
+  const [showRoundComplete, setShowRoundComplete] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showPlayerProfiles, setShowPlayerProfiles] = useState(false);
   const [showRemovePlayer, setShowRemovePlayer] = useState(false);
@@ -425,6 +431,7 @@ export default function Home() {
     setIsRoundDirty(true);
     setStatus('');
     setShowScorecard(false);
+    setShowRoundComplete(false);
     setIsAdvancing(false);
     setActiveHole(1);
     setPlayers(current => current.map(player => ({ ...player, scores: {} })));
@@ -452,6 +459,10 @@ export default function Home() {
   function saveButtonLabel() { if (isSaving) return 'Saving...'; if (savedGameId && !isRoundDirty) return 'Saved'; if (savedGameId && isRoundDirty) return 'Save changes'; return 'Save round'; }
   function applyScore(playerId, scoreKey) { updateScore(playerId, scoreKey); setScoringPlayerId(null); }
   function clearScore(playerId) { updateScore(playerId, ''); setScoringPlayerId(null); }
+
+  useEffect(() => {
+    if (showScoringMode && currentRoundComplete(players)) setShowRoundComplete(true);
+  }, [showScoringMode, players]);
 
   useEffect(() => {
     if (!showScoringMode || !isActiveHoleComplete || activeHole >= 18) return;
@@ -639,9 +650,9 @@ export default function Home() {
 
       setStatus(`Round saved as ${roundLabel}.${emailStatus}`);
       if (currentRoundComplete(players)) {
-        setShowScorecard(true);
         setSelectedGame(null);
         setSelectedRows([]);
+        setShowRoundComplete(true);
         await loadHistory();
       } else {
         await loadHistory(gameId);
@@ -684,6 +695,6 @@ export default function Home() {
     </section>
     {!showScoringMode && <section className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>{historyStatus && <p className="status-line">{historyStatus}</p>}<div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span>{!isSavedRoundComplete(game) && <button className="button secondary" style={{ marginTop: '10px', marginRight: '8px' }} onClick={() => resumeSavedGame(game)}>Resume Round</button>}<button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}</div></section>}
     {!showScoringMode && <footer style={{ marginTop: '22px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '22px', padding: '18px', background: 'linear-gradient(180deg, rgba(6,57,39,.88), rgba(2,20,15,.96))', boxShadow: '0 18px 44px rgba(0,0,0,.35)' }}><div style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 240px) 1fr', gap: '16px', alignItems: 'center' }}><img src="/two-ball-darts-logo-clean.webp" alt="TWO BALL DARTS" style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} /><div><span style={{ color: '#d0a948', fontWeight: 900 }}>No gimmes. Just throw.</span><p style={{ margin: '6px 0 0', color: '#f5e8c6' }}>18 holes. Two darts per hole. Bulls, 19s, and 20s are hazards.</p></div></div></footer>}
-    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />
+    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />{showRoundComplete && <RoundCompleteModal players={players} onClose={() => setShowRoundComplete(false)} onMainMenu={() => { setShowRoundComplete(false); setShowScoringMode(false); }} onNewRound={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(true); }} />}
   </main>;
 }
