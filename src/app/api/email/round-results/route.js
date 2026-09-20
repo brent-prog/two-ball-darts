@@ -7,8 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const FROM = 'TwoBall Darts <login@twoballdarts.com>';
 const PLAY_URL = 'https://play.twoballdarts.com';
-const LOGO_URL = `${PLAY_URL}/api/email/logo?v=1`;
-const LOGO_CID = 'twoball-official-logo';
+const LOGO_URL = `${PLAY_URL}/api/email/logo?v=2`;
 const SWAG_URL = process.env.TWOBALL_SWAG_URL || 'https://twoballdarts.com';
 
 function escapeHtml(value = '') {
@@ -72,7 +71,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
               <tr>
                 <td style="padding:28px 24px 24px;">
                   <div style="text-align:center;margin:0 0 24px;">
-                    <img src="cid:${LOGO_CID}" alt="Two Ball Darts" width="320" style="display:inline-block;width:320px;max-width:86%;height:auto;border:0;outline:none;text-decoration:none;" />
+                    <img src="${LOGO_URL}" alt="Two Ball Darts" width="320" style="display:inline-block;width:320px;max-width:86%;height:auto;border:0;outline:none;text-decoration:none;" />
                   </div>
                   <div style="height:1px;background:#315447;margin:0 0 22px;"></div>
                   <div style="font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:#d0a948;font-weight:900;">Final Results</div>
@@ -235,14 +234,7 @@ export async function POST(request) {
         replyTo: 'info@twoballdarts.com',
         subject,
         html: emailHtml(payload),
-        text: emailText(payload),
-        attachments: [
-          {
-            path: LOGO_URL,
-            filename: 'twoball-logo.png',
-            contentId: LOGO_CID
-          }
-        ]
+        text: emailText(payload)
       },
       { idempotencyKey: `twoball-results-${gameId}-${recipient.profileId}` }
     );
