@@ -236,6 +236,10 @@ export default function Home() {
   const [scoringPlayerId, setScoringPlayerId] = useState(null);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const lastAutoAdvanceHoleRef = useRef(null);
+  const autoAdvanceArmedHoleRef = useRef(null);
+  const autoAdvanceTimeoutRef = useRef(null);
+  const holeChangeTimeoutRef = useRef(null);
+  const holeSettleTimeoutRef = useRef(null);
 
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
   const leaderScore = total(leader);
@@ -245,7 +249,10 @@ export default function Home() {
 
   function markRoundDirty() { setIsRoundDirty(true); setStatus(''); }
   function updateScoreForHole(playerId, score, hole) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
-  function updateScore(playerId, score) { updateScoreForHole(playerId, score, activeHole); }
+  function updateScore(playerId, score) {
+    autoAdvanceArmedHoleRef.current = activeHole;
+    updateScoreForHole(playerId, score, activeHole);
+  }
   function updateName(playerId, name) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId && player.isGuest ? { ...player, name, playerId: null } : player)); }
   function openPlayerPicker(playerId = null) { setPlayerPickerTargetId(playerId); setShowPlayerProfiles(true); }
   function closePlayerPicker() { setShowPlayerProfiles(false); setPlayerPickerTargetId(null); }
@@ -281,15 +288,70 @@ export default function Home() {
     setShowRemovePlayer(false);
     markRoundDirty();
   }
-  function resetRound() { lastAutoAdvanceHoleRef.current = null; setSavedGameId(null); setIsRoundDirty(true); setStatus(''); setShowScorecard(false); setActiveHole(1); setPlayers(current => current.map(player => ({ ...player, scores: {} }))); }
-  function changeHole(nextHole) { setIsAdvancing(true); window.setTimeout(() => { setActiveHole(nextHole); window.setTimeout(() => setIsAdvancing(false), 620); }, 120); }
-  function goToPreviousHole() { if (activeHole > 1) changeHole(activeHole - 1); }
-  function goToNextHole() { if (activeHole < 18) changeHole(activeHole + 1); }
+  function clearHoleNavigationTimers() {
+    if (autoAdvanceTimeoutRef.current) window.clearTimeout(autoAdvanceTimeoutRef.current);
+    if (holeChangeTimeoutRef.current) window.clearTimeout(holeChangeTimeoutRef.current);
+    if (holeSettleTimeoutRef.current) window.clearTimeout(holeSettleTimeoutRef.current);
+    autoAdvanceTimeoutRef.current = null;
+    holeChangeTimeoutRef.current = null;
+    holeSettleTimeoutRef.current = null;
+  }
+  function resetRound() {
+    clearHoleNavigationTimers();
+    lastAutoAdvanceHoleRef.current = null;
+    autoAdvanceArmedHoleRef.current = null;
+    setSavedGameId(null);
+    setIsRoundDirty(true);
+    setStatus('');
+    setShowScorecard(false);
+    setIsAdvancing(false);
+    setActiveHole(1);
+    setPlayers(current => current.map(player => ({ ...player, scores: {} })));
+  }
+  function changeHole(nextHole, { manual = false } = {}) {
+    const clampedHole = Math.max(1, Math.min(18, nextHole));
+    clearHoleNavigationTimers();
+    if (manual) autoAdvanceArmedHoleRef.current = null;
+    if (clampedHole === activeHole) {
+      setIsAdvancing(false);
+      return;
+    }
+    setIsAdvancing(true);
+    holeChangeTimeoutRef.current = window.setTimeout(() => {
+      setActiveHole(clampedHole);
+      holeChangeTimeoutRef.current = null;
+      holeSettleTimeoutRef.current = window.setTimeout(() => {
+        setIsAdvancing(false);
+        holeSettleTimeoutRef.current = null;
+      }, 620);
+    }, 120);
+  }
+  function goToPreviousHole() { if (activeHole > 1) changeHole(activeHole - 1, { manual: true }); }
+  function goToNextHole() { if (activeHole < 18) changeHole(activeHole + 1, { manual: true }); }
   function saveButtonLabel() { if (isSaving) return 'Saving...'; if (savedGameId && !isRoundDirty) return 'Saved'; if (savedGameId && isRoundDirty) return 'Save changes'; return 'Save round'; }
   function applyScore(playerId, scoreKey) { updateScore(playerId, scoreKey); setScoringPlayerId(null); }
   function clearScore(playerId) { updateScore(playerId, ''); setScoringPlayerId(null); }
 
-  useEffect(() => { if (!showScoringMode || !isActiveHoleComplete || activeHole >= 18 || lastAutoAdvanceHoleRef.current === activeHole) return; lastAutoAdvanceHoleRef.current = activeHole; const timeoutId = window.setTimeout(() => goToNextHole(), 760); return () => window.clearTimeout(timeoutId); }, [showScoringMode, isActiveHoleComplete, activeHole]);
+  useEffect(() => {
+    if (!showScoringMode || !isActiveHoleComplete || activeHole >= 18) return;
+    if (autoAdvanceArmedHoleRef.current !== activeHole || lastAutoAdvanceHoleRef.current === activeHole) return;
+
+    lastAutoAdvanceHoleRef.current = activeHole;
+    autoAdvanceTimeoutRef.current = window.setTimeout(() => {
+      autoAdvanceTimeoutRef.current = null;
+      autoAdvanceArmedHoleRef.current = null;
+      changeHole(activeHole + 1);
+    }, 760);
+
+    return () => {
+      if (autoAdvanceTimeoutRef.current) {
+        window.clearTimeout(autoAdvanceTimeoutRef.current);
+        autoAdvanceTimeoutRef.current = null;
+      }
+    };
+  }, [showScoringMode, isActiveHoleComplete, activeHole]);
+
+  useEffect(() => () => clearHoleNavigationTimers(), []);
 
   async function cleanupFailedGame(gameId) { if (!gameId) return; await supabase.from('games').delete().eq('id', gameId); }
   async function writeRoundRows(gameId) {
@@ -337,6 +399,8 @@ export default function Home() {
     setSelectedGame(null);
     setSelectedRows([]);
     lastAutoAdvanceHoleRef.current = null;
+    autoAdvanceArmedHoleRef.current = null;
+    clearHoleNavigationTimers();
     setStatus('Incomplete round resumed.');
     setHistoryStatus('Incomplete round resumed.');
   }
