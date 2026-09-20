@@ -213,9 +213,19 @@ function DartChoiceGroup({ label, value, setValue }) {
 function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose }) {
   const [dartOne, setDartOne] = useState('');
   const [dartTwo, setDartTwo] = useState('');
+  const [dartAnnouncement, setDartAnnouncement] = useState(null);
   const dartResult = scoreTwoDarts(dartOne, dartTwo);
-  const canApply = Boolean(dartResult.scoreKey);
-  return <div className="tbd-score-modal-shell"><div className="card tbd-score-modal-card"><div className="tbd-score-modal-title-row"><div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div><button className="button secondary" onClick={onClose}>Close</button></div><div className="tbd-quick-score-grid">{scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}>{result.label} {fmt(result.score)}</button>)}</div><div className="tbd-dart-score-card"><p className="eyebrow">Score by Darts</p><div className="tbd-dart-select-grid has-custom-dart-pickers"><DartChoiceGroup label="Dart 1" value={dartOne} setValue={setDartOne} /><DartChoiceGroup label="Dart 2" value={dartTwo} setValue={setDartTwo} /></div><div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div><button className="button primary" style={{ marginTop: '12px', width: '100%' }} disabled={!canApply} onClick={() => onScore(dartResult.scoreKey)}>Apply Dart Result</button></div><button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button></div></div>;
+
+  function chooseDart(setter, value, otherDart) {
+    setter(value);
+    if (!otherDart) return;
+    const result = scoreTwoDarts(setter === setDartOne ? value : otherDart, setter === setDartTwo ? value : otherDart);
+    if (!result.scoreKey) return;
+    setDartAnnouncement(result);
+    window.setTimeout(() => onScore(result.scoreKey), 1000);
+  }
+
+  return <div className="tbd-score-modal-shell"><div className="card tbd-score-modal-card"><div className="tbd-score-modal-title-row"><div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div><button className="button secondary" onClick={onClose}>Close</button></div><div className="tbd-quick-score-grid">{scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}>{result.label} {fmt(result.score)}</button>)}</div><div className="tbd-dart-score-card"><p className="eyebrow">Score by Darts</p><div className="tbd-dart-select-grid has-custom-dart-pickers"><DartChoiceGroup label="Dart 1" value={dartOne} setValue={value => chooseDart(setDartOne, value, dartTwo)} /><DartChoiceGroup label="Dart 2" value={dartTwo} setValue={value => chooseDart(setDartTwo, value, dartOne)} /></div>{dartAnnouncement ? <div className="rule-answer" style={{ marginTop: '12px', textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.6rem' }}>{dartAnnouncement.title.toUpperCase()}! {fmt(scoreByKey.get(dartAnnouncement.scoreKey)?.score ?? 0)}</strong><p style={{ margin: '6px 0 0' }}>{dartAnnouncement.answer}</p></div> : <div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div>}</div><button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button></div></div>;
 }
 
 export default function Home() {
