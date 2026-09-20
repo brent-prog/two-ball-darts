@@ -353,6 +353,25 @@ export default function Home() {
 
   useEffect(() => () => clearHoleNavigationTimers(), []);
 
+  async function sendCompletedRoundEmails(gameId) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) return { sent: 0, skipped: 'No signed-in participant.' };
+
+    const response = await fetch('/api/email/round-results', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ gameId })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Could not send post-game emails.');
+    return payload;
+  }
+
   async function cleanupFailedGame(gameId) { if (!gameId) return; await supabase.from('games').delete().eq('id', gameId); }
   async function writeRoundRows(gameId) {
     if (savedGameId) { const { error: deleteError } = await supabase.from('game_players').delete().eq('game_id', gameId); if (deleteError) throw new Error(deleteError.message || 'Could not clear previous saved player rows.'); }
@@ -377,7 +396,24 @@ export default function Home() {
     try {
       if (gameId) { const { error: gameUpdateError } = await supabase.from('games').update({ course_name: roundLabel, status: 'complete' }).eq('id', gameId).eq('owner_key', ownerKey); if (gameUpdateError) throw new Error(gameUpdateError.message || 'Could not update saved round.'); }
       else { const { data: game, error: gameError } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, course_name: roundLabel, status: 'complete' }).select('id,title,played_at,course_name').single(); if (gameError || !game) throw new Error(gameError?.message || 'Could not create saved round.'); gameId = game.id; createdNewGame = true; }
-      await writeRoundRows(gameId); setSavedGameId(gameId); setIsRoundDirty(false); setStatus(`Round saved as ${roundLabel}.`); await loadHistory(gameId);
+      await writeRoundRows(gameId);
+      setSavedGameId(gameId);
+      setIsRoundDirty(false);
+
+      let emailStatus = '';
+      if (currentRoundComplete(players)) {
+        try {
+          const emailResult = await sendCompletedRoundEmails(gameId);
+          if (emailResult?.alreadySent) emailStatus = ' Results were already emailed.';
+          else if (emailResult?.sent > 0) emailStatus = ` ${emailResult.sent} result email${emailResult.sent === 1 ? '' : 's'} sent.`;
+        } catch (emailError) {
+          console.warn('Round saved, but post-game email failed.', emailError);
+          emailStatus = ' Result email could not be sent.';
+        }
+      }
+
+      setStatus(`Round saved as ${roundLabel}.${emailStatus}`);
+      await loadHistory(gameId);
     } catch (error) { if (createdNewGame) await cleanupFailedGame(gameId); setStatus(`Save failed: ${error.message}`); }
     finally { setIsSaving(false); }
   }
