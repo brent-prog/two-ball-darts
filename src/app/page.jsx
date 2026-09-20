@@ -575,14 +575,21 @@ export default function Home() {
     }
   }
   async function autosaveActiveRound(roundPlayers) {
-    if (autosaveInFlightRef.current || !hasRoundScores(roundPlayers)) return;
+    if (autosaveInFlightRef.current || !isRoundDirty || !hasRoundScores(roundPlayers)) return;
     autosaveInFlightRef.current = true;
     const ownerKey = getOwnerKey();
     let gameId = savedGameId;
     try {
       if (gameId) {
-        const { error: updateError } = await supabase.from('games').update({ course_name: 'Round In Progress', status: 'active' }).eq('id', gameId).eq('owner_key', ownerKey);
+        const { data: updatedGames, error: updateError } = await supabase
+          .from('games')
+          .update({ course_name: 'Round In Progress' })
+          .eq('id', gameId)
+          .eq('owner_key', ownerKey)
+          .eq('status', 'active')
+          .select('id');
         if (updateError) throw updateError;
+        if (!updatedGames?.length) return;
       } else {
         const { data: game, error: gameError } = await supabase.from('games').insert({
           owner_key: ownerKey,
@@ -603,7 +610,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (!draftHydrated || !showScoringMode || isSaving || !hasRoundScores(players)) return;
+    if (!draftHydrated || !showScoringMode || isSaving || !isRoundDirty || !hasRoundScores(players)) return;
     if (autosaveTimeoutRef.current) window.clearTimeout(autosaveTimeoutRef.current);
     const snapshot = players.map(player => ({ ...player, scores: { ...player.scores } }));
     autosaveTimeoutRef.current = window.setTimeout(() => {
@@ -616,7 +623,7 @@ export default function Home() {
         autosaveTimeoutRef.current = null;
       }
     };
-  }, [draftHydrated, players, showScoringMode, isSaving]);
+  }, [draftHydrated, players, showScoringMode, isSaving, isRoundDirty]);
 
   async function saveRound() {
     if (savedGameId && !isRoundDirty) { setStatus('Round already saved. Change a player or score to save updates.'); return; }
@@ -635,6 +642,11 @@ export default function Home() {
       await writeRoundRows(gameId);
       setSavedGameId(gameId);
       setIsRoundDirty(false);
+      if (autosaveTimeoutRef.current) {
+        window.clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+      }
+      try { window.localStorage.removeItem(IN_PROGRESS_ROUND_KEY); } catch {}
 
       let emailStatus = '';
       if (currentRoundComplete(players)) {
