@@ -102,11 +102,11 @@ No gimmes. Just throw.`;
 
 export async function POST(request) {
   const apiKey = process.env.RESEND_API_KEY;
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vgvjlykedwahxknkyhra.supabase.co';
+  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_nKJ1AQ0YRzogBz4HbKvXPA_GBTRsNyt';
 
-  if (!apiKey || !supabaseUrl || !publishableKey) {
-    console.error('Post-game email environment is not fully configured.');
+  if (!apiKey) {
+    console.error('Post-game email environment is missing RESEND_API_KEY.');
     return NextResponse.json({ error: 'Post-game email is not configured.' }, { status: 503 });
   }
 
