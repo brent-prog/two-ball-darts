@@ -594,3 +594,28 @@ body{
     margin-bottom:9px;
   }
 }
+
+
+/* Shared scorecard presentation - force saved/final and live scorecards to render identically. */
+.scorecard-table-wrap{
+  border:4px solid #f5e8c6;
+  border-radius:22px;
+  padding:8px;
+  background:#02140f;
+}
+
+.scorecard-table{
+  border:0!important;
+}
+
+.scorecard-table thead tr:first-child th{
+  border-bottom:4px solid #be1412;
+}
+
+@media(max-width:600px){
+  .scorecard-table-wrap{
+    border-width:3px;
+    border-radius:18px;
+    padding:6px;
+  }
+}
