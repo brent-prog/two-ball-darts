@@ -572,3 +572,25 @@ body{
     max-width:64px;
   }
 }
+
+
+/* Make the two required dart selections unmistakable in Score by Darts. */
+.tbd-custom-dart-picker-heading{
+  display:block;
+  margin:0 0 8px;
+  padding:6px 8px;
+  border-bottom:2px solid #d0a948;
+  color:#fff4d6;
+  font-size:1.15rem;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+@media(max-width:600px){
+  .tbd-custom-dart-picker-heading{
+    font-size:1.22rem;
+    margin-bottom:9px;
+  }
+}
