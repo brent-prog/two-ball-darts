@@ -94,7 +94,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                     <tr>
                       <td style="font-family:'Barlow Condensed','Arial Narrow',Arial,Helvetica,sans-serif;font-size:16px;letter-spacing:1.2px;text-transform:uppercase;color:#d0a948;font-weight:900;">Keep Fun Simple</td>
-                      <td align="right" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#f5e8c6;">A RockPail Production</td>
+                      <td align="right"><a href="https://rockpail.com" style="text-decoration:none;"><img src="${PLAY_URL}/rockpail-production-white-footer.webp" alt="A RockPail Production" width="150" style="display:inline-block;width:150px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;" /></a></td>
                     </tr>
                   </table>
                 </td>
