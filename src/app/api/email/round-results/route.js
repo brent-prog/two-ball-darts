@@ -246,14 +246,7 @@ export async function POST(request) {
         replyTo: 'info@twoballdarts.com',
         subject,
         html: emailHtml(payload),
-        text: emailText(payload),
-        attachments: [
-          {
-            path: LOGO_URL,
-            filename: 'twoball-logo.png',
-            contentId: 'twoball-logo'
-          }
-        ]
+        text: emailText(payload)
       },
       { idempotencyKey: `twoball-results-${gameId}-${recipient.profileId}` }
     );
