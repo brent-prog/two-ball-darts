@@ -107,11 +107,10 @@ No gimmes. Just throw.`;
 
 export async function POST(request) {
   const apiKey = process.env.RESEND_API_KEY;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-  if (!apiKey || !serviceRoleKey || !supabaseUrl || !publishableKey) {
+  if (!apiKey || !supabaseUrl || !publishableKey) {
     console.error('Post-game email environment is not fully configured.');
     return NextResponse.json({ error: 'Post-game email is not configured.' }, { status: 503 });
   }
@@ -132,83 +131,54 @@ export async function POST(request) {
   const gameId = body?.gameId;
   if (!gameId) return NextResponse.json({ error: 'Game ID is required.' }, { status: 400 });
 
-  const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+  const authedSupabase = createClient(supabaseUrl, publishableKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
     auth: { persistSession: false, autoRefreshToken: false }
   });
 
-  const { data: game, error: gameError } = await adminSupabase
-    .from('games')
-    .select('id,title,played_at,course_name,status,owner_profile_id,results_email_sent_at,game_players(id,total_score,total_strokes,player_id,players(id,display_name,profile_id),hole_scores(hole_number))')
-    .eq('id', gameId)
-    .single();
+  const { data: recipientRows, error: recipientsError } = await authedSupabase.rpc(
+    'get_round_result_email_recipients',
+    { p_game_id: gameId }
+  );
 
-  if (gameError || !game) {
-    return NextResponse.json({ error: 'Round not found.' }, { status: 404 });
+  if (recipientsError) {
+    const message = recipientsError.message || 'Unable to load round result recipients.';
+    if (/not authorized/i.test(message)) {
+      return NextResponse.json({ error: 'You are not authorized to send results for this round.' }, { status: 403 });
+    }
+    if (/not complete/i.test(message)) {
+      return NextResponse.json({ error: 'Result emails are only sent for completed 18-hole rounds.' }, { status: 409 });
+    }
+    console.error('Unable to load round result recipients.', recipientsError);
+    return NextResponse.json({ error: 'Unable to load round result recipients.' }, { status: 502 });
   }
 
-  if (game.results_email_sent_at) {
+  const rows = recipientRows || [];
+  if (!rows.length) {
+    return NextResponse.json({ sent: 0, skipped: 'No signed-in participants have email addresses.' });
+  }
+
+  if (rows[0].results_email_sent_at) {
     return NextResponse.json({ sent: 0, alreadySent: true });
   }
 
-  const gamePlayers = game.game_players || [];
-  if (!gamePlayers.length || !gamePlayers.every(completePlayer)) {
-    return NextResponse.json({ error: 'Result emails are only sent for completed 18-hole rounds.' }, { status: 409 });
-  }
-
-  const { data: callerProfile } = await adminSupabase
-    .from('profiles')
-    .select('id')
-    .eq('user_id', authData.user.id)
-    .maybeSingle();
-
-  const callerIsParticipant = callerProfile?.id && gamePlayers.some(row => row.players?.profile_id === callerProfile.id);
-  const callerOwnsGame = callerProfile?.id && game.owner_profile_id === callerProfile.id;
-  if (!callerIsParticipant && !callerOwnsGame) {
-    return NextResponse.json({ error: 'You are not authorized to send results for this round.' }, { status: 403 });
-  }
-
-  const standings = gamePlayers
+  const standings = rows
     .map(row => ({
-      display_name: row.players?.display_name || 'Player',
-      profile_id: row.players?.profile_id || null,
+      display_name: row.display_name || 'Player',
+      profile_id: row.profile_id,
       total_score: Number(row.total_score) || 0
     }))
     .sort((a, b) => a.total_score - b.total_score || a.display_name.localeCompare(b.display_name));
 
   const bestScore = standings[0]?.total_score ?? 0;
   const winnerNames = standings.filter(row => row.total_score === bestScore).map(row => row.display_name);
-  const profileIds = [...new Set(standings.map(row => row.profile_id).filter(Boolean))];
 
-  if (!profileIds.length) {
-    return NextResponse.json({ sent: 0, skipped: 'No signed-in participants have email addresses.' });
-  }
-
-  const { data: profiles, error: profilesError } = await adminSupabase
-    .from('profiles')
-    .select('id,user_id,display_name')
-    .in('id', profileIds);
-
-  if (profilesError) {
-    console.error('Unable to load participant profiles for result email.', profilesError);
-    return NextResponse.json({ error: 'Unable to load participant profiles.' }, { status: 502 });
-  }
-
-  const recipients = (await Promise.all((profiles || []).map(async profile => {
-    const { data, error } = await adminSupabase.auth.admin.getUserById(profile.user_id);
-    if (error || !data?.user?.email) return null;
-    const standing = standings.find(row => row.profile_id === profile.id);
-    if (!standing) return null;
-    return {
-      profileId: profile.id,
-      email: data.user.email,
-      displayName: profile.display_name || standing.display_name,
-      totalScore: standing.total_score
-    };
-  }))).filter(Boolean);
-
-  if (!recipients.length) {
-    return NextResponse.json({ sent: 0, skipped: 'No participant email addresses were available.' });
-  }
+  const recipients = rows.map(row => ({
+    profileId: row.profile_id,
+    email: row.email,
+    displayName: row.display_name || 'Player',
+    totalScore: Number(row.total_score) || 0
+  }));
 
   const resend = new Resend(apiKey);
   const failures = [];
@@ -238,7 +208,7 @@ export async function POST(request) {
         html: emailHtml(payload),
         text: emailText(payload)
       },
-      { idempotencyKey: `twoball-results-${game.id}-${recipient.profileId}` }
+      { idempotencyKey: `twoball-results-${gameId}-${recipient.profileId}` }
     );
 
     if (error) {
@@ -253,11 +223,10 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Some result emails could not be sent.', sent, failed: failures.length }, { status: 502 });
   }
 
-  const { error: markError } = await adminSupabase
-    .from('games')
-    .update({ results_email_sent_at: new Date().toISOString() })
-    .eq('id', game.id)
-    .is('results_email_sent_at', null);
+  const { error: markError } = await authedSupabase.rpc(
+    'mark_round_results_emailed',
+    { p_game_id: gameId }
+  );
 
   if (markError) {
     console.error('Result emails sent, but delivery marker could not be saved.', markError);
