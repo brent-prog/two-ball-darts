@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const FROM = 'TwoBall Darts <login@twoballdarts.com>';
 const PLAY_URL = 'https://play.twoballdarts.com';
-const LOGO_URL = `${PLAY_URL}/brand/twoball-email-logo-v2.png`;
+const LOGO_URL = `${PLAY_URL}/brand/twoball-email-logo-v3.png`;
 const SWAG_URL = process.env.TWOBALL_SWAG_URL || 'https://twoballdarts.com';
 
 function escapeHtml(value = '') {
