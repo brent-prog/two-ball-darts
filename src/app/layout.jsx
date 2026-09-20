@@ -37,7 +37,6 @@ import './android-responsive-polish.css';
 import './display-font-consistency.css';
 import './gameplay-ad-slot.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
-import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
 import LiveScoreButtonToneEnhancer from '@/components/LiveScoreButtonToneEnhancer';
 import RockPailFooterEnhancer from '@/components/RockPailFooterEnhancer';
@@ -117,7 +116,6 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <FreshOpenTopGuard />
-        <PersistentLeaderBadgeEnhancer />
         <RoundCompletionSaveEnhancer />
         <LiveScoreButtonToneEnhancer />
         <RockPailFooterEnhancer />
