@@ -26,6 +26,12 @@ const DEFAULT_CREATIVES = [
     body: 'Less setup. More throwing.',
     cta: 'ROCKPAIL.COM',
     href: 'https://rockpail.com'
+  },
+  {
+    id: 'tiger-plumbing',
+    imageSrc: '/tiger-plumbing-app-banner.webp',
+    imageAlt: 'Tiger Plumbing - A leak is a hazard. You don’t play through.',
+    href: 'https://www.tigerplumbing.ca/'
   }
 ];
 
@@ -45,7 +51,9 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
 
   const creative = available[activeIndex % available.length];
 
-  const content = (
+  const content = creative.imageSrc ? (
+    <img className="tbd-ad-image" src={creative.imageSrc} alt={creative.imageAlt || ''} />
+  ) : (
     <>
       <div className="tbd-ad-motion" aria-hidden="true">
         <span />
