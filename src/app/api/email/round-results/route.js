@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const FROM = 'TwoBall Darts <login@twoballdarts.com>';
 const PLAY_URL = 'https://play.twoballdarts.com';
-const LOGO_URL = `${PLAY_URL}/two-ball-darts-app-icon.png`;
+const LOGO_URL = `${PLAY_URL}/two-ball-darts-logo-clean.webp?v=2`;
 const SWAG_URL = process.env.TWOBALL_SWAG_URL || 'https://twoballdarts.com';
 
 function escapeHtml(value = '') {
@@ -55,31 +55,54 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
 
   return `<!doctype html>
   <html>
-    <body style="margin:0;background:#02140f;color:#f5e8c6;font-family:Arial,Helvetica,sans-serif;">
-      <div style="max-width:600px;margin:0 auto;padding:28px 18px;">
-        <div style="border:1px solid #315447;border-radius:18px;background:#042f23;padding:24px;">
-          <div style="text-align:center;margin:0 0 22px;">
-            <img src="${LOGO_URL}" alt="TwoBall Darts" width="150" style="display:inline-block;width:150px;max-width:42%;height:auto;border:0;outline:none;text-decoration:none;" />
-          </div>
-          <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#d0a948;font-weight:800;">Final Results</div>
-          <h1 style="margin:8px 0 10px;font-size:34px;line-height:1;color:#fff4d6;">Round over, ${escapeHtml(recipientName)}.</h1>
-          <p style="margin:0 0 18px;font-size:17px;line-height:1.5;color:#f5e8c6;">${escapeHtml(line)}</p>
-          <table role="presentation" style="width:100%;border-collapse:collapse;margin:20px 0;background:#02140f;border-radius:12px;overflow:hidden;">
-            <thead>
+    <head>
+      <meta name="color-scheme" content="light only">
+      <meta name="supported-color-schemes" content="light only">
+      <style>
+        :root { color-scheme: light only; supported-color-schemes: light only; }
+        body, table, td { font-family: Arial, Helvetica, sans-serif; }
+      </style>
+    </head>
+    <body style="margin:0;padding:0;background:#02140f;background-image:linear-gradient(#02140f,#02140f);color:#f5e8c6;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#02140f" style="width:100%;background:#02140f;background-image:linear-gradient(#02140f,#02140f);">
+        <tr>
+          <td align="center" style="padding:28px 14px;background:#02140f;background-image:linear-gradient(#02140f,#02140f);">
+            <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" bgcolor="#042f23" style="width:100%;max-width:600px;border:1px solid #315447;border-radius:18px;background:#042f23;background-image:linear-gradient(#042f23,#042f23);">
               <tr>
-                <th style="padding:10px 8px;text-align:left;color:#d0a948;">#</th>
-                <th style="padding:10px 8px;text-align:left;color:#d0a948;">Player</th>
-                <th style="padding:10px 8px;text-align:right;color:#d0a948;">Score</th>
+                <td style="padding:28px 24px 24px;">
+                  <div style="text-align:center;margin:0 0 24px;">
+                    <img src="${LOGO_URL}" alt="Two Ball Darts" width="320" style="display:inline-block;width:320px;max-width:86%;height:auto;border:0;outline:none;text-decoration:none;" />
+                  </div>
+                  <div style="height:1px;background:#315447;margin:0 0 22px;"></div>
+                  <div style="font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:#d0a948;font-weight:900;">Final Results</div>
+                  <h1 style="margin:8px 0 12px;font-size:34px;line-height:1.05;color:#fff4d6;font-weight:900;">Round over, ${escapeHtml(recipientName)}.</h1>
+                  <p style="margin:0 0 20px;font-size:17px;line-height:1.5;color:#f5e8c6;">${escapeHtml(line)}</p>
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#02140f" style="width:100%;border-collapse:collapse;margin:20px 0;background:#02140f;background-image:linear-gradient(#02140f,#02140f);border:1px solid #315447;border-radius:12px;overflow:hidden;">
+                    <thead>
+                      <tr>
+                        <th style="padding:11px 9px;text-align:left;color:#d0a948;background:#063927;background-image:linear-gradient(#063927,#063927);">#</th>
+                        <th style="padding:11px 9px;text-align:left;color:#d0a948;background:#063927;background-image:linear-gradient(#063927,#063927);">Player</th>
+                        <th style="padding:11px 9px;text-align:right;color:#d0a948;background:#063927;background-image:linear-gradient(#063927,#063927);">Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                  </table>
+                  <p style="margin:18px 0 8px;font-size:15px;color:#f5e8c6;">The only reasonable response is a rematch.</p>
+                  <a href="${PLAY_URL}" style="display:block;text-align:center;background:#be1412;background-image:linear-gradient(#be1412,#be1412);color:#fff4d6;text-decoration:none;font-weight:900;padding:14px 18px;border-radius:10px;margin:12px 0;">PLAY AGAIN</a>
+                  <a href="${SWAG_URL}" style="display:block;text-align:center;border:1px solid #d0a948;color:#d0a948;text-decoration:none;font-weight:900;padding:13px 18px;border-radius:10px;margin:12px 0 0;">TWOBALL SWAG</a>
+                  <div style="height:1px;background:#315447;margin:24px 0 14px;"></div>
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                      <td style="font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#d0a948;font-weight:900;">No gimmes. Just throw.</td>
+                      <td align="right" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#f5e8c6;">A RockPail Production</td>
+                    </tr>
+                  </table>
+                </td>
               </tr>
-            </thead>
-            <tbody>${rows}</tbody>
-          </table>
-          <p style="margin:18px 0 8px;font-size:15px;color:#f5e8c6;">The only reasonable response is a rematch.</p>
-          <a href="${PLAY_URL}" style="display:block;text-align:center;background:#be1412;color:#fff4d6;text-decoration:none;font-weight:900;padding:14px 18px;border-radius:10px;margin:12px 0;">PLAY AGAIN</a>
-          <a href="${SWAG_URL}" style="display:block;text-align:center;border:1px solid #d0a948;color:#d0a948;text-decoration:none;font-weight:900;padding:13px 18px;border-radius:10px;margin:12px 0 0;">TWOBALL SWAG</a>
-        </div>
-        <p style="margin:14px 4px 0;font-size:12px;line-height:1.4;color:#9bac9f;">Keep Fun Simple</p>
-      </div>
+            </table>
+          </td>
+        </tr>
+      </table>
     </body>
   </html>`;
 }
