@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+const IMAGE_AD_WIDTH = 360;
+const IMAGE_AD_HEIGHT = 135;
+
 const DEFAULT_CREATIVES = [
   {
     id: 'swag',
@@ -52,7 +55,14 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
   const creative = available[activeIndex % available.length];
 
   const content = creative.imageSrc ? (
-    <img className="tbd-ad-image" src={creative.imageSrc} alt={creative.imageAlt || ''} />
+    <img
+      className="tbd-ad-image"
+      src={creative.imageSrc}
+      alt={creative.imageAlt || ''}
+      width={IMAGE_AD_WIDTH}
+      height={IMAGE_AD_HEIGHT}
+      decoding="async"
+    />
   ) : (
     <>
       <div className="tbd-ad-motion" aria-hidden="true">
@@ -73,7 +83,12 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
     <aside className="tbd-gameplay-ad" aria-label="TwoBall promotion">
       <span className="tbd-ad-label">AD</span>
       {creative.href ? (
-        <a href={creative.href} target="_blank" rel="noopener noreferrer">
+        <a
+          className={creative.imageSrc ? 'tbd-ad-link tbd-ad-link--image' : 'tbd-ad-link'}
+          href={creative.href}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {content}
         </a>
       ) : (
