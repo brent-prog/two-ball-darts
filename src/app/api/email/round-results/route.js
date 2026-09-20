@@ -93,7 +93,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
                   <div style="height:1px;background:#315447;margin:24px 0 14px;"></div>
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                      <td style="font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#d0a948;font-weight:900;">No gimmes. Just throw.</td>
+                      <td style="font-family:'Barlow Condensed','Arial Narrow',Arial,Helvetica,sans-serif;font-size:16px;letter-spacing:1.2px;text-transform:uppercase;color:#d0a948;font-weight:900;">Keep Fun Simple</td>
                       <td align="right" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#f5e8c6;">A RockPail Production</td>
                     </tr>
                   </table>
