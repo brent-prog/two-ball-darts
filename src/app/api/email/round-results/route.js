@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const FROM = 'TwoBall Darts <login@twoballdarts.com>';
 const PLAY_URL = 'https://play.twoballdarts.com';
-const LOGO_URL = `${PLAY_URL}/two-ball-darts-logo.png`;
+const LOGO_URL = `${PLAY_URL}/two-ball-darts-app-icon.png`;
 const SWAG_URL = process.env.TWOBALL_SWAG_URL || 'https://twoballdarts.com';
 
 function escapeHtml(value = '') {
@@ -59,7 +59,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
       <div style="max-width:600px;margin:0 auto;padding:28px 18px;">
         <div style="border:1px solid #315447;border-radius:18px;background:#042f23;padding:24px;">
           <div style="text-align:center;margin:0 0 22px;">
-            <img src="${LOGO_URL}" alt="TwoBall Darts" width="240" style="display:inline-block;width:240px;max-width:72%;height:auto;border:0;outline:none;text-decoration:none;" />
+            <img src="${LOGO_URL}" alt="TwoBall Darts" width="150" style="display:inline-block;width:150px;max-width:42%;height:auto;border:0;outline:none;text-decoration:none;" />
           </div>
           <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#d0a948;font-weight:800;">Final Results</div>
           <h1 style="margin:8px 0 10px;font-size:34px;line-height:1;color:#fff4d6;">Round over, ${escapeHtml(recipientName)}.</h1>
