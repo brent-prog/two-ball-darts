@@ -183,14 +183,15 @@ function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemove
 
 function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName, choosePlayer }) {
   const scored = Boolean(result);
+  const hasAnyScore = scoredHoleCount(player) > 0;
   const scoreLabel = scored ? `${result.label} ${fmt(result.score)}` : 'No score yet';
   const buttonLabel = scored ? `${result.label} ${fmt(result.score)}` : 'Add Score';
   const badgeClasses = ['tbd-player-total-score'];
-  if (!scored && totalScore === 0) badgeClasses.push('is-empty-round');
-  if (isLeader && scored) badgeClasses.push('is-leader');
+  if (!hasAnyScore) badgeClasses.push('is-empty-round');
+  if (isLeader) badgeClasses.push('is-leader');
   if (totalScore < 0) badgeClasses.push('is-under');
   if (totalScore > 0) badgeClasses.push('is-over');
-  if (totalScore === 0 && scored) badgeClasses.push('is-even');
+  if (totalScore === 0 && hasAnyScore) badgeClasses.push('is-even');
 
   return <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`}>
     <div className="tbd-player-score-main">
