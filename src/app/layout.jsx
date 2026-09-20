@@ -35,6 +35,7 @@ import './saved-scorecard-rebrand.css';
 import './home-hero-cleanup.css';
 import './android-responsive-polish.css';
 import './display-font-consistency.css';
+import './gameplay-ad-slot.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import PersistentLeaderBadgeEnhancer from '@/components/PersistentLeaderBadgeEnhancer';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
