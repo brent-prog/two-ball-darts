@@ -25,24 +25,82 @@ function fmt(score) {
   return value > 0 ? `+${value}` : String(value);
 }
 
-function resultLine({ isWinner, isTiedWinner, winnerNames, deficit }) {
-  if (isWinner && isTiedWinner) {
-    return "A tie for the win. Nobody gets full bragging rights. That's probably for the best.";
+const COPY = {
+  soloWinner: {
+    nailbiter: {
+      subjects: ['You won. Barely. Still counts.', 'One point. Maximum bragging rights.', 'That was uncomfortably close. You won.'],
+      lines: ['You won by {margin}. Close enough to make them think they had a chance.', 'A {margin} win. Ugly wins still go in the win column.', 'You escaped with it by {margin}. Do not expect anyone to call it convincing.'],
+      rematches: ['That close? You pretty much owe them a rematch.', 'Run it back. Nobody is accepting that margin.', 'One more round should settle absolutely nothing.']
+    },
+    close: {
+      subjects: ['You won a close one. Act accordingly.', 'Close game. Your bragging rights survived.', 'You won. They will have excuses.'],
+      lines: ['You took it by {margin}. Enough to brag. Not enough to relax.', 'A {margin} win. They were close. You were closer to the beer.', 'You won by {margin}. Expect a detailed explanation of why it does not count.'],
+      rematches: ['A rematch feels inevitable.', 'Give them another shot. They clearly need one.', 'Run it back before the excuses get better.']
+    },
+    blowout: {
+      subjects: ['That got ugly. You won.', 'You won. By a lot.', 'Well... that was not particularly close.'],
+      lines: ['You won by {margin}. At some point it stopped being competitive.', 'A {margin} win. Try to show some class. Or do not.', 'You won by {margin}. Everyone else may need a minute.'],
+      rematches: ['A rematch seems charitable at this point.', 'Play again. Maybe spot them a hole or two.', 'Sure, run it back. They cannot do much worse.']
+    }
+  },
+  loser: {
+    nailbiter: {
+      subjects: ['That one hurts.', 'One point. Brutal.', 'You almost had it. Almost.'],
+      lines: ['{winner} got you by {margin}. Painfully close still counts as a loss.', '{margin}. That is all that separated you from being insufferable.', '{winner} escaped by {margin}. You are allowed to be annoyed.'],
+      rematches: ['You cannot leave it there. Rematch.', 'Run it back. Immediately.', 'That margin demands another round.']
+    },
+    close: {
+      subjects: ['Close. Still a loss.', 'You were in it. Then you were not.', 'The scorecard was not quite your friend.'],
+      lines: ['{winner} beat you by {margin}. Close enough to make the rematch interesting.', '{winner} took it by {margin}. Annoying, but fixable.', 'You finished {margin} back. There is enough evidence here to demand another shot.'],
+      rematches: ['The only sensible response is a rematch.', 'Run it back before they get comfortable.', 'Another round. You know why.']
+    },
+    blowout: {
+      subjects: ['Maybe delete this email.', 'Rough round. There is always the rematch.', 'The scorecard has been saved. Unfortunately.'],
+      lines: ['{winner} beat you by {margin}. That is less a margin and more a situation.', '{margin} back. We checked the math. Sorry.', '{winner} won by {margin}. Let us agree not to overanalyse this one.'],
+      rematches: ['Fortunately, the PLAY AGAIN button still works.', 'New round. Clean slate. Never speak of this again.', 'Rematch. Mostly because this one should be forgotten.']
+    }
+  },
+  tiedWinner: {
+    subjects: ['A tie. Nobody gets full bragging rights.', 'You tied for the win. Unfinished business.', 'Shared bragging rights are barely bragging rights.'],
+    lines: ['A tie for the win. Nobody gets full bragging rights. That is probably for the best.', 'You finished tied for first. Technically excellent. Emotionally unsatisfying.', 'Dead even at the top. Nobody gets to shut up about what happens next.'],
+    rematches: ['There is really only one way to settle this.', 'Run it back. A tie is not an ending.', 'Another round. Shared bragging rights are unacceptable.']
   }
-  if (isWinner) {
-    return "You won. Everyone else gets to live with that until the rematch.";
+};
+
+function stableIndex(seed, length, salt = '') {
+  let hash = 2166136261;
+  const input = `${seed}:${salt}`;
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
   }
-  const winner = winnerNames.join(' & ');
-  const margin = deficit === 1 ? '1 point' : `${deficit} points`;
-  if (deficit <= 2) return `${winner} got you by ${margin}. Painfully close still counts as a loss.`;
-  return `${winner} beat you by ${margin}. That's going to get annoying.`;
+  return (hash >>> 0) % length;
 }
 
-function emailHtml({ recipientName, standings, winnerNames, bestScore, recipientScore }) {
-  const isWinner = recipientScore === bestScore;
-  const isTiedWinner = standings.filter(row => row.total_score === bestScore).length > 1;
-  const deficit = Math.max(0, recipientScore - bestScore);
-  const line = resultLine({ isWinner, isTiedWinner, winnerNames, deficit });
+function pickCopy(items, seed, salt) {
+  return items[stableIndex(seed, items.length, salt)];
+}
+
+function fillCopy(value, { winner, margin }) {
+  return value.replaceAll('{winner}', winner).replaceAll('{margin}', margin);
+}
+
+function resultCopy({ gameId, recipientKey, isWinner, isTiedWinner, winnerNames, deficit, winningMargin }) {
+  const winner = winnerNames.join(' & ');
+  const relevantMargin = isWinner ? winningMargin : deficit;
+  const margin = relevantMargin === 1 ? '1 point' : `${relevantMargin} points`;
+  const bucket = relevantMargin <= 1 ? 'nailbiter' : relevantMargin <= 4 ? 'close' : 'blowout';
+  const group = isTiedWinner ? COPY.tiedWinner : (isWinner ? COPY.soloWinner[bucket] : COPY.loser[bucket]);
+  const seed = `${gameId}:${recipientKey}:${bucket}`;
+  return {
+    subject: fillCopy(pickCopy(group.subjects, seed, 'subject'), { winner, margin }),
+    line: fillCopy(pickCopy(group.lines, seed, 'line'), { winner, margin }),
+    rematch: fillCopy(pickCopy(group.rematches, seed, 'rematch'), { winner, margin })
+  };
+}
+
+function emailHtml({ recipientName, standings, winnerNames, bestScore, recipientScore, copy }) {
+  const line = copy.line;
 
   const rows = standings.map((row, index) => {
     const winner = row.total_score === bestScore;
@@ -87,7 +145,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
                     </thead>
                     <tbody>${rows}</tbody>
                   </table>
-                  <p style="margin:18px 0 8px;font-size:15px;color:#f5e8c6;">The only reasonable response is a rematch.</p>
+                  <p style="margin:18px 0 8px;font-size:15px;color:#f5e8c6;">${escapeHtml(copy.rematch)}</p>
                   <a href="${PLAY_URL}" style="display:block;text-align:center;background:#be1412;background-image:linear-gradient(#be1412,#be1412);color:#fff4d6;text-decoration:none;font-weight:900;padding:14px 18px;border-radius:10px;margin:12px 0;">PLAY AGAIN</a>
                   <a href="${SWAG_URL}" style="display:block;text-align:center;border:1px solid #d0a948;color:#d0a948;text-decoration:none;font-weight:900;padding:13px 18px;border-radius:10px;margin:12px 0 0;">TWOBALL SWAG</a>
                   <div style="height:1px;background:#315447;margin:24px 0 14px;"></div>
@@ -107,11 +165,8 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
   </html>`;
 }
 
-function emailText({ recipientName, standings, winnerNames, bestScore, recipientScore }) {
-  const isWinner = recipientScore === bestScore;
-  const isTiedWinner = standings.filter(row => row.total_score === bestScore).length > 1;
-  const deficit = Math.max(0, recipientScore - bestScore);
-  const line = resultLine({ isWinner, isTiedWinner, winnerNames, deficit });
+function emailText({ recipientName, standings, winnerNames, bestScore, recipientScore, copy }) {
+  const line = copy.line;
   const board = standings.map((row, index) => `${index + 1}. ${row.display_name}: ${fmt(row.total_score)}`).join('\n');
 
   return `Round over, ${recipientName}.
@@ -120,6 +175,8 @@ ${line}
 
 FINAL RESULTS
 ${board}
+
+${copy.rematch}
 
 Play again: ${PLAY_URL}
 TwoBall swag: ${SWAG_URL}
@@ -215,16 +272,27 @@ export async function POST(request) {
   for (const recipient of recipients) {
     const isWinner = recipient.totalScore === bestScore;
     const tied = winnerNames.length > 1;
-    const subject = isWinner
-      ? (tied ? 'You tied for the win. We will allow it.' : 'You won. Try not to be unbearable about it.')
-      : `${winnerNames.join(' & ')} got the bragging rights. For now.`;
+    const runnerUpScore = standings.find(row => row.total_score > bestScore)?.total_score ?? bestScore;
+    const winningMargin = Math.max(0, runnerUpScore - bestScore);
+    const deficit = Math.max(0, recipient.totalScore - bestScore);
+    const copy = resultCopy({
+      gameId,
+      recipientKey: recipient.profileId || recipient.email,
+      isWinner,
+      isTiedWinner: isWinner && tied,
+      winnerNames,
+      deficit,
+      winningMargin
+    });
+    const subject = copy.subject;
 
     const payload = {
       recipientName: recipient.displayName,
       standings,
       winnerNames,
       bestScore,
-      recipientScore: recipient.totalScore
+      recipientScore: recipient.totalScore,
+      copy
     };
 
     const { error } = await resend.emails.send(
