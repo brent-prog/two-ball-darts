@@ -78,7 +78,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
           <a href="${PLAY_URL}" style="display:block;text-align:center;background:#be1412;color:#fff4d6;text-decoration:none;font-weight:900;padding:14px 18px;border-radius:10px;margin:12px 0;">PLAY AGAIN</a>
           <a href="${SWAG_URL}" style="display:block;text-align:center;border:1px solid #d0a948;color:#d0a948;text-decoration:none;font-weight:900;padding:13px 18px;border-radius:10px;margin:12px 0 0;">TWOBALL SWAG</a>
         </div>
-        <p style="margin:14px 4px 0;font-size:12px;line-height:1.4;color:#9bac9f;">No gimmes. Just throw.</p>
+        <p style="margin:14px 4px 0;font-size:12px;line-height:1.4;color:#9bac9f;">Keep Fun Simple</p>
       </div>
     </body>
   </html>`;
@@ -101,7 +101,7 @@ ${board}
 Play again: ${PLAY_URL}
 TwoBall swag: ${SWAG_URL}
 
-No gimmes. Just throw.`;
+Keep Fun Simple`;
 }
 
 export async function POST(request) {
