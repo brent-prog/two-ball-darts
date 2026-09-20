@@ -28,42 +28,42 @@ function fmt(score) {
 const COPY = {
   soloWinner: {
     nailbiter: {
-      subjects: ['You won. Barely. Still counts.', 'One point. Maximum bragging rights.', 'That was uncomfortably close. You won.'],
-      lines: ['You won by {margin}. Close enough to make them think they had a chance.', 'A {margin} win. Ugly wins still go in the win column.', 'You escaped with it by {margin}. Do not expect anyone to call it convincing.'],
-      rematches: ['That close? You pretty much owe them a rematch.', 'Run it back. Nobody is accepting that margin.', 'One more round should settle absolutely nothing.']
+      subjects: ['By ONE.', 'You got away with one.', 'Bragging rights. Barely.', 'One point. Beautiful.', 'That was close.'],
+      lines: ['You won by {margin}. That’s gonna piss them off.', 'One point. Beautiful.', 'By 1. Don’t explain. Just take the win.', 'You got away with one.', 'Won by 1. They’ll have excuses.'],
+      rematches: ['Run it back.', 'Again.', 'Settle it.', 'You know what to do.', 'Rematch. Obviously.']
     },
     close: {
-      subjects: ['You won a close one. Act accordingly.', 'Close game. Your bragging rights survived.', 'You won. They will have excuses.'],
-      lines: ['You took it by {margin}. Enough to brag. Not enough to relax.', 'A {margin} win. They were close. You were closer to the beer.', 'You won by {margin}. Expect a detailed explanation of why it does not count.'],
-      rematches: ['A rematch feels inevitable.', 'Give them another shot. They clearly need one.', 'Run it back before the excuses get better.']
+      subjects: ['Nice round.', 'Bragging rights.', 'You got it done.', 'That’ll do.', 'Close. Yours.'],
+      lines: ['Nice win. Not a lot of room for shit-talking...but enough.', 'You won. They didn’t. That’s really all that matters.', 'Solid. Annoyingly solid.', 'Close enough to be fun. Far enough to count.', 'You’ve got the bragging rights. Use them irresponsibly.'],
+      rematches: ['Again.', 'Run it back.', 'One more?', 'You know what to do.', 'Do it again. We dare you.']
     },
     blowout: {
-      subjects: ['That got ugly. You won.', 'You won. By a lot.', 'Well... that was not particularly close.'],
-      lines: ['You won by {margin}. At some point it stopped being competitive.', 'A {margin} win. Try to show some class. Or do not.', 'You won by {margin}. Everyone else may need a minute.'],
-      rematches: ['A rematch seems charitable at this point.', 'Play again. Maybe spot them a hole or two.', 'Sure, run it back. They cannot do much worse.']
+      subjects: ['That got ugly.', 'Well...shit.', 'You kicked their ass.', 'Not particularly close.', 'Maybe buy the next round.'],
+      lines: ['You kicked their ass a little.', 'Well...that wasn’t particularly close.', 'Comfortable win. Feel free to be a dick about it.', 'They’re gonna want another shot at you.', 'You won. Pretty handily, actually.', 'Jesus. Save some dignity for the other guys.', 'Well...you kicked the shit out of them.', 'That got ugly. For them.', 'You could at least pretend it was close.', 'Maybe buy the next round.'],
+      rematches: ['Again?', 'Run it back.', 'Give them another shot.', 'Do it again. We dare you.', 'Rematch. Obviously.']
     }
   },
   loser: {
     nailbiter: {
-      subjects: ['That one hurts.', 'One point. Brutal.', 'You almost had it. Almost.'],
-      lines: ['{winner} got you by {margin}. Painfully close still counts as a loss.', '{margin}. That is all that separated you from being insufferable.', '{winner} escaped by {margin}. You are allowed to be annoyed.'],
-      rematches: ['You cannot leave it there. Rematch.', 'Run it back. Immediately.', 'That margin demands another round.']
+      subjects: ['By ONE.', 'Ouch.', 'Well, shit.', 'That one hurts.', 'Run it back.'],
+      lines: ['You lost by 1. That’s gonna bug you.', 'One point. Fuck.', 'By 1. You know exactly which dart you want back.', 'That one hurts.', 'One lousy point. Run it back.'],
+      rematches: ['Run it back.', 'Again.', 'Don’t leave it like that.', 'Fuck that. Play again.', 'Rematch. Obviously.']
     },
     close: {
-      subjects: ['Close. Still a loss.', 'You were in it. Then you were not.', 'The scorecard was not quite your friend.'],
-      lines: ['{winner} beat you by {margin}. Close enough to make the rematch interesting.', '{winner} took it by {margin}. Annoying, but fixable.', 'You finished {margin} back. There is enough evidence here to demand another shot.'],
-      rematches: ['The only sensible response is a rematch.', 'Run it back before they get comfortable.', 'Another round. You know why.']
+      subjects: ['Close. Still lost.', 'Ouch.', 'Run it back.', 'Almost.', 'Well, shit.'],
+      lines: ['Close. Still lost.', 'You were right there. Which somehow makes it worse.', 'Not terrible. Not a win either.', 'A couple darts go differently and you’re insufferable right now.', 'Close enough that you probably have an excuse ready.'],
+      rematches: ['Run it back.', 'Again.', 'Go get your money back.', 'Don’t leave it like that.', 'You know what to do.']
     },
     blowout: {
-      subjects: ['Maybe delete this email.', 'Rough round. There is always the rematch.', 'The scorecard has been saved. Unfortunately.'],
-      lines: ['{winner} beat you by {margin}. That is less a margin and more a situation.', '{margin} back. We checked the math. Sorry.', '{winner} won by {margin}. Let us agree not to overanalyse this one.'],
-      rematches: ['Fortunately, the PLAY AGAIN button still works.', 'New round. Clean slate. Never speak of this again.', 'Rematch. Mostly because this one should be forgotten.']
+      subjects: ['That got ugly.', 'Ouch.', 'Well, shit.', 'You got smoked.', 'Maybe delete this.'],
+      lines: ['Yeah...you got beat.', 'Not your best work.', 'You’re gonna want that one back.', 'They got you pretty good.', 'Could’ve been worse. Could’ve been better too.', 'Jesus. What happened?', 'You got your ass kicked.', 'Maybe we don’t talk about this round.', 'Good news: nobody got hurt.', 'We saved the scorecard. Sorry.'],
+      rematches: ['Run it back.', 'Again.', 'Fuck that. Play again.', 'Go get your money back.', 'Do it again. We dare you.']
     }
   },
   tiedWinner: {
-    subjects: ['A tie. Nobody gets full bragging rights.', 'You tied for the win. Unfinished business.', 'Shared bragging rights are barely bragging rights.'],
-    lines: ['A tie for the win. Nobody gets full bragging rights. That is probably for the best.', 'You finished tied for first. Technically excellent. Emotionally unsatisfying.', 'Dead even at the top. Nobody gets to shut up about what happens next.'],
-    rematches: ['There is really only one way to settle this.', 'Run it back. A tie is not an ending.', 'Another round. Shared bragging rights are unacceptable.']
+    subjects: ['Nobody won.', 'A tie? Nope.', 'Well, that settled nothing.', 'Run it back.', 'Fucking useless.'],
+    lines: ['A tie. Fucking useless.', 'Nobody won. Do it again.', 'A tie? Nope. Run it back.', 'Well that settled nothing.', 'Shared bragging rights are not bragging rights.'],
+    rematches: ['Run it back.', 'Again.', 'Settle it.', 'Fuck that. Play again.', 'Rematch. Obviously.']
   }
 };
 
