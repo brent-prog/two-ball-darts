@@ -41,11 +41,12 @@ const savedSideScore = (row, list) => list.reduce((sum, hole) => sum + (Number(s
 const savedSideStrokes = (row, list) => list.reduce((sum, hole) => sum + (Number(savedScore(row, hole)?.strokes) || 0), 0);
 const savedPlayerHoleCount = row => new Set((row.hole_scores ?? []).map(score => score.hole_number)).size;
 const isSavedRoundComplete = game => {
+  if (game.status === 'active') return false;
   const rows = savedRoundPlayers(game);
   if (rows.length > 0) return rows.every(row => savedPlayerHoleCount(row) === 18);
   return game.course_name === 'Official 18';
 };
-const savedRoundLabel = game => isSavedRoundComplete(game) ? 'Official 18' : 'Incomplete round';
+const savedRoundLabel = game => game.status === 'active' ? 'Round In Progress' : isSavedRoundComplete(game) ? 'Official 18' : 'Incomplete round';
 const savedRoundSummary = game => {
   const names = savedRoundPlayerNames(game);
   const playerCount = names.length || savedRoundPlayers(game).length;
@@ -270,6 +271,8 @@ export default function Home() {
   const holeChangeTimeoutRef = useRef(null);
   const holeSettleTimeoutRef = useRef(null);
   const wakeLockRef = useRef(null);
+  const autosaveTimeoutRef = useRef(null);
+  const autosaveInFlightRef = useRef(false);
 
   const comparableLeaderHoles = useMemo(
     () => holes.filter(hole => players.length > 0 && players.every(player => scoreByKey.has(player.scores[hole]))),
@@ -284,27 +287,62 @@ export default function Home() {
   const scoringPlayer = players.find(player => player.id === scoringPlayerId);
 
   useEffect(() => {
-    try {
-      const rawDraft = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
-      if (!rawDraft) return;
+    let cancelled = false;
 
-      const draft = JSON.parse(rawDraft);
-      const restoredPlayers = Array.isArray(draft?.players)
-        ? draft.players.filter(player => player && typeof player.id === 'string' && typeof player.name === 'string' && player.scores && typeof player.scores === 'object')
-        : [];
+    async function restoreInProgressRound() {
+      try {
+        const ownerKey = getOwnerKey();
+        const { data: activeGame, error: activeGameError } = await supabase
+          .from('games')
+          .select('id,title,played_at,course_name,status')
+          .eq('owner_key', ownerKey)
+          .eq('status', 'active')
+          .order('played_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (activeGameError) throw activeGameError;
 
-      if (restoredPlayers.length) setPlayers(restoredPlayers);
-      if (Number.isInteger(draft?.activeHole) && draft.activeHole >= 1 && draft.activeHole <= 18) setActiveHole(draft.activeHole);
-      setSavedGameId(typeof draft?.savedGameId === 'string' ? draft.savedGameId : null);
-      setIsRoundDirty(typeof draft?.isRoundDirty === 'boolean' ? draft.isRoundDirty : true);
-      setShowScoringMode(Boolean(draft?.showScoringMode) || hasRoundScores(restoredPlayers));
-      setStatus('Round in progress restored.');
-    } catch (error) {
-      console.warn('Could not restore in-progress round.', error);
-      window.localStorage.removeItem(IN_PROGRESS_ROUND_KEY);
-    } finally {
-      setDraftHydrated(true);
+        if (activeGame?.id) {
+          const { data: rows, error: rowsError } = await supabase
+            .from('game_players')
+            .select('id,player_id,display_order,total_score,total_strokes,players(id,display_name,is_profile),hole_scores(hole_number,relative_score,strokes,result)')
+            .eq('game_id', activeGame.id)
+            .order('display_order', { ascending: true });
+          if (rowsError) throw rowsError;
+          if (cancelled) return;
+
+          const restoredPlayers = playersFromSavedRows(rows ?? []);
+          setPlayers(restoredPlayers);
+          setActiveHole(firstUnscoredHole(restoredPlayers));
+          setSavedGameId(activeGame.id);
+          setIsRoundDirty(true);
+          setShowScoringMode(true);
+          setStatus('Round In Progress restored.');
+          return;
+        }
+
+        const rawDraft = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
+        if (!rawDraft) return;
+        const draft = JSON.parse(rawDraft);
+        const restoredPlayers = Array.isArray(draft?.players)
+          ? draft.players.filter(player => player && typeof player.id === 'string' && typeof player.name === 'string' && player.scores && typeof player.scores === 'object')
+          : [];
+        if (cancelled) return;
+        if (restoredPlayers.length) setPlayers(restoredPlayers);
+        if (Number.isInteger(draft?.activeHole) && draft.activeHole >= 1 && draft.activeHole <= 18) setActiveHole(draft.activeHole);
+        setSavedGameId(typeof draft?.savedGameId === 'string' ? draft.savedGameId : null);
+        setIsRoundDirty(typeof draft?.isRoundDirty === 'boolean' ? draft.isRoundDirty : true);
+        setShowScoringMode(Boolean(draft?.showScoringMode) || hasRoundScores(restoredPlayers));
+        if (hasRoundScores(restoredPlayers)) setStatus('Round In Progress restored.');
+      } catch (error) {
+        console.warn('Could not restore in-progress round.', error);
+      } finally {
+        if (!cancelled) setDraftHydrated(true);
+      }
     }
+
+    restoreInProgressRound();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -375,6 +413,12 @@ export default function Home() {
   }
   function resetRound() {
     clearHoleNavigationTimers();
+    if (savedGameId) {
+      supabase.from('games').delete().eq('id', savedGameId).eq('status', 'active').then(({ error }) => {
+        if (error) console.warn('Could not clear active round.', error);
+      });
+    }
+    try { window.localStorage.removeItem(IN_PROGRESS_ROUND_KEY); } catch {}
     lastAutoAdvanceHoleRef.current = null;
     autoAdvanceArmedHoleRef.current = null;
     setSavedGameId(null);
@@ -502,9 +546,10 @@ export default function Home() {
   }
 
   async function cleanupFailedGame(gameId) { if (!gameId) return; await supabase.from('games').delete().eq('id', gameId); }
-  async function writeRoundRows(gameId) {
-    if (savedGameId) { const { error: deleteError } = await supabase.from('game_players').delete().eq('game_id', gameId); if (deleteError) throw new Error(deleteError.message || 'Could not clear previous saved player rows.'); }
-    for (const [index, player] of players.entries()) {
+  async function writeRoundRows(gameId, roundPlayers = players) {
+    const { error: deleteError } = await supabase.from('game_players').delete().eq('game_id', gameId);
+    if (deleteError) throw new Error(deleteError.message || 'Could not clear previous saved player rows.');
+    for (const [index, player] of roundPlayers.entries()) {
       const displayName = player.name.trim() || `Player ${index + 1}`;
       let persistentPlayerId = player.playerId;
       if (!persistentPlayerId) {
@@ -518,6 +563,50 @@ export default function Home() {
       if (rows.length) { const { error: scoreError } = await supabase.from('hole_scores').insert(rows); if (scoreError) throw new Error(scoreError.message || `Could not save scores for ${displayName}.`); }
     }
   }
+  async function autosaveActiveRound(roundPlayers) {
+    if (autosaveInFlightRef.current || !hasRoundScores(roundPlayers)) return;
+    autosaveInFlightRef.current = true;
+    const ownerKey = getOwnerKey();
+    let gameId = savedGameId;
+    try {
+      if (gameId) {
+        const { error: updateError } = await supabase.from('games').update({ course_name: 'Round In Progress', status: 'active' }).eq('id', gameId).eq('owner_key', ownerKey);
+        if (updateError) throw updateError;
+      } else {
+        const { data: game, error: gameError } = await supabase.from('games').insert({
+          owner_key: ownerKey,
+          title: `Two Ball Darts - ${new Date().toLocaleDateString()}`,
+          course_name: 'Round In Progress',
+          status: 'active'
+        }).select('id').single();
+        if (gameError || !game) throw gameError || new Error('Could not create Round In Progress.');
+        gameId = game.id;
+        setSavedGameId(gameId);
+      }
+      await writeRoundRows(gameId, roundPlayers);
+    } catch (error) {
+      console.warn('Round In Progress autosave failed.', error);
+    } finally {
+      autosaveInFlightRef.current = false;
+    }
+  }
+
+  useEffect(() => {
+    if (!draftHydrated || !showScoringMode || !hasRoundScores(players)) return;
+    if (autosaveTimeoutRef.current) window.clearTimeout(autosaveTimeoutRef.current);
+    const snapshot = players.map(player => ({ ...player, scores: { ...player.scores } }));
+    autosaveTimeoutRef.current = window.setTimeout(() => {
+      autosaveTimeoutRef.current = null;
+      autosaveActiveRound(snapshot);
+    }, 500);
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        window.clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+      }
+    };
+  }, [draftHydrated, players, showScoringMode]);
+
   async function saveRound() {
     if (savedGameId && !isRoundDirty) { setStatus('Round already saved. Change a player or score to save updates.'); return; }
     setIsSaving(true); setStatus('Saving round...');
@@ -547,7 +636,7 @@ export default function Home() {
     finally { setIsSaving(false); }
   }
   async function enrichGamesWithPlayers(games) { if (!games?.length) return []; const gameIds = games.map(game => game.id); const { data: rows, error } = await supabase.from('game_players').select('id,game_id,player_id,display_order,total_score,total_strokes,players(id,display_name,is_profile),hole_scores(hole_number)').in('game_id', gameIds).order('display_order', { ascending: true }); if (error) { setHistoryStatus(error.message); return games; } return games.map(game => ({ ...game, game_players: (rows ?? []).filter(row => row.game_id === game.id) })); }
-  async function loadHistory(gameIdToOpen) { setHistoryStatus('Loading saved rounds...'); const ownerKey = getOwnerKey(); const { data, error } = await supabase.from('games').select('id,title,played_at,course_name').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(12); if (error) { setHistoryStatus(error.message); return; } const enriched = await enrichGamesWithPlayers(data ?? []); const visible = enriched.filter(game => savedRoundPlayers(game).length > 0); setHistory(visible); setHistoryStatus(visible.length ? `${visible.length} saved round${visible.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.'); if (gameIdToOpen) { const game = visible.find(item => item.id === gameIdToOpen); if (game) await viewSavedGame(game); } }
+  async function loadHistory(gameIdToOpen) { setHistoryStatus('Loading saved rounds...'); const ownerKey = getOwnerKey(); const { data, error } = await supabase.from('games').select('id,title,played_at,course_name,status').eq('owner_key', ownerKey).order('played_at', { ascending: false }).limit(12); if (error) { setHistoryStatus(error.message); return; } const enriched = await enrichGamesWithPlayers(data ?? []); const visible = enriched.filter(game => savedRoundPlayers(game).length > 0); setHistory(visible); setHistoryStatus(visible.length ? `${visible.length} saved round${visible.length === 1 ? '' : 's'} loaded.` : 'No saved rounds found for this browser.'); if (gameIdToOpen) { const game = visible.find(item => item.id === gameIdToOpen); if (game) await viewSavedGame(game); } }
   async function viewSavedGame(game) { setHistoryStatus('Opening saved scorecard...'); const { data, error } = await supabase.from('game_players').select('id,player_id,display_order,total_score,total_strokes,players(id,display_name,is_profile),hole_scores(hole_number,relative_score,strokes,result)').eq('game_id', game.id).order('display_order', { ascending: true }); if (error) { setHistoryStatus(error.message); return; } setSelectedGame(game); setSelectedRows(data ?? []); setHistoryStatus(data?.length ? 'Saved scorecard opened.' : 'Saved round found, but no player score rows were returned.'); }
   async function resumeSavedGame(game) {
     setHistoryStatus('Resuming saved round...');
