@@ -1,20 +1,20 @@
-/* Round-complete presentation. Uses disabled Next Hole as the Hole 18 state signal. */
+/* Round-complete presentation. Only activates when every player has all 18 holes scored. */
 
-#scorecard:has(button.primary[disabled]) .active-hole-panel{
+#scorecard.tbd-round-complete .active-hole-panel{
   display:flex!important;
   flex-direction:column!important;
   border-color:rgba(208,169,72,.38)!important;
   box-shadow:0 18px 42px rgba(0,0,0,.28)!important;
 }
 
-#scorecard:has(button.primary[disabled]) .active-hole-panel > h3{
+#scorecard.tbd-round-complete .active-hole-panel > h3{
   order:1!important;
   background:linear-gradient(135deg,#d0a948,#f1d671)!important;
   border-color:#fff1b2!important;
   color:#02140f!important;
 }
 
-#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list){
+#scorecard.tbd-round-complete .active-hole-panel > div:last-child:not(.tbd-live-score-list){
   order:2!important;
   position:relative!important;
   margin:4px 0 16px!important;
@@ -27,7 +27,7 @@
   overflow:hidden!important;
 }
 
-#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list)::before{
+#scorecard.tbd-round-complete .active-hole-panel > div:last-child:not(.tbd-live-score-list)::before{
   content:'18 HOLES COMPLETE'!important;
   display:block!important;
   margin-bottom:8px!important;
@@ -39,7 +39,7 @@
   line-height:1!important;
 }
 
-#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list)::after{
+#scorecard.tbd-round-complete .active-hole-panel > div:last-child:not(.tbd-live-score-list)::after{
   content:''!important;
   position:absolute!important;
   inset:-40% auto auto 52%!important;
@@ -50,7 +50,7 @@
   pointer-events:none!important;
 }
 
-#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list) > strong{
+#scorecard.tbd-round-complete .active-hole-panel > div:last-child:not(.tbd-live-score-list) > strong{
   position:relative!important;
   z-index:1!important;
   display:block!important;
@@ -63,18 +63,18 @@
   text-transform:uppercase!important;
 }
 
-#scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list) > span{
+#scorecard.tbd-round-complete .active-hole-panel > div:last-child:not(.tbd-live-score-list) > span{
   display:none!important;
 }
 
-#scorecard:has(button.primary[disabled]) .tbd-live-score-list{
+#scorecard.tbd-round-complete .tbd-live-score-list{
   order:3!important;
   display:flex!important;
   flex-direction:column!important;
   gap:12px!important;
 }
 
-#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader){
+#scorecard.tbd-round-complete .tbd-player-score-row:has(.tbd-player-total-score.is-leader){
   order:-1!important;
   position:relative!important;
   border-color:#f1d671!important;
@@ -82,7 +82,7 @@
   padding-top:18px!important;
 }
 
-#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader)::after{
+#scorecard.tbd-round-complete .tbd-player-score-row:has(.tbd-player-total-score.is-leader)::after{
   content:'WINNER'!important;
   position:absolute!important;
   top:8px!important;
@@ -105,18 +105,18 @@
   box-shadow:0 4px 12px rgba(0,0,0,.24)!important;
 }
 
-#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader) .tbd-player-total-score{
+#scorecard.tbd-round-complete .tbd-player-score-row:has(.tbd-player-total-score.is-leader) .tbd-player-total-score{
   border-color:#f1d671!important;
   background:#d0a948!important;
   color:#02140f!important;
   box-shadow:none!important;
 }
 
-#scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader) .tbd-player-total-score::after{
+#scorecard.tbd-round-complete .tbd-player-score-row:has(.tbd-player-total-score.is-leader) .tbd-player-total-score::after{
   color:#17352a!important;
 }
 
-#scorecard:has(button.primary[disabled]) button.primary[disabled]{
+#scorecard.tbd-round-complete button.primary[disabled]{
   position:relative!important;
   color:transparent!important;
   opacity:.62!important;
@@ -124,7 +124,7 @@
   border-color:#a68c3a!important;
 }
 
-#scorecard:has(button.primary[disabled]) button.primary[disabled]::after{
+#scorecard.tbd-round-complete button.primary[disabled]::after{
   content:'FINISHED'!important;
   position:absolute!important;
   inset:0!important;
@@ -136,14 +136,14 @@
   letter-spacing:.07em!important;
 }
 
-#scorecard:has(button.primary[disabled]) > div:last-of-type .button.secondary{
+#scorecard.tbd-round-complete > div:last-of-type .button.secondary{
   background:linear-gradient(180deg,#f31327,#a90d19)!important;
   border-color:#ff3041!important;
   color:#fff!important;
   box-shadow:0 10px 22px rgba(185,15,26,.22)!important;
 }
 
-#scorecard:has(button.primary[disabled]) .status-line{
+#scorecard.tbd-round-complete .status-line{
   margin-top:14px!important;
   padding:10px 12px!important;
   border-radius:12px!important;
@@ -155,20 +155,20 @@
 }
 
 @media(max-width:520px){
-  #scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list){
+  #scorecard.tbd-round-complete .active-hole-panel > div:last-child:not(.tbd-live-score-list){
     margin:2px 0 14px!important;
     padding:16px 14px 14px!important;
   }
 
-  #scorecard:has(button.primary[disabled]) .active-hole-panel > div:last-child:not(.tbd-live-score-list) > strong{
+  #scorecard.tbd-round-complete .active-hole-panel > div:last-child:not(.tbd-live-score-list) > strong{
     font-size:1.8rem!important;
   }
 
-  #scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader){
+  #scorecard.tbd-round-complete .tbd-player-score-row:has(.tbd-player-total-score.is-leader){
     padding-top:20px!important;
   }
 
-  #scorecard:has(button.primary[disabled]) .tbd-player-score-row:has(.tbd-player-total-score.is-leader)::after{
+  #scorecard.tbd-round-complete .tbd-player-score-row:has(.tbd-player-total-score.is-leader)::after{
     top:7px!important;
     font-size:.68rem!important;
     min-width:86px!important;
