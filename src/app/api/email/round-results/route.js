@@ -24,11 +24,6 @@ function fmt(score) {
   return value > 0 ? `+${value}` : String(value);
 }
 
-function completePlayer(row) {
-  const holes = new Set((row.hole_scores || []).map(score => Number(score.hole_number)));
-  return holes.size === 18;
-}
-
 function resultLine({ isWinner, isTiedWinner, winnerNames, deficit }) {
   if (isWinner && isTiedWinner) {
     return "A tie for the win. Nobody gets full bragging rights. That's probably for the best.";
@@ -173,12 +168,18 @@ export async function POST(request) {
   const bestScore = standings[0]?.total_score ?? 0;
   const winnerNames = standings.filter(row => row.total_score === bestScore).map(row => row.display_name);
 
-  const recipients = rows.map(row => ({
-    profileId: row.profile_id,
-    email: row.email,
-    displayName: row.display_name || 'Player',
-    totalScore: Number(row.total_score) || 0
-  }));
+  const recipients = rows
+    .filter(row => row.profile_id && row.email)
+    .map(row => ({
+      profileId: row.profile_id,
+      email: row.email,
+      displayName: row.display_name || 'Player',
+      totalScore: Number(row.total_score) || 0
+    }));
+
+  if (!recipients.length) {
+    return NextResponse.json({ sent: 0, skipped: 'No signed-in participants have email addresses.' });
+  }
 
   const resend = new Resend(apiKey);
   const failures = [];
