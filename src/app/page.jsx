@@ -144,7 +144,20 @@ function LiveScorecard({ players }) {
 
 function SavedScorecard({ game, rows, onClose }) {
   if (!game || !rows?.length) return null;
-  return <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.78)', padding: '24px', display: 'grid', placeItems: 'center' }}><div className="card" style={{ width: 'min(1180px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0 }}><div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}><div><p className="eyebrow">Viewing saved round</p><h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.6rem)' }}>{game.title}</h2><p style={{ margin: '6px 0 0' }}>{new Date(game.played_at).toLocaleString()}</p></div><button className="button primary" onClick={onClose}>Close</button></div><div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th>{holes.map(hole => <th key={hole}>{hole}</th>)}<th>Score</th></tr><tr className="par-row"><th>Par</th>{holes.map(hole => <td key={hole}>3</td>)}<td>E</td></tr></thead><tbody>{rows.map(row => <tr key={row.id}><th>{row.players?.display_name || 'Player'}</th>{holes.map(hole => <SavedScoreCell key={hole} score={savedScore(row, hole)} />)}<td className="total-score">{fmt(savedSideScore(row, holes))}</td></tr>)}</tbody></table></div></div></div>;
+  const savedPlayers = rows.map((row, index) => {
+    const scores = {};
+    holes.forEach(hole => {
+      const key = scoreKeyFromSavedScore(savedScore(row, hole));
+      if (key) scores[hole] = key;
+    });
+    return {
+      id: row.id || `saved-scorecard-${index}`,
+      name: row.players?.display_name || 'Player',
+      scores
+    };
+  });
+
+  return <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.78)', padding: '24px', display: 'grid', placeItems: 'center' }}><div className="card" style={{ width: 'min(1180px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0 }}><div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}><div><p className="eyebrow">Viewing saved round</p><h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.6rem)' }}>{game.title}</h2><p style={{ margin: '6px 0 0' }}>{new Date(game.played_at).toLocaleString()}</p></div><button className="button primary" onClick={onClose}>Close</button></div><LiveScorecard players={savedPlayers} /></div></div>;
 }
 
 function HowToPlayModal({ onClose }) {
