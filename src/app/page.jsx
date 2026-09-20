@@ -241,6 +241,7 @@ export default function Home() {
   const autoAdvanceTimeoutRef = useRef(null);
   const holeChangeTimeoutRef = useRef(null);
   const holeSettleTimeoutRef = useRef(null);
+  const wakeLockRef = useRef(null);
 
   const leader = useMemo(() => [...players].sort((a, b) => total(a) - total(b))[0], [players]);
   const leaderScore = total(leader);
@@ -353,6 +354,58 @@ export default function Home() {
   }, [showScoringMode, isActiveHoleComplete, activeHole]);
 
   useEffect(() => () => clearHoleNavigationTimers(), []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function releaseWakeLock() {
+      const lock = wakeLockRef.current;
+      wakeLockRef.current = null;
+      if (!lock) return;
+      try {
+        await lock.release();
+      } catch {
+        // Wake lock may already have been released by the browser.
+      }
+    }
+
+    async function requestWakeLock() {
+      if (cancelled || !showScoringMode || document.visibilityState !== 'visible') return;
+      if (!('wakeLock' in navigator) || wakeLockRef.current) return;
+
+      try {
+        const lock = await navigator.wakeLock.request('screen');
+        if (cancelled || !showScoringMode) {
+          await lock.release().catch(() => {});
+          return;
+        }
+
+        wakeLockRef.current = lock;
+        lock.addEventListener('release', () => {
+          if (wakeLockRef.current === lock) wakeLockRef.current = null;
+        }, { once: true });
+      } catch {
+        // Wake lock can be unavailable or refused by the browser/device. Scoring continues normally.
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible' && showScoringMode) {
+        requestWakeLock();
+      }
+    }
+
+    if (showScoringMode) requestWakeLock();
+    else releaseWakeLock();
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      releaseWakeLock();
+    };
+  }, [showScoringMode]);
 
   async function sendCompletedRoundEmails(gameId) {
     const { data: sessionData } = await supabase.auth.getSession();
