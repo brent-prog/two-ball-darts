@@ -638,7 +638,14 @@ export default function Home() {
       }
 
       setStatus(`Round saved as ${roundLabel}.${emailStatus}`);
-      await loadHistory(gameId);
+      if (currentRoundComplete(players)) {
+        setShowScorecard(true);
+        setSelectedGame(null);
+        setSelectedRows([]);
+        await loadHistory();
+      } else {
+        await loadHistory(gameId);
+      }
     } catch (error) { if (createdNewGame) await cleanupFailedGame(gameId); setStatus(`Save failed: ${error.message}`); }
     finally { setIsSaving(false); }
   }
