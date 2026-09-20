@@ -70,9 +70,21 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
             <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" bgcolor="#042f23" style="width:100%;max-width:600px;border:1px solid #315447;border-radius:18px;background:#042f23;background-image:linear-gradient(#042f23,#042f23);">
               <tr>
                 <td style="padding:28px 24px 24px;">
-                  <div style="text-align:center;margin:0 0 24px;">
-                    <img src="cid:twoball-logo" alt="Two Ball Darts" width="320" style="display:inline-block;width:320px;max-width:86%;height:auto;border:0;outline:none;text-decoration:none;" />
-                  </div>
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto 24px;">
+                    <tr>
+                      <td valign="middle" style="padding-right:14px;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="72" height="72" bgcolor="#02140f" style="width:72px;height:72px;border:3px solid #f4efe2;border-radius:50%;">
+                          <tr>
+                            <td align="center" valign="middle" style="font-family:Arial,Helvetica,sans-serif;font-size:34px;line-height:1;color:#ef0014;font-weight:900;">◎</td>
+                          </tr>
+                        </table>
+                      </td>
+                      <td valign="middle" style="font-family:Impact,'Arial Narrow Bold','Arial Black',Arial,Helvetica,sans-serif;text-transform:uppercase;line-height:.86;">
+                        <div style="font-size:42px;line-height:.86;letter-spacing:.5px;color:#f4efe2;font-weight:900;white-space:nowrap;">TWO BALL</div>
+                        <div style="margin-top:6px;font-size:34px;line-height:.9;letter-spacing:1.8px;color:#ef0014;font-weight:900;white-space:nowrap;">DARTS</div>
+                      </td>
+                    </tr>
+                  </table>
                   <div style="height:1px;background:#315447;margin:0 0 22px;"></div>
                   <div style="font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:#d0a948;font-weight:900;">Final Results</div>
                   <h1 style="margin:8px 0 12px;font-size:34px;line-height:1.05;color:#fff4d6;font-weight:900;">Round over, ${escapeHtml(recipientName)}.</h1>
