@@ -15,6 +15,8 @@ const defaults = [
   { id: 'p2', playerId: null, isProfile: false, isGuest: false, name: 'Player 2', scores: {} }
 ];
 
+const IN_PROGRESS_ROUND_KEY = 'twoBallDarts.inProgressRound.v1';
+
 const dartOptions = [
   { value: 'power', label: 'Double / Triple', tone: 'green' },
   { value: 'single', label: 'Single', tone: 'gold' },
@@ -248,6 +250,7 @@ export default function Home() {
   const [scoringMenuOpen, setScoringMenuOpen] = useState(false);
   const [scoringPlayerId, setScoringPlayerId] = useState(null);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [draftHydrated, setDraftHydrated] = useState(false);
   const lastAutoAdvanceHoleRef = useRef(null);
   const autoAdvanceArmedHoleRef = useRef(null);
   const autoAdvanceTimeoutRef = useRef(null);
@@ -266,6 +269,47 @@ export default function Home() {
   const isActiveHoleComplete = players.length > 0 && players.every(player => scoreByKey.has(player.scores[activeHole]));
   const honoursIndex = useMemo(() => getHonoursIndex(players, activeHole), [players, activeHole]);
   const scoringPlayer = players.find(player => player.id === scoringPlayerId);
+
+  useEffect(() => {
+    try {
+      const rawDraft = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
+      if (!rawDraft) return;
+
+      const draft = JSON.parse(rawDraft);
+      const restoredPlayers = Array.isArray(draft?.players)
+        ? draft.players.filter(player => player && typeof player.id === 'string' && typeof player.name === 'string' && player.scores && typeof player.scores === 'object')
+        : [];
+
+      if (restoredPlayers.length) setPlayers(restoredPlayers);
+      if (Number.isInteger(draft?.activeHole) && draft.activeHole >= 1 && draft.activeHole <= 18) setActiveHole(draft.activeHole);
+      setSavedGameId(typeof draft?.savedGameId === 'string' ? draft.savedGameId : null);
+      setIsRoundDirty(typeof draft?.isRoundDirty === 'boolean' ? draft.isRoundDirty : true);
+      setShowScoringMode(Boolean(draft?.showScoringMode) || hasRoundScores(restoredPlayers));
+      setStatus('Round in progress restored.');
+    } catch (error) {
+      console.warn('Could not restore in-progress round.', error);
+      window.localStorage.removeItem(IN_PROGRESS_ROUND_KEY);
+    } finally {
+      setDraftHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!draftHydrated) return;
+
+    try {
+      window.localStorage.setItem(IN_PROGRESS_ROUND_KEY, JSON.stringify({
+        players,
+        activeHole,
+        showScoringMode,
+        savedGameId,
+        isRoundDirty,
+        updatedAt: new Date().toISOString()
+      }));
+    } catch (error) {
+      console.warn('Could not persist in-progress round.', error);
+    }
+  }, [draftHydrated, players, activeHole, showScoringMode, savedGameId, isRoundDirty]);
 
   function markRoundDirty() { setIsRoundDirty(true); setStatus(''); }
   function updateScoreForHole(playerId, score, hole) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
