@@ -303,7 +303,7 @@ export default function PlayerProfilesModal({ open, onClose, onSelectProfile, on
             <p style={{ margin: 0, color: '#fff4d6', fontWeight: 900 }}>Friends</p>
             {browseOnly && <button className="button ghost" type="button" data-tbd-friends="true" onClick={onClose}>Manage Friends</button>}
           </div>
-          <div style={{ display: 'grid', gap: '8px' }}>{friends.length ? friends.map(profile => renderPlayer(profile, ' · Friend')) : <p style={{ margin: 0, opacity: .68 }}>No friends yet.</p>}</div>
+          <div style={{ display: 'grid', gap: '8px' }}>{friends.length ? friends.map(profile => renderPlayer(profile)) : <p style={{ margin: 0, opacity: .68 }}>No friends yet.</p>}</div>
         </section>
 
         <section style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px solid rgba(208,169,72,.28)' }}>
