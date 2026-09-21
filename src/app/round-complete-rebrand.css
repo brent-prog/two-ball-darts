@@ -175,3 +175,102 @@
     padding:5px 12px!important;
   }
 }
+
+
+/* Winner celebration shown before final results. */
+.tbd-winner-celebration{
+  position:fixed;
+  inset:0;
+  z-index:360;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  background:radial-gradient(circle at 50% 42%,rgba(208,169,72,.28),rgba(2,20,15,.96) 55%,#000 100%);
+  overflow:hidden;
+}
+
+.tbd-winner-celebration::before,
+.tbd-winner-celebration::after{
+  content:'';
+  position:absolute;
+  width:70vw;
+  height:70vw;
+  max-width:680px;
+  max-height:680px;
+  border:2px solid rgba(241,214,113,.34);
+  border-radius:50%;
+  animation:tbdWinnerRing 1.3s ease-out infinite;
+}
+
+.tbd-winner-celebration::after{
+  animation-delay:.45s;
+}
+
+.tbd-winner-burst{
+  position:relative;
+  z-index:2;
+  width:min(560px,92vw);
+  padding:34px 24px;
+  border:3px solid #f1d671;
+  border-radius:28px;
+  text-align:center;
+  background:linear-gradient(160deg,#0b4c36,#042f23 48%,#02140f);
+  box-shadow:0 0 0 8px rgba(208,169,72,.13),0 28px 80px rgba(0,0,0,.6);
+  animation:tbdWinnerPop .48s cubic-bezier(.2,1.2,.3,1) both;
+}
+
+.tbd-winner-kicker{
+  display:block;
+  color:#d0a948;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  font-size:clamp(.9rem,4vw,1.15rem);
+  font-weight:1000;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+.tbd-winner-burst strong{
+  display:block;
+  margin-top:10px;
+  color:#fff4d6;
+  font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  font-size:clamp(3rem,13vw,6rem);
+  font-weight:1000;
+  line-height:.9;
+  text-transform:uppercase;
+  text-shadow:0 5px 0 rgba(0,0,0,.34);
+}
+
+.tbd-winner-score{
+  display:inline-grid;
+  place-items:center;
+  min-width:110px;
+  min-height:70px;
+  margin-top:20px;
+  padding:8px 18px;
+  border:2px solid #fff1b2;
+  border-radius:999px;
+  background:linear-gradient(180deg,#f1d671,#d0a948);
+  color:#02140f;
+  font-size:clamp(2rem,9vw,3.4rem);
+  font-weight:1000;
+  line-height:1;
+}
+
+@keyframes tbdWinnerPop{
+  0%{transform:scale(.72);opacity:0}
+  70%{transform:scale(1.04);opacity:1}
+  100%{transform:scale(1)}
+}
+
+@keyframes tbdWinnerRing{
+  0%{transform:scale(.42);opacity:.7}
+  100%{transform:scale(1.15);opacity:0}
+}
+
+@media(max-width:560px){
+  .tbd-winner-burst{
+    padding:28px 18px;
+    border-radius:22px;
+  }
+}
