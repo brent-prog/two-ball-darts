@@ -189,26 +189,36 @@
 }
 
 
-/* Sponsored image creative contract:
-   Source assets are 360x135 WebP (8:3).
-   Keep the slot at 8:3 on every viewport so creatives never resize the gameplay card. */
+/* Sponsored image creatives stay only slightly taller than the standard promo slot.
+   Keep the full creative visible without letting its source aspect ratio stretch the gameplay card. */
 #scorecard .tbd-gameplay-ad:has(.tbd-ad-link--image){
-  aspect-ratio:8 / 3;
-  min-height:0;
+  height:120px;
+  min-height:120px;
 }
 #scorecard .tbd-gameplay-ad .tbd-ad-link--image{
   position:absolute;
   inset:0;
-  display:block;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   width:100%;
   height:100%;
-  padding:0;
+  padding:0 10px;
+  box-sizing:border-box;
 }
 #scorecard .tbd-gameplay-ad .tbd-ad-link--image .tbd-ad-image{
   display:block;
-  width:100%;
+  width:auto;
   height:100%;
+  max-width:100%;
   min-height:0;
-  object-fit:cover;
+  object-fit:contain;
   object-position:center;
+}
+
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad:has(.tbd-ad-link--image){
+    height:96px;
+    min-height:96px;
+  }
 }
