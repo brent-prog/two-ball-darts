@@ -3,7 +3,7 @@
 This is the locked production contract for all sponsored image ads in the gameplay rotation.
 
 ## Asset specification
-- Source dimensions: **360 x 135 px**
+- Source dimensions: **1080 x 405 px**
 - Aspect ratio: **8:3**
 - Format: **WebP**
 - RGB image
@@ -22,10 +22,16 @@ This is the locked production contract for all sponsored image ads in the gamepl
 - Existing rotation timing remains unchanged unless explicitly requested.
 
 ## Pre-push checklist
-1. Confirm final asset is exactly 360 x 135.
+1. Confirm final production asset is exactly 1080 x 405 and the app displays it at 360 x 135.
 2. Confirm WebP decodes successfully.
 3. Confirm advertiser branding/logo is authentic.
 4. Confirm text is readable at phone width.
 5. Confirm no unnecessary contact/footer text.
 6. Confirm click-through URL.
 7. Replace/add only the intended creative; do not alter scorer behaviour.
+
+## Creative preservation
+- Preserve approved creative when fixing resolution, dimensions, logos, contact information, or another technical defect. Do not materially redesign an approved ad unless explicitly requested.
+
+## Logo source of truth
+- Use the exact advertiser-supplied or official logo asset. Never generate, redraw, approximate, or invent an advertiser logo.
