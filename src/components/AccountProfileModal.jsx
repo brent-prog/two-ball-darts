@@ -171,6 +171,25 @@ export default function AccountProfileModal({ open, onClose }) {
       }
     }
 
+    if (!profile?.id) {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
+        if (accessToken) {
+          await fetch('/api/email/new-user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({ displayName: name, username: handle })
+          });
+        }
+      } catch (notificationError) {
+        console.error('Unable to send new-user notification.', notificationError);
+      }
+    }
+
     window.dispatchEvent(new CustomEvent('tbd-account-player-changed', { detail: { playerId: accountPlayerId, profileId: data.id, displayName: name } }));
     setProfile(data);
     setAccountPlayer(nextAccountPlayer);
