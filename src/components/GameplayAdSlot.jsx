@@ -32,7 +32,7 @@ const DEFAULT_CREATIVES = [
   },
   {
     id: 'tiger-plumbing',
-    imageSrc: '/tiger-plumbing-app-banner.webp',
+    imageSrc: '/tiger-plumbing-app-banner.webp?v=20260924-1',
     imageAlt: 'Tiger Plumbing - A leak is a hazard. You don’t play through.',
     href: 'https://www.tigerplumbing.ca/'
   },
