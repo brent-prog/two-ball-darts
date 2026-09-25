@@ -140,7 +140,7 @@ function SavedScoreCell({ score }) {
 }
 
 function LiveScorecard({ players }) {
-  return <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th>{holes.map(hole => <th key={hole}>{hole}</th>)}<th>Score</th></tr><tr className="par-row"><th>Par</th>{holes.map(hole => <td key={hole}>3</td>)}<td>E</td></tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th>{holes.map(hole => <ScoreCell key={hole} result={scoreByKey.get(player.scores[hole])} />)}<td className="total-score">{fmt(total(player))}</td></tr>)}</tbody></table></div>;
+  return <div className="scorecard-table-wrap"><table className="scorecard-table"><thead><tr><th>Player</th><th>Score</th>{holes.map(hole => <th key={hole}>{hole}</th>)}</tr><tr className="par-row"><th>Par</th><td>E</td>{holes.map(hole => <td key={hole}>3</td>)}</tr></thead><tbody>{players.map(player => <tr key={player.id}><th>{player.name}</th><td className="total-score">{fmt(total(player))}</td>{holes.map(hole => <ScoreCell key={hole} result={scoreByKey.get(player.scores[hole])} />)}</tr>)}</tbody></table></div>;
 }
 
 function SavedScorecard({ game, rows, onClose }) {
