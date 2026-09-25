@@ -11,11 +11,7 @@ body{
 .scorecard-table-wrap{
   position:relative;
   overflow-x:auto;
-  overflow-y:hidden;
-  -webkit-overflow-scrolling:auto;
-  overscroll-behavior-x:contain;
-  overscroll-behavior-y:auto;
-  touch-action:pan-x pan-y;
+  -webkit-overflow-scrolling:touch;
 }
 
 .scorecard-table{
@@ -415,12 +411,18 @@ body{
     min-height:100dvh;
   }
 
+  .tbd-scoring-header{
+    display:contents!important;
+  }
+
   .tbd-scoring-nav{
     position:sticky;
     top:0;
-    z-index:40;
+    z-index:80;
     padding:6px 0;
+    margin-bottom:10px;
     background:#02140f;
+    box-shadow:0 8px 16px rgba(0,0,0,.28);
   }
 
   footer>div{
