@@ -11,7 +11,11 @@ body{
 .scorecard-table-wrap{
   position:relative;
   overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:auto;
+  overscroll-behavior-x:contain;
+  overscroll-behavior-y:auto;
+  touch-action:pan-x pan-y;
 }
 
 .scorecard-table{
@@ -409,6 +413,14 @@ body{
 @media(max-width:700px){
   body{
     min-height:100dvh;
+  }
+
+  .tbd-scoring-nav{
+    position:sticky;
+    top:0;
+    z-index:40;
+    padding:6px 0;
+    background:#02140f;
   }
 
   footer>div{
