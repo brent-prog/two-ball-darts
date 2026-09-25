@@ -49,8 +49,8 @@ body{
   max-width:58px;
 }
 
-.scorecard-table th:not(:first-child):not(:last-child),
-.scorecard-table td:not(:first-child):not(:last-child){
+.scorecard-table th:nth-child(n+3),
+.scorecard-table td:nth-child(n+3){
   order:3;
 }
 
@@ -81,8 +81,8 @@ body{
   background:#d8c38a!important;
 }
 
-.scorecard-table th:last-child,
-.scorecard-table td:last-child{
+.scorecard-table th:nth-child(2),
+.scorecard-table td:nth-child(2){
   order:2;
   position:sticky;
   left:112px;
@@ -93,12 +93,12 @@ body{
   box-shadow:3px 0 0 #102017;
 }
 
-.scorecard-table thead th:last-child{
+.scorecard-table thead th:nth-child(2){
   z-index:8;
   background:#0a392b;
 }
 
-.scorecard-table .par-row td:last-child{
+.scorecard-table .par-row td:nth-child(2){
   z-index:7;
   background:#d8c38a!important;
   color:#102017!important;
@@ -481,8 +481,8 @@ body{
     padding-right:6px;
   }
 
-  .scorecard-table th:last-child,
-  .scorecard-table td:last-child{
+  .scorecard-table th:nth-child(2),
+  .scorecard-table td:nth-child(2){
     left:104px;
     flex-basis:68px;
     min-width:68px;
@@ -564,8 +564,8 @@ body{
     max-width:96px;
   }
 
-  .scorecard-table th:last-child,
-  .scorecard-table td:last-child{
+  .scorecard-table th:nth-child(2),
+  .scorecard-table td:nth-child(2){
     left:96px;
     flex-basis:64px;
     min-width:64px;
