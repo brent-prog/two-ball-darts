@@ -98,6 +98,7 @@ function withVisibleScorecard(callback) {
 
 export default function MissingHoleGuardEnhancer() {
   const lastPlayerCountRef = useRef(0);
+  const allowNextClickRef = useRef(false);
 
   useEffect(() => {
     function checkPastHoleGaps({ announce = false, blockEvent = null } = {}) {
@@ -126,6 +127,13 @@ export default function MissingHoleGuardEnhancer() {
     const clickGuard = event => {
       const button = event.target?.closest?.('button');
       if (!button || text(button) !== 'Next Hole') return;
+
+      if (allowNextClickRef.current) {
+        allowNextClickRef.current = false;
+        clearWarning();
+        return;
+      }
+
       const hole = currentHoleNumber();
       if (!hole) return;
 
@@ -149,6 +157,7 @@ export default function MissingHoleGuardEnhancer() {
             return;
           }
           clearWarning();
+          allowNextClickRef.current = true;
           button.click();
         });
         return;
