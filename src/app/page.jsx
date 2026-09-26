@@ -94,6 +94,15 @@ function scoreTwoDarts(dart1, dart2) {
   return { title: 'Triple bogey', matchedRule: 'triple_bogey', scoreKey: 'triple_bogey', answer: 'No target hits plus at least one hazard/off-board miss. Score: TRIPLE BOGEY (+3). Strokes: 6.' };
 }
 
+const dartReactionByScoreKey = {
+  eagle: 'HOLY SHIT!',
+  birdie: 'NICE THROW!',
+  par: 'SOLID.',
+  bogey: 'MEH.',
+  double_bogey: 'FUCK.',
+  triple_bogey: 'GODDAMN FUCK SHIT.'
+};
+
 function symbolClass(score) {
   if (score === -2) return 'eagle';
   if (score === -1) return 'birdie';
@@ -261,7 +270,7 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
     window.setTimeout(() => onScore(result.scoreKey), 1200);
   }
 
-  return <div className="tbd-score-modal-shell"><div className="card tbd-score-modal-card"><div className="tbd-score-modal-title-row"><div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div><button className="button secondary" onClick={onClose}>Close</button></div><div className="tbd-quick-score-grid">{scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}>{result.label} {fmt(result.score)}</button>)}</div><div className="tbd-dart-score-card"><p className="eyebrow">Score by Darts</p><div className="tbd-dart-select-grid has-custom-dart-pickers"><DartChoiceGroup label="Dart 1" value={dartOne} setValue={value => chooseDart(setDartOne, value, dartTwo)} /><DartChoiceGroup label="Dart 2" value={dartTwo} setValue={value => chooseDart(setDartTwo, value, dartOne)} /></div>{!dartAnnouncement && <div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div>}</div><button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button></div>{dartAnnouncement && <div role="status" aria-live="assertive" style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'grid', placeItems: 'center', padding: '24px', background: 'rgba(2,20,15,.82)', backdropFilter: 'blur(3px)' }}><div style={{ width: 'min(420px, 88vw)', border: '3px solid #d0a948', borderRadius: '24px', padding: '28px 22px', textAlign: 'center', background: '#063927', boxShadow: '0 24px 70px rgba(0,0,0,.55)' }}><span style={{ display: 'block', color: '#d0a948', fontSize: '.8rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.12em' }}>Hole {activeHole}</span><strong style={{ display: 'block', marginTop: '8px', color: '#fff4d6', fontSize: 'clamp(2.2rem, 11vw, 4.2rem)', lineHeight: 1, textTransform: 'uppercase' }}>{dartAnnouncement.title}!</strong><strong style={{ display: 'block', marginTop: '10px', color: '#d0a948', fontSize: 'clamp(1.8rem, 8vw, 3rem)', lineHeight: 1 }}>{fmt(scoreByKey.get(dartAnnouncement.scoreKey)?.score ?? 0)}</strong></div></div>}</div>;
+  return <div className="tbd-score-modal-shell"><div className="card tbd-score-modal-card"><div className="tbd-score-modal-title-row"><div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div><button className="button secondary" onClick={onClose}>Close</button></div><div className="tbd-quick-score-grid">{scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}>{result.label} {fmt(result.score)}</button>)}</div><div className="tbd-dart-score-card"><p className="eyebrow">Score by Darts</p><div className="tbd-dart-select-grid has-custom-dart-pickers"><DartChoiceGroup label="Dart 1" value={dartOne} setValue={value => chooseDart(setDartOne, value, dartTwo)} /><DartChoiceGroup label="Dart 2" value={dartTwo} setValue={value => chooseDart(setDartTwo, value, dartOne)} /></div>{!dartAnnouncement && <div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div>}</div><button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button></div>{dartAnnouncement && <div role="status" aria-live="assertive" className={`tbd-dart-announcement is-${dartAnnouncement.scoreKey}`}><div className="tbd-dart-announcement-card"><span className="tbd-dart-announcement-hole">Hole {activeHole}</span><strong className="tbd-dart-announcement-reaction">{dartReactionByScoreKey[dartAnnouncement.scoreKey]}</strong><span className="tbd-dart-announcement-result">{dartAnnouncement.title}</span><strong className="tbd-dart-announcement-score">{fmt(scoreByKey.get(dartAnnouncement.scoreKey)?.score ?? 0)}</strong></div></div>}</div>;
 }
 
 export default function Home() {
