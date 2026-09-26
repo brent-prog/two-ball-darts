@@ -1,7 +1,10 @@
-/* Compact rotating gameplay ad prototype - preview branch only. */
+/* Fixed rotating gameplay ad system. Every creative uses the same shell. */
 #scorecard .tbd-gameplay-ad{
   position:relative;
-  min-height:88px;
+  height:96px;
+  min-height:96px;
+  max-height:96px;
+  box-sizing:border-box;
   overflow:hidden;
   border:1px solid rgba(208,169,72,.46);
   border-radius:16px;
@@ -15,19 +18,22 @@
 #scorecard .tbd-gameplay-ad>.tbd-ad-static{
   position:relative;
   z-index:2;
-  min-height:88px;
+  width:100%;
+  height:100%;
+  min-height:0;
+  box-sizing:border-box;
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   gap:14px;
   align-items:center;
-  padding:14px 18px 14px 20px;
+  padding:12px 18px 12px 20px;
   color:inherit;
   text-decoration:none;
 }
 
 #scorecard .tbd-ad-label{
   position:absolute;
-  z-index:4;
+  z-index:6;
   top:7px;
   right:9px;
   padding:2px 5px;
@@ -81,7 +87,7 @@
   z-index:2;
   align-self:center;
   min-width:108px;
-  padding:10px 12px;
+  padding:9px 12px;
   border:1px solid rgba(208,169,72,.62);
   border-radius:10px;
   background:rgba(2,20,15,.72);
@@ -116,7 +122,7 @@
 
 #scorecard .tbd-ad-dots{
   position:absolute;
-  z-index:5;
+  z-index:7;
   right:12px;
   bottom:8px;
   display:flex;
@@ -140,17 +146,60 @@
   to{transform:rotate(360deg) translateX(7px) rotate(-360deg);}
 }
 
+/* Sponsored image creatives use exactly the same shell as text creatives.
+   The full ad remains visible on both desktop and mobile. A dimmed full-bleed
+   copy fills any unused side area so the card still reads as one banner. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--image{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--image::before{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  z-index:0;
+  background-image:
+    linear-gradient(rgba(2,20,15,.46),rgba(2,20,15,.46)),
+    var(--tbd-ad-image-bg);
+  background-position:center;
+  background-size:cover;
+  filter:blur(5px);
+  transform:scale(1.04);
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--image .tbd-ad-image{
+  position:relative;
+  z-index:1;
+  display:block;
+  width:auto;
+  height:100%;
+  max-width:100%;
+  min-height:0;
+  object-fit:contain;
+  object-position:center;
+}
+
 @media(max-width:620px){
   #scorecard .tbd-gameplay-ad{
-    min-height:76px;
+    height:84px;
+    min-height:84px;
+    max-height:84px;
   }
 
   #scorecard .tbd-gameplay-ad>a,
   #scorecard .tbd-gameplay-ad>.tbd-ad-static{
-    min-height:76px;
     grid-template-columns:minmax(0,1fr) auto;
     gap:8px;
-    padding:11px 12px 11px 14px;
+    padding:10px 12px 10px 14px;
   }
 
   #scorecard .tbd-ad-copy strong{
@@ -164,61 +213,11 @@
 
   #scorecard .tbd-ad-cta{
     min-width:82px;
-    padding:8px 8px;
+    padding:7px 8px;
     font-size:.68rem;
   }
 }
 
 @media(prefers-reduced-motion:reduce){
   #scorecard .tbd-ad-motion span{animation:none!important;}
-}
-
-#scorecard .tbd-gameplay-ad .tbd-ad-image{
-  display:block;
-  width:100%;
-  height:100%;
-  min-height:88px;
-  object-fit:cover;
-  object-position:center;
-}
-
-@media(max-width:620px){
-  #scorecard .tbd-gameplay-ad .tbd-ad-image{
-    min-height:76px;
-  }
-}
-
-
-/* Sponsored image creatives stay only slightly taller than the standard promo slot.
-   Keep the full creative visible without letting its source aspect ratio stretch the gameplay card. */
-#scorecard .tbd-gameplay-ad:has(.tbd-ad-link--image){
-  height:120px;
-  min-height:120px;
-}
-#scorecard .tbd-gameplay-ad .tbd-ad-link--image{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  height:100%;
-  padding:0 10px;
-  box-sizing:border-box;
-}
-#scorecard .tbd-gameplay-ad .tbd-ad-link--image .tbd-ad-image{
-  display:block;
-  width:auto;
-  height:100%;
-  max-width:100%;
-  min-height:0;
-  object-fit:contain;
-  object-position:center;
-}
-
-@media(max-width:620px){
-  #scorecard .tbd-gameplay-ad:has(.tbd-ad-link--image){
-    height:96px;
-    min-height:96px;
-  }
 }

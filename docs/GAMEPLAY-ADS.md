@@ -14,15 +14,17 @@ This is the locked production contract for all sponsored image ads in the gamepl
 
 ## App behaviour
 - Image ads use the existing GameplayAdSlot rotation.
-- The app reserves an **8:3** slot for image creatives.
-- Images fill that slot with `object-fit: cover`.
-- Explicit intrinsic dimensions are **360 x 135**.
+- **Every gameplay ad uses the same fixed shell.** There is no image-specific slot height.
+- Desktop shell height: **96 px**.
+- Mobile shell height (<=620 px): **84 px**.
+- Sponsored images render with `object-fit: contain` so the approved creative remains intact.
+- A dimmed full-bleed copy of the image fills any unused side area behind the contained creative.
 - An image creative must never change the height of the gameplay card.
 - Sponsored links open in a new tab with `noopener noreferrer`.
 - Existing rotation timing remains unchanged unless explicitly requested.
 
 ## Pre-push checklist
-1. Confirm final production asset is exactly 1080 x 405 and the app displays it at 360 x 135.
+1. Confirm final production asset is exactly 1080 x 405 and remains readable inside the fixed 96 px desktop / 84 px mobile shell.
 2. Confirm WebP decodes successfully.
 3. Confirm advertiser branding/logo is authentic.
 4. Confirm text is readable at phone width.
@@ -35,3 +37,8 @@ This is the locked production contract for all sponsored image ads in the gamepl
 
 ## Logo source of truth
 - Use the exact advertiser-supplied or official logo asset. Never generate, redraw, approximate, or invent an advertiser logo.
+
+## Fixed-slot rule
+- The rotation must never resize when the creative changes.
+- Standard TwoBall promos, Tiger, Inflight, and every future sponsored creative all use the exact same outer shell at a given breakpoint.
+- Do not add per-ad height, min-height, max-height, aspect-ratio, or layout exceptions.

@@ -94,6 +94,7 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
           href={creative.href}
           target="_blank"
           rel="noopener noreferrer"
+          style={creative.imageSrc ? { '--tbd-ad-image-bg': `url("${creative.imageSrc}")` } : undefined}
         >
           {content}
         </a>
