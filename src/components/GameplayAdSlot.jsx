@@ -9,8 +9,6 @@ const DEFAULT_CREATIVES = [
   {
     id: 'keep-fun-simple',
     theme: 'kfs',
-    logoSrc: '/kfs-logo.png?v=20261002-1',
-    logoAlt: 'KeepFunSimple',
     kicker: 'KEEP FUN SIMPLE',
     headline: 'WEAR THE FUN. BRING THE GAME.',
     body: 'TwoBall gear, KFS apparel and more good shit worth showing up in.',
@@ -84,7 +82,13 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
           />
         ) : null}
         <div className="tbd-ad-copy-text">
-          <span className="tbd-ad-kicker">{creative.kicker}</span>
+          {creative.theme === 'kfs' ? (
+      <span className="tbd-ad-kicker tbd-kfs-wordmark">
+        <span>KEEP</span> <em>FUN</em> <span>SIMPLE</span>
+      </span>
+    ) : (
+      <span className="tbd-ad-kicker">{creative.kicker}</span>
+    )}
           <strong>{creative.headline}</strong>
           <span className="tbd-ad-body">{creative.body}</span>
         </div>
