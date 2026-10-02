@@ -752,3 +752,42 @@
     line-height:1;
   }
 }
+
+
+/* KFS reference composition: transparent official mark, clean black field,
+   no decorative yellow corner shape, and all live copy contained in-slot. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs::after{
+  display:none;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
+  filter:invert(1);
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy-text{
+  overflow:visible;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy strong{
+  overflow:visible;
+}
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs{
+    padding:7px 10px 7px 11px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy{
+    gap:8px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
+    width:48px;
+    height:48px;
+    flex-basis:48px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy strong{
+    max-width:190px;
+    font-size:.82rem;
+    line-height:.9;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-cta{
+    min-width:94px;
+    margin-right:0;
+    padding:9px 7px;
+  }
+}
