@@ -1174,3 +1174,31 @@
     white-space:nowrap;
   }
 }
+
+
+/* Inflight CTA: compact integrated pill, not a large white card. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-cta{
+  min-width:86px;
+  padding:8px 11px;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:999px;
+  background:rgba(255,255,255,.10);
+  color:#fff;
+  box-shadow:none;
+}
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight{
+    grid-template-columns:minmax(0,1fr) 66px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-cta{
+    width:58px;
+    min-width:58px;
+    margin-right:7px;
+    padding:7px 4px;
+    border-radius:999px;
+    background:rgba(255,255,255,.10);
+    color:#fff;
+    font-size:.43rem;
+    letter-spacing:.025em;
+  }
+}
