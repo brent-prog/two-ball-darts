@@ -67,3 +67,13 @@ This is the locked production contract for all gameplay ads.
 - Tiger, Inflight, and every future advertiser use structured responsive HTML/CSS, not a flattened banner.
 - If a sponsor's desktop and mobile composition differ materially, the implementation is wrong.
 - Preserve approved creative copy and advertiser branding when fixing responsive behaviour.
+
+
+## Sponsor art-direction standard
+- Responsive HTML/CSS is the structural rule, not a reason to make sponsor ads visually generic.
+- Preserve the strongest approved campaign idea and visual device inside the live responsive system.
+- Use scene imagery, diagonal cuts, brand-colour fields, contrast, texture and typography treatments to make the ad feel designed.
+- **Never change approved sponsor copy while performing a visual refresh.**
+- **Never replace, redraw, approximate, recolour, or regenerate the official sponsor logo.**
+- Tiger benchmark: preserve the dart-plugging-the-leak visual, black/orange energy, approved hazard copy, KW/Guelph, phone and service line.
+- Inflight benchmark: preserve the official Inflight logo, approved "BE PREPARED TO FLY!" copy, approved "ONLINE FLIGHT ATTENDANT TRAINING" copy, and existing CTA behaviour.
