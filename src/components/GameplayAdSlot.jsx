@@ -9,7 +9,7 @@ const DEFAULT_CREATIVES = [
   {
     id: 'keep-fun-simple',
     theme: 'kfs',
-    logoSrc: '/keepfunsimple-logo-transparent.svg',
+    logoSrc: '/kfs-logo.png?v=20261002-1',
     logoAlt: 'KeepFunSimple',
     kicker: 'KEEP FUN SIMPLE',
     headline: 'GOOD GAMES. BETTER COMPANY.',

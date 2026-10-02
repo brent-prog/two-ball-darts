@@ -212,10 +212,7 @@
 /* KeepFunSimple first-party store creative.
    Uses the exact approved KFS logo asset from brent-prog/keepfunsimple. */
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs{
-  background:
-    radial-gradient(circle at 86% -10%, rgba(36,87,245,.18) 0 12%, transparent 12.5%),
-    radial-gradient(circle at 93% 78%, rgba(244,196,48,.26) 0 15%, transparent 15.5%),
-    #f6f3ec;
+  background:#f6f3ec;
   color:#111;
 }
 
@@ -227,9 +224,9 @@
 
 #scorecard .tbd-gameplay-ad .tbd-ad-brand-logo{
   display:block;
-  width:58px;
-  height:58px;
-  flex:0 0 58px;
+  width:60px;
+  height:60px;
+  flex:0 0 60px;
   object-fit:contain;
 }
 
@@ -267,9 +264,9 @@
   }
 
   #scorecard .tbd-gameplay-ad .tbd-ad-brand-logo{
-    width:46px;
-    height:46px;
-    flex-basis:46px;
+    width:48px;
+    height:48px;
+    flex-basis:48px;
   }
 
   #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-body{

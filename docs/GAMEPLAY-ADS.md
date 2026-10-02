@@ -53,6 +53,6 @@ This is the locked production contract for all sponsored image ads in the gamepl
 ## KeepFunSimple first-party creative
 - The former "TwoBall Swag" card is now a KeepFunSimple store ad.
 - Destination: **https://keepfunsimple.com**
-- Use the exact approved KeepFunSimple logo copied from `brent-prog/keepfunsimple/public/brand/keepfunsimple-logo-transparent.svg`.
+- Use the exact approved KeepFunSimple PNG logo copied from `brent-prog/keepfunsimple/public/brand/kfs-logo.png`.
 - Do not recreate or approximate the KFS logo.
 - The KFS card still uses the same fixed gameplay-ad shell as every other creative.
