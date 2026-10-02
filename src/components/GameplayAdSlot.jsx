@@ -12,9 +12,9 @@ const DEFAULT_CREATIVES = [
     logoSrc: '/kfs-logo.png?v=20261002-1',
     logoAlt: 'KeepFunSimple',
     kicker: 'KEEP FUN SIMPLE',
-    headline: 'GOOD GAMES. BETTER COMPANY.',
-    body: 'TwoBall gear, RockPail and more good shit to play.',
-    cta: 'KEEPFUNSIMPLE.COM',
+    headline: 'WEAR THE FUN. BRING THE GAME.',
+    body: 'TwoBall gear, KFS apparel and more good shit worth showing up in.',
+    cta: 'SHOP THE MERCH',
     href: 'https://keepfunsimple.com'
   },
   {
