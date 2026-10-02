@@ -64,3 +64,9 @@ This is the locked production contract for all sponsored image ads in the gamepl
 - Brand palette source of truth: yellow `#f4ea00`, purple `#23005f`, sand `#f6f4ea`.
 - Do not recreate or approximate the RockPail logo.
 - RockPail uses the same fixed gameplay-ad shell as every other creative.
+
+
+## KFS visual treatment source of truth
+- KeepFunSimple ad styling must use the live KFS site palette from `brent-prog/keepfunsimple/app/globals.css`: ink `#111111`, paper `#FAF8F2`, bone `#F3E9D7`, oxblood `#B23B2E`, mustard `#F2C230`, lake `#3F8CC9`, plum `#7B5BBF`, teal `#2FB4A8`.
+- KFS ads should feel graphic, bright, playful and socially wearable - not corporate, beige, or generic lifestyle advertising.
+- Preserve approved ad copy unless explicitly asked to change it.

@@ -210,52 +210,124 @@
 
 
 /* KeepFunSimple first-party store creative.
-   Uses the exact approved KFS logo asset from brent-prog/keepfunsimple. */
+   Uses the exact approved KFS logo plus the live KFS brand palette:
+   ink #111111, paper #FAF8F2, bone #F3E9D7, oxblood #B23B2E,
+   mustard #F2C230, lake #3F8CC9, plum #7B5BBF, teal #2FB4A8. */
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs{
-  background:#f6f3ec;
-  color:#111;
+  position:relative;
+  overflow:hidden;
+  background:#FAF8F2;
+  color:#111111;
+}
+
+/* Strong KFS colour blocks - playful, graphic and unmistakably branded. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:8px;
+  background:linear-gradient(
+    to bottom,
+    #F2C230 0 25%,
+    #3F8CC9 25% 50%,
+    #7B5BBF 50% 75%,
+    #2FB4A8 75% 100%
+  );
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs::after{
+  content:"";
+  position:absolute;
+  right:-38px;
+  bottom:-44px;
+  width:150px;
+  height:110px;
+  border-radius:52% 48% 0 0;
+  background:
+    radial-gradient(circle at 35% 35%, #F2C230 0 28%, transparent 29%),
+    radial-gradient(circle at 70% 20%, #7B5BBF 0 22%, transparent 23%),
+    radial-gradient(circle at 74% 74%, #2FB4A8 0 28%, transparent 29%),
+    radial-gradient(circle at 22% 76%, #3F8CC9 0 24%, transparent 25%);
+  opacity:.95;
+  transform:rotate(-6deg);
+  pointer-events:none;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-motion{
+  display:none;
 }
 
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy{
   display:flex;
   align-items:center;
   gap:14px;
+  min-width:0;
+  padding-left:4px;
 }
 
-#scorecard .tbd-gameplay-ad .tbd-ad-brand-logo{
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
   display:block;
-  width:60px;
-  height:60px;
-  flex:0 0 60px;
+  width:68px;
+  height:68px;
+  flex:0 0 68px;
   object-fit:contain;
+  background:#fff;
+  border:2px solid #111111;
+  border-radius:50%;
+  padding:3px;
+  transform:rotate(-2deg);
 }
 
-#scorecard .tbd-gameplay-ad .tbd-ad-copy-text{
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy-text{
   display:grid;
   gap:2px;
   min-width:0;
 }
 
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-kicker{
-  color:#f04432;
+  color:#B23B2E;
+  font-family:"Barlow Condensed",sans-serif;
+  font-weight:900;
+  letter-spacing:.16em;
 }
 
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy strong{
-  color:#111;
+  color:#111111;
+  font-family:"Barlow Condensed",sans-serif;
+  font-weight:900;
+  letter-spacing:.01em;
+  text-shadow:none;
 }
 
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-body{
-  color:rgba(17,17,17,.7);
+  color:rgba(17,17,17,.68);
+  font-weight:700;
 }
 
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-cta{
-  border-color:#111;
-  background:#111;
-  color:#f6f3ec;
+  position:relative;
+  z-index:3;
+  border:2px solid #111111;
+  border-radius:0;
+  background:#F2C230;
+  color:#111111;
+  box-shadow:4px 4px 0 #111111;
+  font-weight:900;
+  transform:rotate(-1deg);
 }
 
-#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-motion span{
-  border-color:rgba(17,17,17,.08);
+#scorecard .tbd-gameplay-ad:has(.tbd-ad-link--kfs) .tbd-ad-label{
+  border-color:rgba(17,17,17,.18);
+  color:rgba(17,17,17,.42);
+  background:rgba(250,248,242,.78);
+}
+
+#scorecard .tbd-gameplay-ad:has(.tbd-ad-link--kfs) .tbd-ad-dots span{
+  background:rgba(17,17,17,.18);
+}
+
+#scorecard .tbd-gameplay-ad:has(.tbd-ad-link--kfs) .tbd-ad-dots span.is-active{
+  background:#B23B2E;
 }
 
 @media(max-width:620px){
@@ -263,10 +335,11 @@
     gap:8px;
   }
 
-  #scorecard .tbd-gameplay-ad .tbd-ad-brand-logo{
-    width:48px;
-    height:48px;
-    flex-basis:48px;
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
+    width:50px;
+    height:50px;
+    flex-basis:50px;
+    padding:2px;
   }
 
   #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-body{
@@ -275,9 +348,15 @@
 
   #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-cta{
     min-width:96px;
+    box-shadow:3px 3px 0 #111111;
+  }
+
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs::after{
+    right:-52px;
+    bottom:-50px;
+    transform:scale(.82) rotate(-6deg);
   }
 }
-
 
 /* RockPail first-party brand creative.
    Exact brand palette from the RockPail project:
