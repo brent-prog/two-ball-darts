@@ -30,14 +30,27 @@ const DEFAULT_CREATIVES = [
   },
   {
     id: 'tiger-plumbing',
-    imageSrc: '/tiger-plumbing-app-banner.webp?v=20260924-1',
-    imageAlt: 'Tiger Plumbing - A leak is a hazard. You don’t play through.',
+    kind: 'sponsor',
+    theme: 'tiger',
+    logoSrc: '/tiger-logo.webp?v=20261002-1',
+    logoAlt: 'Tiger Plumbing',
+    headline: 'A LEAK IS A HAZARD.',
+    accentLine: 'YOU DON’T PLAY THROUGH.',
+    meta: 'KW / GUELPH • 519-585-1840',
+    detail: 'PLUMBING • HEATING • DRAINS • WATER TREATMENT',
+    sceneSrc: '/tiger-plumbing-app-banner.webp?v=20261002-responsive',
     href: 'https://www.tigerplumbing.ca/'
   },
   {
     id: 'inflight-institute',
-    imageSrc: '/inflight-institute-app-banner.webp',
-    imageAlt: 'Inflight Institute - Your career could take off from here.',
+    kind: 'sponsor',
+    theme: 'inflight',
+    logoSrc: '/inflight-logo.webp?v=20261002-1',
+    logoAlt: 'Inflight Institute',
+    headline: 'BE PREPARED TO FLY!',
+    body: 'ONLINE FLIGHT ATTENDANT TRAINING',
+    cta: 'LEARN MORE',
+    sceneSrc: '/inflight-institute-app-banner.webp?v=20261002-responsive',
     href: 'https://www.inflightinstitute.com/'
   }
 ];
@@ -58,7 +71,31 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
 
   const creative = available[activeIndex % available.length];
 
-  const content = creative.imageSrc ? (
+  const content = creative.kind === 'sponsor' ? (
+    <>
+      <div
+        className={`tbd-sponsor-scene tbd-sponsor-scene--${creative.theme}`}
+        style={{ '--tbd-sponsor-scene': `url("${creative.sceneSrc}")` }}
+        aria-hidden="true"
+      />
+      <div className="tbd-sponsor-copy">
+        <img
+          className="tbd-sponsor-logo"
+          src={creative.logoSrc}
+          alt={creative.logoAlt || ''}
+          decoding="async"
+        />
+        <div className="tbd-sponsor-message">
+          <strong>{creative.headline}</strong>
+          {creative.accentLine ? <span className="tbd-sponsor-accent">{creative.accentLine}</span> : null}
+          {creative.body ? <span className="tbd-sponsor-body">{creative.body}</span> : null}
+          {creative.meta ? <span className="tbd-sponsor-meta">{creative.meta}</span> : null}
+          {creative.detail ? <span className="tbd-sponsor-detail">{creative.detail}</span> : null}
+        </div>
+      </div>
+      {creative.cta ? <div className="tbd-sponsor-cta">{creative.cta}</div> : null}
+    </>
+  ) : creative.imageSrc ? (
     <img
       className="tbd-ad-image"
       src={creative.imageSrc}
@@ -108,7 +145,10 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
             'tbd-ad-link',
             creative.imageSrc ? 'tbd-ad-link--image' : '',
             creative.theme === 'kfs' ? 'tbd-ad-link--kfs' : '',
-            creative.theme === 'rockpail' ? 'tbd-ad-link--rockpail' : ''
+            creative.theme === 'rockpail' ? 'tbd-ad-link--rockpail' : '',
+            creative.kind === 'sponsor' ? 'tbd-ad-link--sponsor' : '',
+            creative.theme === 'tiger' ? 'tbd-ad-link--tiger' : '',
+            creative.theme === 'inflight' ? 'tbd-ad-link--inflight' : ''
           ].filter(Boolean).join(' ')}
           href={creative.href}
           target="_blank"

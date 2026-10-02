@@ -381,3 +381,218 @@
     flex-basis:58px;
   }
 }
+
+
+/* Responsive sponsor creatives.
+   Sponsor logos and copy are live HTML/CSS. The existing wide artwork is used only
+   as crop-able scene imagery so desktop and mobile preserve the same information hierarchy. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--sponsor{
+  position:relative;
+  display:grid;
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding:0;
+  gap:0;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-sponsor-scene{
+  min-width:0;
+  min-height:0;
+  background-image:var(--tbd-sponsor-scene);
+  background-repeat:no-repeat;
+  background-size:auto 100%;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-sponsor-copy{
+  position:relative;
+  z-index:2;
+  display:grid;
+  align-content:center;
+  min-width:0;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-sponsor-logo{
+  display:block;
+  width:auto;
+  object-fit:contain;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-sponsor-message{
+  display:grid;
+  min-width:0;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-sponsor-message strong{
+  font-family:"Barlow Condensed",sans-serif;
+  text-transform:uppercase;
+  line-height:.92;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-sponsor-cta{
+  position:relative;
+  z-index:3;
+  align-self:center;
+  justify-self:end;
+  white-space:nowrap;
+  font-family:"Barlow Condensed",sans-serif;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+/* Tiger Plumbing */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger{
+  grid-template-columns:29% minmax(0,1fr);
+  background:#080808;
+  color:#fff;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-scene{
+  grid-column:1;
+  grid-row:1;
+  background-position:left center;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-copy{
+  grid-column:2;
+  grid-row:1;
+  grid-template-columns:104px minmax(0,1fr);
+  gap:12px;
+  padding:7px 34px 7px 12px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-logo{
+  width:104px;
+  max-height:54px;
+  align-self:center;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-message{
+  align-content:center;
+  gap:1px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-message strong{
+  color:#fff;
+  font-size:1.06rem;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-accent{
+  color:#ff6b1a;
+  font-family:"Barlow Condensed",sans-serif;
+  font-size:.98rem;
+  font-weight:900;
+  line-height:.95;
+  text-transform:uppercase;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-meta{
+  color:#fff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-detail{
+  color:rgba(255,255,255,.56);
+  font-size:.47rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+
+/* Inflight Institute */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight{
+  grid-template-columns:minmax(0,1fr) 30%;
+  background:linear-gradient(90deg,#f8fbff 0%,#eef7ff 69%,#d7ecfb 100%);
+  color:#073665;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-scene{
+  grid-column:2;
+  grid-row:1;
+  background-position:right center;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-copy{
+  grid-column:1;
+  grid-row:1;
+  grid-template-columns:108px minmax(0,1fr);
+  gap:13px;
+  padding:7px 96px 7px 14px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-logo{
+  width:108px;
+  max-height:52px;
+  align-self:center;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message{
+  align-content:center;
+  gap:2px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message strong{
+  color:#073665;
+  font-size:1.16rem;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-body{
+  color:#0a72bd;
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-cta{
+  position:absolute;
+  right:calc(30% + 12px);
+  bottom:9px;
+  padding:5px 9px;
+  border-radius:6px;
+  background:#0a72bd;
+  color:#fff;
+  font-size:.6rem;
+}
+
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger{
+    grid-template-columns:30% minmax(0,1fr);
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-copy{
+    grid-template-columns:72px minmax(0,1fr);
+    gap:6px;
+    padding:5px 24px 5px 7px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-logo{
+    width:72px;
+    max-height:40px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-message strong{
+    font-size:.78rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-accent{
+    font-size:.72rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-meta{
+    font-size:.51rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-detail{
+    display:none;
+  }
+
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight{
+    grid-template-columns:minmax(0,1fr) 31%;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-copy{
+    grid-template-columns:74px minmax(0,1fr);
+    gap:6px;
+    padding:5px 66px 5px 7px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-logo{
+    width:74px;
+    max-height:36px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message strong{
+    font-size:.8rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-body{
+    font-size:.49rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-cta{
+    right:calc(31% + 7px);
+    bottom:6px;
+    padding:4px 6px;
+    font-size:.49rem;
+  }
+}
