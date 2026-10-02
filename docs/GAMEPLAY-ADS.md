@@ -48,3 +48,11 @@ This is the locked production contract for all sponsored image ads in the gamepl
 - Keep logos, headlines, phone numbers, location text, and CTAs inside the central **80%** of the canvas.
 - The outer 10% on each side is background-only crop allowance for narrower mobile layouts.
 - Do not use blurred duplicate-image side fills in the app. The creative itself must supply its own edge background.
+
+
+## KeepFunSimple first-party creative
+- The former "TwoBall Swag" card is now a KeepFunSimple store ad.
+- Destination: **https://keepfunsimple.com**
+- Use the exact approved KeepFunSimple logo copied from `brent-prog/keepfunsimple/public/brand/keepfunsimple-logo-transparent.svg`.
+- Do not recreate or approximate the KFS logo.
+- The KFS card still uses the same fixed gameplay-ad shell as every other creative.

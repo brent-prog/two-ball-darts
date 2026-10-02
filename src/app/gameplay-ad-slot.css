@@ -207,3 +207,76 @@
 @media(prefers-reduced-motion:reduce){
   #scorecard .tbd-ad-motion span{animation:none!important;}
 }
+
+
+/* KeepFunSimple first-party store creative.
+   Uses the exact approved KFS logo asset from brent-prog/keepfunsimple. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs{
+  background:
+    radial-gradient(circle at 86% -10%, rgba(36,87,245,.18) 0 12%, transparent 12.5%),
+    radial-gradient(circle at 93% 78%, rgba(244,196,48,.26) 0 15%, transparent 15.5%),
+    #f6f3ec;
+  color:#111;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-brand-logo{
+  display:block;
+  width:58px;
+  height:58px;
+  flex:0 0 58px;
+  object-fit:contain;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-copy-text{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-kicker{
+  color:#f04432;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy strong{
+  color:#111;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-body{
+  color:rgba(17,17,17,.7);
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-cta{
+  border-color:#111;
+  background:#111;
+  color:#f6f3ec;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-motion span{
+  border-color:rgba(17,17,17,.08);
+}
+
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy{
+    gap:8px;
+  }
+
+  #scorecard .tbd-gameplay-ad .tbd-ad-brand-logo{
+    width:46px;
+    height:46px;
+    flex-basis:46px;
+  }
+
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-body{
+    max-width:42vw;
+  }
+
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-cta{
+    min-width:96px;
+  }
+}

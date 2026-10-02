@@ -7,12 +7,15 @@ const IMAGE_AD_HEIGHT = 135;
 
 const DEFAULT_CREATIVES = [
   {
-    id: 'swag',
-    kicker: 'TWOBALL SWAG',
-    headline: 'LOOK GOOD. MISS BETTER.',
-    body: 'Official TwoBall gear is coming.',
-    cta: 'COMING SOON',
-    href: 'https://twoballdarts.com'
+    id: 'keep-fun-simple',
+    theme: 'kfs',
+    logoSrc: '/keepfunsimple-logo-transparent.svg',
+    logoAlt: 'KeepFunSimple',
+    kicker: 'KEEP FUN SIMPLE',
+    headline: 'GOOD GAMES. BETTER COMPANY.',
+    body: 'TwoBall gear, RockPail and more good shit to play.',
+    cta: 'KEEPFUNSIMPLE.COM',
+    href: 'https://keepfunsimple.com'
   },
   {
     id: 'rivalry',
@@ -77,9 +80,19 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
         <span />
       </div>
       <div className="tbd-ad-copy">
-        <span className="tbd-ad-kicker">{creative.kicker}</span>
-        <strong>{creative.headline}</strong>
-        <span className="tbd-ad-body">{creative.body}</span>
+        {creative.logoSrc ? (
+          <img
+            className="tbd-ad-brand-logo"
+            src={creative.logoSrc}
+            alt={creative.logoAlt || ''}
+            decoding="async"
+          />
+        ) : null}
+        <div className="tbd-ad-copy-text">
+          <span className="tbd-ad-kicker">{creative.kicker}</span>
+          <strong>{creative.headline}</strong>
+          <span className="tbd-ad-body">{creative.body}</span>
+        </div>
       </div>
       <div className="tbd-ad-cta">{creative.cta}</div>
     </>
@@ -90,7 +103,11 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
       <span className="tbd-ad-label">AD</span>
       {creative.href ? (
         <a
-          className={creative.imageSrc ? 'tbd-ad-link tbd-ad-link--image' : 'tbd-ad-link'}
+          className={[
+            'tbd-ad-link',
+            creative.imageSrc ? 'tbd-ad-link--image' : '',
+            creative.theme === 'kfs' ? 'tbd-ad-link--kfs' : ''
+          ].filter(Boolean).join(' ')}
           href={creative.href}
           target="_blank"
           rel="noopener noreferrer"
