@@ -698,3 +698,57 @@
     font-size:.48rem;
   }
 }
+
+
+/* KFS gameplay-ad mobile polish: keep the official mark visible and make the
+   approved message read as an intentional banner rather than clipped web copy. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
+  width:58px;
+  height:58px;
+  flex-basis:58px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy strong{
+  max-width:390px;
+  font-size:clamp(1.05rem,2.45vw,1.42rem);
+  line-height:.92;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-body{
+  font-size:.7rem;
+}
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:7px;
+    padding:7px 10px 7px 12px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy{
+    gap:7px;
+    padding-left:3px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
+    width:46px;
+    height:46px;
+    flex-basis:46px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy-text{
+    gap:1px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-kfs-wordmark{
+    font-size:.55rem;
+    letter-spacing:.1em;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy strong{
+    font-size:.91rem;
+    line-height:.9;
+    letter-spacing:0;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-body{
+    display:none;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-cta{
+    min-width:92px;
+    padding:8px 7px;
+    font-size:.62rem;
+    line-height:1;
+  }
+}
