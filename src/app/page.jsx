@@ -97,7 +97,7 @@ function scoreTwoDarts(dart1, dart2) {
 
 const dartReactionByScoreKey = {
   eagle: 'HOLY SHIT!',
-  birdie: 'NICE THROW!',
+  birdie: 'BOOM!',
   par: 'SOLID.',
   bogey: 'MEH.',
   double_bogey: 'FUCK.',
