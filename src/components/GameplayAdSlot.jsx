@@ -9,11 +9,11 @@ const DEFAULT_CREATIVES = [
   {
     id: 'keep-fun-simple',
     theme: 'kfs',
-    logoSrc: '/kfs-logo.png?v=20261002-3',
+    logoSrc: '/keepfunsimple-logo-transparent.svg?v=20261002-4',
     logoAlt: 'KeepFunSimple',
     kicker: 'KEEP FUN SIMPLE',
     headline: 'IF YOU’RE PLAYING TWOBALL, YOU’RE ALREADY KFS.',
-    body: 'Wear the gear. Keep the fun going after the last dart.',
+    body: '',
     cta: 'SHOP THE MERCH',
     href: 'https://keepfunsimple.com'
   },
