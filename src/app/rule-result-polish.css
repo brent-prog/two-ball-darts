@@ -163,34 +163,78 @@
 /* Eagle: biggest, rarest celebration. */
 .tbd-dart-announcement.is-eagle{
   background:
-    radial-gradient(circle at 50% 42%,rgba(255,244,214,.28),transparent 34%),
+    radial-gradient(circle at 50% 44%,rgba(255,255,255,.42) 0 8%,rgba(255,244,214,.3) 18%,rgba(208,169,72,.2) 34%,transparent 56%),
     rgba(2,20,15,.84);
-  animation:tbd-eagle-flash .55s ease-out both;
+  animation:tbd-eagle-flash .68s ease-out both;
 }
 
 .tbd-dart-announcement.is-eagle::before,
 .tbd-dart-announcement.is-eagle::after{
   content:'';
   position:absolute;
-  inset:-18vmax;
   pointer-events:none;
+}
+
+.tbd-dart-announcement.is-eagle::before{
+  inset:-24vmax;
   background:
-    repeating-conic-gradient(from 8deg,transparent 0 9deg,rgba(208,169,72,.9) 10deg 11deg,transparent 12deg 23deg);
-  opacity:.55;
-  animation:tbd-eagle-burst .75s cubic-bezier(.2,.8,.2,1) both;
+    repeating-conic-gradient(
+      from 4deg,
+      transparent 0 7deg,
+      rgba(255,244,214,.95) 8deg 9deg,
+      transparent 10deg 16deg,
+      rgba(208,169,72,.78) 17deg 19deg,
+      transparent 20deg 30deg
+    );
+  opacity:.78;
+  animation:tbd-eagle-burst .82s cubic-bezier(.12,.82,.18,1) both;
 }
 
 .tbd-dart-announcement.is-eagle::after{
-  inset:-8vmax;
-  opacity:.34;
-  transform:rotate(17deg);
-  animation-duration:.9s;
+  inset:0;
+  background:
+    radial-gradient(circle at 10% 20%,#fff4d6 0 4px,transparent 5px),
+    radial-gradient(circle at 22% 72%,#d0a948 0 5px,transparent 6px),
+    radial-gradient(circle at 36% 14%,#fff4d6 0 3px,transparent 4px),
+    radial-gradient(circle at 47% 82%,#d0a948 0 4px,transparent 5px),
+    radial-gradient(circle at 61% 18%,#fff4d6 0 5px,transparent 6px),
+    radial-gradient(circle at 73% 70%,#d0a948 0 3px,transparent 4px),
+    radial-gradient(circle at 86% 27%,#fff4d6 0 4px,transparent 5px),
+    radial-gradient(circle at 91% 80%,#d0a948 0 5px,transparent 6px),
+    linear-gradient(28deg,transparent 0 45%,rgba(255,244,214,.75) 46% 48%,transparent 49% 100%),
+    linear-gradient(-34deg,transparent 0 52%,rgba(208,169,72,.7) 53% 55%,transparent 56% 100%);
+  background-size:
+    180px 180px,220px 220px,200px 200px,240px 240px,
+    210px 210px,190px 190px,230px 230px,250px 250px,
+    120px 120px,140px 140px;
+  opacity:0;
+  animation:tbd-eagle-confetti .95s cubic-bezier(.16,.76,.22,1) both;
 }
 
 .tbd-dart-announcement.is-eagle .tbd-dart-announcement-card{
   border-color:#fff4d6;
-  box-shadow:0 0 0 4px #d0a948,0 28px 80px rgba(0,0,0,.62),0 0 52px rgba(208,169,72,.5);
-  animation:tbd-eagle-card .62s cubic-bezier(.18,.9,.24,1.35) both;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,244,214,.13),transparent 42%),
+    #063927;
+  box-shadow:
+    0 0 0 4px #d0a948,
+    0 0 0 8px rgba(255,244,214,.22),
+    0 30px 90px rgba(0,0,0,.66),
+    0 0 78px rgba(208,169,72,.72);
+  animation:tbd-eagle-card .72s cubic-bezier(.14,.9,.2,1.32) both;
+}
+
+.tbd-dart-announcement.is-eagle .tbd-dart-announcement-reaction{
+  text-shadow:
+    0 0 12px rgba(255,244,214,.75),
+    0 0 30px rgba(208,169,72,.58);
+  animation:tbd-eagle-reaction .72s cubic-bezier(.14,.9,.2,1.35) both;
+}
+
+.tbd-dart-announcement.is-eagle .tbd-dart-announcement-score{
+  color:#fff4d6;
+  text-shadow:0 0 18px rgba(208,169,72,.9);
+  animation:tbd-eagle-score .78s cubic-bezier(.16,.88,.2,1.25) both;
 }
 
 /* Birdie: energetic high-five pop. */
@@ -264,21 +308,45 @@
 }
 
 @keyframes tbd-eagle-flash{
-  0%{background-color:rgba(255,244,214,.92)}
-  24%{background-color:rgba(2,20,15,.7)}
+  0%{background-color:rgba(255,255,255,.98)}
+  12%{background-color:rgba(255,244,214,.76)}
+  30%{background-color:rgba(208,169,72,.34)}
   100%{background-color:rgba(2,20,15,.84)}
 }
 
 @keyframes tbd-eagle-burst{
-  from{transform:scale(.35) rotate(-8deg);opacity:0}
-  35%{opacity:.7}
-  to{transform:scale(1) rotate(5deg);opacity:.15}
+  0%{transform:scale(.12) rotate(-10deg);opacity:0}
+  28%{opacity:.95}
+  72%{transform:scale(.88) rotate(3deg);opacity:.52}
+  100%{transform:scale(1.12) rotate(7deg);opacity:.08}
+}
+
+@keyframes tbd-eagle-confetti{
+  0%{transform:scale(.7) translateY(-22px);opacity:0}
+  18%{opacity:1}
+  75%{opacity:.8}
+  100%{transform:scale(1.12) translateY(26px);opacity:.08}
 }
 
 @keyframes tbd-eagle-card{
-  0%{transform:scale(.55) rotate(-3deg);opacity:0}
-  58%{transform:scale(1.08) rotate(1deg);opacity:1}
+  0%{transform:scale(.38) rotate(-5deg);opacity:0}
+  42%{transform:scale(1.16) rotate(2deg);opacity:1}
+  68%{transform:scale(.97) rotate(-.5deg)}
   100%{transform:scale(1) rotate(0)}
+}
+
+@keyframes tbd-eagle-reaction{
+  0%{transform:scale(.55);letter-spacing:-.06em;opacity:0}
+  44%{transform:scale(1.16);letter-spacing:.02em;opacity:1}
+  72%{transform:scale(.96)}
+  100%{transform:scale(1)}
+}
+
+@keyframes tbd-eagle-score{
+  0%,34%{transform:scale(.4);opacity:0}
+  62%{transform:scale(1.26);opacity:1}
+  82%{transform:scale(.93)}
+  100%{transform:scale(1)}
 }
 
 @keyframes tbd-birdie-pop{
