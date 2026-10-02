@@ -18,14 +18,6 @@ const DEFAULT_CREATIVES = [
     href: 'https://keepfunsimple.com'
   },
   {
-    id: 'rivalry',
-    kicker: 'BRAGGING RIGHTS',
-    headline: 'THIS SCORE WILL BE REMEMBERED.',
-    body: 'Your friends certainly will.',
-    cta: 'KEEP PLAYING',
-    href: null
-  },
-  {
     id: 'rockpail',
     kicker: 'A ROCKPAIL PRODUCTION',
     headline: 'KEEP FUN SIMPLE.',
