@@ -22,7 +22,7 @@ const DEFAULT_CREATIVES = [
     theme: 'rockpail',
     logoSrc: '/rockpail-yellow-logo.png?v=20261002-1',
     logoAlt: 'RockPail',
-    kicker: 'A ROCKPAIL PRODUCTION',
+    kicker: 'THE GAME THAT STARTED IT.',
     headline: 'KEEP FUN SIMPLE.',
     body: 'Less setup. More throwing.',
     cta: 'ROCKPAIL.COM',
