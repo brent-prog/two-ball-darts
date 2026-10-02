@@ -901,3 +901,52 @@
     white-space:nowrap;
   }
 }
+
+
+/* Tiger standalone-art final composition. The scene is now artwork only,
+   so mobile can use the full slot instead of cropping a flattened banner. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger{
+  grid-template-columns:38% minmax(0,1fr);
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger::before{
+  left:35.5%;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-scene{
+  background-position:center;
+  background-size:cover;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-copy{
+  grid-template-columns:96px minmax(0,1fr);
+  gap:10px;
+  padding:7px 24px 7px 13px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-logo{
+  width:96px;
+}
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger{
+    grid-template-columns:36% minmax(0,1fr);
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger::before{
+    left:33.5%;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-copy{
+    grid-template-columns:62px minmax(0,1fr);
+    gap:6px;
+    padding:5px 18px 5px 7px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-logo{
+    width:62px;
+    max-height:38px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-message strong{
+    font-size:.72rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-accent{
+    font-size:.68rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-meta{
+    font-size:.43rem;
+    letter-spacing:.025em;
+  }
+}
