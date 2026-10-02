@@ -19,6 +19,9 @@ const DEFAULT_CREATIVES = [
   },
   {
     id: 'rockpail',
+    theme: 'rockpail',
+    logoSrc: '/rockpail-yellow-logo.png?v=20261002-1',
+    logoAlt: 'RockPail',
     kicker: 'A ROCKPAIL PRODUCTION',
     headline: 'KEEP FUN SIMPLE.',
     body: 'Less setup. More throwing.',
@@ -98,7 +101,8 @@ export default function GameplayAdSlot({ creatives = DEFAULT_CREATIVES, interval
           className={[
             'tbd-ad-link',
             creative.imageSrc ? 'tbd-ad-link--image' : '',
-            creative.theme === 'kfs' ? 'tbd-ad-link--kfs' : ''
+            creative.theme === 'kfs' ? 'tbd-ad-link--kfs' : '',
+            creative.theme === 'rockpail' ? 'tbd-ad-link--rockpail' : ''
           ].filter(Boolean).join(' ')}
           href={creative.href}
           target="_blank"

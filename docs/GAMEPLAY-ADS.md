@@ -56,3 +56,11 @@ This is the locked production contract for all sponsored image ads in the gamepl
 - Use the exact approved KeepFunSimple PNG logo copied from `brent-prog/keepfunsimple/public/brand/kfs-logo.png`.
 - Do not recreate or approximate the KFS logo.
 - The KFS card still uses the same fixed gameplay-ad shell as every other creative.
+
+
+## RockPail first-party creative
+- Keep the approved copy unchanged unless explicitly requested.
+- Use the exact RockPail logo asset copied from `brent-prog/rockpail_website/public/Yellow_logo.png`.
+- Brand palette source of truth: yellow `#f4ea00`, purple `#23005f`, sand `#f6f4ea`.
+- Do not recreate or approximate the RockPail logo.
+- RockPail uses the same fixed gameplay-ad shell as every other creative.
