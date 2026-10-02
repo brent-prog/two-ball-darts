@@ -118,7 +118,7 @@ const dartReactionBySequence = {
   'hazard:power': 'SAVED YOUR ASS.',
   'safe:safe': 'WELL, THAT SUCKED.',
   'single:hazard': 'FUCK. BLEW IT.',
-  'hazard:single': 'NICE SAVE. STILL SHIT.',
+  'hazard:single': 'FUCK... SAVED THE DOUBLE.',
   'safe:hazard': 'WELL... FUCK.',
   'hazard:safe': 'FUCK. SHIT. FUCK.',
   'hazard:hazard': 'TWO HAZARDS?! JESUS FUCK.'
