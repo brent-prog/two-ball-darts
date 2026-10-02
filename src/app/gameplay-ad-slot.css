@@ -362,6 +362,7 @@
   display:flex;
   align-items:center;
   gap:14px;
+  min-width:0;
 }
 
 #scorecard .tbd-gameplay-ad .tbd-ad-link--rockpail .tbd-ad-brand-logo{
@@ -369,6 +370,20 @@
   height:52px;
   flex:0 0 72px;
   object-fit:contain;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--rockpail .tbd-ad-copy-text{
+  display:grid;
+  grid-template-rows:auto auto auto;
+  gap:2px;
+  min-width:0;
+  align-items:start;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--rockpail .tbd-ad-kicker,
+#scorecard .tbd-gameplay-ad .tbd-ad-link--rockpail .tbd-ad-copy strong,
+#scorecard .tbd-gameplay-ad .tbd-ad-link--rockpail .tbd-ad-body{
+  display:block;
 }
 
 #scorecard .tbd-gameplay-ad .tbd-ad-link--rockpail .tbd-ad-kicker{
