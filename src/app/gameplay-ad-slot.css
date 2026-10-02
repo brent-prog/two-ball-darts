@@ -1122,3 +1122,55 @@
     font-size:.58rem;
   }
 }
+
+
+/* Inflight mobile polish: preserve the proven horizontal structure but restore
+   hierarchy - stronger brand, contained training line, compact CTA. */
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight{
+    grid-template-columns:minmax(0,1fr) 68px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-copy{
+    display:grid;
+    grid-template-columns:92px minmax(0,1fr);
+    gap:8px;
+    min-width:0;
+    padding:6px 4px 6px 10px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-logo{
+    width:92px;
+    height:46px;
+    max-height:46px;
+    justify-self:start;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message{
+    min-width:0;
+    overflow:hidden;
+    gap:3px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message strong{
+    font-size:.72rem;
+    line-height:.92;
+    white-space:nowrap;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-body{
+    display:block;
+    max-width:100%;
+    overflow:hidden;
+    font-size:.39rem;
+    line-height:1;
+    letter-spacing:.055em;
+    white-space:nowrap;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-cta{
+    grid-column:2;
+    grid-row:1;
+    min-width:0;
+    width:62px;
+    margin:0 6px 0 0;
+    padding:8px 4px;
+    font-size:.48rem;
+    line-height:1;
+    white-space:nowrap;
+  }
+}
