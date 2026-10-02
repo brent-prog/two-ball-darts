@@ -1043,3 +1043,82 @@
     font-size:.34rem;
   }
 }
+
+
+/* Inflight uses the same proven structure as RockPail/Tiger: brand block + copy + CTA. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight{
+  grid-template-columns:1fr auto;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight::before,
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight::after{
+  display:none;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-scene{
+  display:none;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-copy{
+  grid-column:1;
+  grid-row:1;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+  width:100%;
+  padding:8px 10px 8px 16px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-logo{
+  width:118px;
+  height:54px;
+  max-height:54px;
+  flex:0 0 118px;
+  object-fit:contain;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message{
+  display:grid;
+  gap:3px;
+  min-width:0;
+  align-content:center;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message strong{
+  font-size:1.05rem;
+  line-height:.94;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-body{
+  font-size:.67rem;
+  line-height:1;
+  white-space:nowrap;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-cta{
+  grid-column:2;
+  grid-row:1;
+  align-self:center;
+  margin-right:14px;
+  min-width:92px;
+  padding:9px 10px;
+}
+
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-copy{
+    gap:8px;
+    padding:6px 5px 6px 10px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-logo{
+    width:76px;
+    height:42px;
+    max-height:42px;
+    flex-basis:76px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-message strong{
+    font-size:.78rem;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-body{
+    font-size:.48rem;
+    white-space:normal;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--inflight .tbd-sponsor-cta{
+    min-width:76px;
+    margin-right:8px;
+    padding:8px 6px;
+    font-size:.58rem;
+  }
+}
