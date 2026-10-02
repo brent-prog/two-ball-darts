@@ -120,7 +120,7 @@ const dartReactionBySequence = {
   'single:hazard': 'FUCK. BLEW IT.',
   'hazard:single': 'NICE SAVE. STILL SHIT.',
   'safe:hazard': 'WELL... FUCK.',
-  'hazard:safe': 'AT LEAST IT STAYED ON.',
+  'hazard:safe': 'FUCK. SHIT. FUCK.',
   'hazard:hazard': 'TWO HAZARDS?! JESUS FUCK.'
 };
 
