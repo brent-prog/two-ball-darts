@@ -791,3 +791,113 @@
     padding:9px 7px;
   }
 }
+
+
+/* Tiger mobile-first creative rebuild - preserve live logo/copy while restoring
+   the dart/leak visual and eliminating dead space. */
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger{
+  grid-template-columns:42% minmax(0,1fr);
+  background:
+    radial-gradient(circle at 58% 50%,rgba(255,101,0,.18),transparent 24%),
+    linear-gradient(95deg,#050505 0%,#0b0b0b 58%,#17100b 100%);
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger::before{
+  left:39%;
+  top:-20%;
+  width:7px;
+  height:145%;
+  transform:rotate(8deg);
+  box-shadow:11px 0 0 rgba(255,101,0,.22);
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger::after{
+  display:none;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-scene{
+  grid-column:1;
+  grid-row:1;
+  background-position:center center;
+  background-size:cover;
+  clip-path:polygon(0 0,95% 0,100% 100%,0 100%);
+  filter:saturate(1.22) contrast(1.14) brightness(.9);
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-scene::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,transparent 0 66%,rgba(5,5,5,.68) 100%),
+    linear-gradient(180deg,rgba(255,101,0,.08),transparent 42%);
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-copy{
+  grid-column:2;
+  grid-row:1;
+  grid-template-columns:104px minmax(0,1fr);
+  gap:10px;
+  padding:8px 26px 8px 15px;
+  align-items:center;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-logo{
+  width:104px;
+  max-height:58px;
+  align-self:center;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-message{
+  gap:2px;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-message strong{
+  font-size:1.05rem;
+  line-height:.9;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-accent{
+  font-size:.98rem;
+  line-height:.88;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-meta{
+  display:block;
+  margin-top:3px;
+  font-size:.67rem;
+  line-height:1;
+  letter-spacing:.04em;
+  white-space:nowrap;
+}
+#scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-detail{
+  display:none;
+}
+
+@media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger{
+    grid-template-columns:41% minmax(0,1fr);
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger::before{
+    left:38%;
+    width:5px;
+    box-shadow:8px 0 0 rgba(255,101,0,.22);
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-scene{
+    background-position:center center;
+    background-size:cover;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-copy{
+    grid-template-columns:66px minmax(0,1fr);
+    gap:6px;
+    padding:5px 18px 5px 8px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-logo{
+    width:66px;
+    max-height:38px;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-message strong{
+    font-size:.74rem;
+    line-height:.9;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-accent{
+    font-size:.7rem;
+    line-height:.88;
+  }
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--tiger .tbd-sponsor-meta{
+    margin-top:2px;
+    font-size:.47rem;
+    line-height:1;
+    white-space:nowrap;
+  }
+}
