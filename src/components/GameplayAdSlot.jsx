@@ -9,7 +9,7 @@ const DEFAULT_CREATIVES = [
   {
     id: 'keep-fun-simple',
     theme: 'kfs',
-    logoSrc: '/kfs-primary-dark-bone-yellow.webp?v=20261002-2',
+    logoSrc: '/kfs-logo.png?v=20261002-3',
     logoAlt: 'KeepFunSimple',
     kicker: 'KEEP FUN SIMPLE',
     headline: 'IF YOU’RE PLAYING TWOBALL, YOU’RE ALREADY KFS.',
