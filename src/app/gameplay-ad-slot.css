@@ -234,9 +234,23 @@
 }
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-motion{display:none;}
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy{
-  display:block;
+  display:flex;
+  align-items:center;
+  gap:12px;
   min-width:0;
   padding-left:5px;
+}
+
+#scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
+  display:block;
+  width:48px;
+  height:48px;
+  flex:0 0 48px;
+  object-fit:contain;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  padding:0;
 }
 #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-copy-text{
   display:grid;
@@ -283,6 +297,11 @@
   background:#F2C230;
 }
 @media(max-width:620px){
+  #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-ad-brand-logo{
+    width:40px;
+    height:40px;
+    flex-basis:40px;
+  }
   #scorecard .tbd-gameplay-ad .tbd-ad-link--kfs .tbd-kfs-wordmark{
     font-size:.62rem;
     letter-spacing:.11em;
