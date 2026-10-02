@@ -12,8 +12,8 @@ const DEFAULT_CREATIVES = [
     logoSrc: '/kfs-logo.png?v=20261002-2',
     logoAlt: 'KeepFunSimple',
     kicker: 'KEEP FUN SIMPLE',
-    headline: 'WEAR THE FUN. BRING THE GAME.',
-    body: 'TwoBall gear, KFS apparel and more good shit worth showing up in.',
+    headline: 'IF YOU’RE PLAYING TWOBALL, YOU’RE ALREADY KFS.',
+    body: 'Wear the gear. Keep the fun going after the last dart.',
     cta: 'SHOP THE MERCH',
     href: 'https://keepfunsimple.com'
   },
