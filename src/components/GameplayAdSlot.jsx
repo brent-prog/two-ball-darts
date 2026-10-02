@@ -38,7 +38,7 @@ const DEFAULT_CREATIVES = [
     accentLine: 'YOU DON’T PLAY THROUGH.',
     meta: 'KW / GUELPH • 519-585-1840',
     detail: 'PLUMBING • HEATING • DRAINS • WATER TREATMENT',
-    sceneSrc: '/tiger-plumbing-scene.webp?v=20261002-1',
+    sceneSrc: '',
     href: 'https://www.tigerplumbing.ca/'
   },
   {
