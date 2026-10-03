@@ -732,6 +732,7 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
+    let retryTimeout = null;
 
     async function releaseWakeLock() {
       const lock = wakeLockRef.current;
@@ -742,6 +743,14 @@ export default function Home() {
       } catch {
         // Wake lock may already have been released by the browser.
       }
+    }
+
+    function scheduleWakeLockRetry(delay = 350) {
+      if (cancelled || !showScoringMode || retryTimeout) return;
+      retryTimeout = window.setTimeout(() => {
+        retryTimeout = null;
+        requestWakeLock();
+      }, delay);
     }
 
     async function requestWakeLock() {
@@ -758,9 +767,14 @@ export default function Home() {
         wakeLockRef.current = lock;
         lock.addEventListener('release', () => {
           if (wakeLockRef.current === lock) wakeLockRef.current = null;
+          if (!cancelled && showScoringMode && document.visibilityState === 'visible') {
+            scheduleWakeLockRetry();
+          }
         }, { once: true });
       } catch {
-        // Wake lock can be unavailable or refused by the browser/device. Scoring continues normally.
+        // Restored mobile sessions can reject the first request while the page is
+        // becoming active. Retry shortly, and again on focus/interaction below.
+        scheduleWakeLockRetry(500);
       }
     }
 
@@ -770,14 +784,39 @@ export default function Home() {
       }
     }
 
-    if (showScoringMode) requestWakeLock();
-    else releaseWakeLock();
+    function handleForegroundReturn() {
+      if (showScoringMode && document.visibilityState === 'visible') {
+        requestWakeLock();
+      }
+    }
+
+    function handleUserInteraction() {
+      if (showScoringMode && document.visibilityState === 'visible' && !wakeLockRef.current) {
+        requestWakeLock();
+      }
+    }
+
+    if (showScoringMode) {
+      requestWakeLock();
+      scheduleWakeLockRetry(750);
+    } else {
+      releaseWakeLock();
+    }
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleForegroundReturn);
+    window.addEventListener('pageshow', handleForegroundReturn);
+    document.addEventListener('pointerdown', handleUserInteraction, { passive: true });
+    document.addEventListener('touchstart', handleUserInteraction, { passive: true });
 
     return () => {
       cancelled = true;
+      if (retryTimeout) window.clearTimeout(retryTimeout);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleForegroundReturn);
+      window.removeEventListener('pageshow', handleForegroundReturn);
+      document.removeEventListener('pointerdown', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
       releaseWakeLock();
     };
   }, [showScoringMode]);
