@@ -9,6 +9,7 @@ import RemovePlayerModal from '@/components/RemovePlayerModal';
 import { holes, scoreResults } from '@/lib/brand';
 import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
+import NoSleep from '@marsgames/nosleep.js';
 
 const defaults = [
   { id: 'p1', playerId: null, isProfile: false, isGuest: false, name: 'Player 1', scores: {} },
@@ -522,6 +523,7 @@ export default function Home() {
   const holeChangeTimeoutRef = useRef(null);
   const holeSettleTimeoutRef = useRef(null);
   const wakeLockRef = useRef(null);
+  const noSleepRef = useRef(null);
   const autosaveTimeoutRef = useRef(null);
   const autosaveInFlightRef = useRef(false);
 
@@ -734,6 +736,20 @@ export default function Home() {
     let cancelled = false;
     let retryTimeout = null;
 
+    function enableNoSleepFallback() {
+      if (cancelled || !showScoringMode) return;
+      try {
+        if (!noSleepRef.current) noSleepRef.current = new NoSleep();
+        noSleepRef.current.enable();
+      } catch {
+        // iOS may require this to be triggered by a user interaction.
+      }
+    }
+
+    function disableNoSleepFallback() {
+      try { noSleepRef.current?.disable(); } catch {}
+    }
+
     async function releaseWakeLock() {
       const lock = wakeLockRef.current;
       wakeLockRef.current = null;
@@ -791,9 +807,9 @@ export default function Home() {
     }
 
     function handleUserInteraction() {
-      if (showScoringMode && document.visibilityState === 'visible' && !wakeLockRef.current) {
-        requestWakeLock();
-      }
+      if (!showScoringMode || document.visibilityState !== 'visible') return;
+      if (!wakeLockRef.current) requestWakeLock();
+      enableNoSleepFallback();
     }
 
     if (showScoringMode) {
@@ -801,6 +817,7 @@ export default function Home() {
       scheduleWakeLockRetry(750);
     } else {
       releaseWakeLock();
+      disableNoSleepFallback();
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -818,6 +835,7 @@ export default function Home() {
       document.removeEventListener('pointerdown', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
       releaseWakeLock();
+      disableNoSleepFallback();
     };
   }, [showScoringMode]);
 
