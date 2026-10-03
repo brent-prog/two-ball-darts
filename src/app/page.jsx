@@ -128,6 +128,193 @@ function dartReactionForSequence(dart1, dart2, fallbackKey) {
   return dartReactionBySequence[`${dart1}:${dart2}`] ?? dartReactionByScoreKey[fallbackKey];
 }
 
+function pickContextReaction(options, playerId, activeHole, contextKey) {
+  if (!options?.length) return '';
+  const seed = `${playerId ?? 'player'}:${activeHole}:${contextKey}`;
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) hash = ((hash << 5) - hash + seed.charCodeAt(index)) | 0;
+  return options[Math.abs(hash) % options.length];
+}
+
+function contextualDartReaction(player, activeHole, scoreKey) {
+  if (!player || activeHole <= 1 || !scoreByKey.has(scoreKey)) return '';
+
+  const previousKeys = [];
+  for (let hole = activeHole - 1; hole >= 1; hole -= 1) {
+    const key = player.scores[hole];
+    if (!scoreByKey.has(key)) break;
+    previousKeys.push(key);
+  }
+
+  if (!previousKeys.length) return '';
+
+  const previousScores = previousKeys.map(key => scoreByKey.get(key)?.score ?? 0);
+  const currentScore = scoreByKey.get(scoreKey)?.score ?? 0;
+  const previousKey = previousKeys[0];
+  const previousScore = previousScores[0];
+  const lastThreeKeys = previousKeys.slice(0, 3);
+  const lastFourWithCurrent = [scoreKey, ...lastThreeKeys];
+  const lastThreeScores = previousScores.slice(0, 3);
+  const underPar = score => score < 0;
+  const overPar = score => score > 0;
+
+  const react = (contextKey, options) => pickContextReaction(options, player.id, activeHole, contextKey);
+
+  if (scoreKey === 'eagle' && previousKey === 'eagle') {
+    return react('back_to_back_eagles', [
+      'ARE YOU FUCKING KIDDING ME?!',
+      'BACK-TO-BACK EAGLES. WHAT THE FUCK?!',
+      'TWO EAGLES?! THIS IS ABSURD.'
+    ]);
+  }
+
+  if (scoreKey === 'eagle' && lastFourWithCurrent.filter(key => key === 'eagle').length >= 3) {
+    return react('three_eagles_in_four', [
+      'THIS IS GETTING STUPID.',
+      'THREE EAGLES?! COME ON.',
+      'YOU ARE OUT OF YOUR FUCKING MIND.'
+    ]);
+  }
+
+  if (scoreKey === 'triple_bogey' && lastFourWithCurrent.filter(key => key === 'triple_bogey').length >= 3) {
+    return react('three_triples_in_four', [
+      'CALL THE CLUBHOUSE.',
+      'THIS ROUND NEEDS AN INTERVENTION.',
+      'YOU ARE DIGGING TO CHINA.'
+    ]);
+  }
+
+  if (scoreKey === 'triple_bogey' && previousKey === 'triple_bogey') {
+    return react('back_to_back_triples', [
+      'DIGGING A FUCKING HOLE HERE.',
+      'BACK-TO-BACK TRIPLES. JESUS.',
+      'STOP THE FUCKING BLEEDING.'
+    ]);
+  }
+
+  if (scoreKey === 'eagle' && previousKey === 'triple_bogey') {
+    return react('eagle_after_triple', [
+      'REDEMPTION. HOLY SHIT.',
+      'NOW THAT IS A FUCKING COMEBACK.',
+      'FROM DISASTER TO EAGLE. BOOM.'
+    ]);
+  }
+
+  if (scoreKey === 'triple_bogey' && ['eagle', 'birdie'].includes(previousKey)) {
+    return react('triple_after_under', [
+      'OH FOR FUCK\'S SAKE.',
+      'WELL... THAT WENT TO SHIT FAST.',
+      'FROM HERO TO TRAINWRECK.'
+    ]);
+  }
+
+  if (scoreKey === 'birdie' && previousKey === 'birdie') {
+    return react('back_to_back_birdies', [
+      'BACK-TO-BACK BIRDIES. LET\'S GO.',
+      'TWO BIRDIES. KEEP FUCKING GOING.',
+      'BIRDIE TRAIN. ALL ABOARD.'
+    ]);
+  }
+
+  if (underPar(currentScore) && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(underPar)) {
+    return react('three_under_par', [
+      'YOU\'RE ON A FUCKING RUN.',
+      'THREE STRAIGHT UNDER PAR. LOCKED IN.',
+      'KEEP YOUR FOOT ON THEIR THROAT.'
+    ]);
+  }
+
+  if (scoreKey === 'par' && previousKeys.slice(0, 3).length === 3 && previousKeys.slice(0, 3).every(key => key === 'par')) {
+    return react('four_plus_pars', [
+      'BORINGLY FUCKING SOLID.',
+      'PAR MACHINE.',
+      'FOUR STRAIGHT. ZERO DRAMA.'
+    ]);
+  }
+
+  if (scoreKey === 'par' && previousKeys.slice(0, 2).length === 2 && previousKeys.slice(0, 2).every(key => key === 'par')) {
+    return react('three_pars', [
+      'PAR RUN.',
+      'THREE PARS. STEADY AS FUCK.',
+      'PAR. PAR. PAR. KEEP IT MOVING.'
+    ]);
+  }
+
+  if (scoreKey === 'bogey' && previousKeys.slice(0, 3).length === 3 && previousKeys.slice(0, 3).every(key => key === 'par')) {
+    return react('bogey_breaks_par_run', [
+      'AND THERE GOES THE STREAK.',
+      'WELP. PAR RUN OVER.',
+      'THERE GOES THE CLEAN CARD.'
+    ]);
+  }
+
+  if (scoreKey === 'double_bogey' && previousKey === 'double_bogey') {
+    return react('back_to_back_doubles', [
+      'YOU WANNA STOP DOING THAT?',
+      'ANOTHER DOUBLE. COOL. GREAT.',
+      'BACK-TO-BACK DOUBLES. FUCK.'
+    ]);
+  }
+
+  if (scoreKey === 'bogey' && previousKey === 'bogey') {
+    return react('back_to_back_bogeys', [
+      'WRONG DIRECTION.',
+      'TWO BOGEYS. TURN IT AROUND.',
+      'BOGEY TRAIN IS NOT THE TRAIN.'
+    ]);
+  }
+
+  if (overPar(currentScore) && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(overPar)) {
+    return react('three_over_par', [
+      'THIS IS GETTING UGLY.',
+      'THREE BAD HOLES. FIX YOUR SHIT.',
+      'WE HAVE A PROBLEM.'
+    ]);
+  }
+
+  if (scoreKey === 'par' && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(score => score >= 2)) {
+    return react('par_after_two_ugly', [
+      'OKAY. WE\'RE BACK.',
+      'PAR. FUCKING FINALLY.',
+      'THAT STOPPED THE BLEEDING.'
+    ]);
+  }
+
+  if (scoreKey === 'birdie' && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(overPar)) {
+    return react('birdie_after_two_over', [
+      'THERE WE FUCKING GO.',
+      'THAT\'S HOW YOU GET IT BACK.',
+      'BIRDIE. MUCH FUCKING BETTER.'
+    ]);
+  }
+
+  if (scoreKey === 'bogey' && previousKey === 'eagle') {
+    return react('bogey_after_eagle', [
+      'HERO TO ZERO.',
+      'AND WE GIVE ONE BACK.',
+      'EAGLE TO BOGEY. RUDE.'
+    ]);
+  }
+
+  if (underPar(currentScore) && previousKeys.length >= 4 && previousScores.slice(0, 4).every(score => score >= 0)) {
+    return react('under_par_after_dry_spell', [
+      'FINALLY.',
+      'ABOUT FUCKING TIME.',
+      'THERE IT IS. FINALLY.'
+    ]);
+  }
+
+  if (currentScore <= 0 && previousKeys.slice(0, 4).length === 4 && previousScores.slice(0, 4).every(score => score <= 0)) {
+    return react('five_par_or_better', [
+      'LOCKED THE FUCK IN.',
+      'FIVE STRAIGHT PAR OR BETTER.',
+      'YOU HAVE NOT BLINKED IN FIVE HOLES.'
+    ]);
+  }
+
+  return '';
+}
+
 function symbolClass(score) {
   if (score === -2) return 'eagle';
   if (score === -1) return 'birdie';
@@ -293,9 +480,13 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
     const nextDartTwo = setter === setDartTwo ? value : otherDart;
     const result = scoreTwoDarts(nextDartOne, nextDartTwo);
     if (!result.scoreKey) return;
+    const sequenceReaction = dartReactionForSequence(nextDartOne, nextDartTwo, result.reactionKey ?? result.scoreKey);
+    const contextReaction = result.reactionKey === 'double_hazard'
+      ? ''
+      : contextualDartReaction(player, activeHole, result.scoreKey);
     setDartAnnouncement({
       ...result,
-      reactionText: dartReactionForSequence(nextDartOne, nextDartTwo, result.reactionKey ?? result.scoreKey)
+      reactionText: contextReaction || sequenceReaction
     });
     window.setTimeout(() => onScore(result.scoreKey), 1200);
   }
