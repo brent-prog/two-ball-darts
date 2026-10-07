@@ -18,6 +18,40 @@ async function syncAccountOwnerKey() {
   window.dispatchEvent(new CustomEvent('tbd-owner-key-changed', { detail: { ownerKey: cloudOwnerKey } }));
 }
 
+const NEW_ACCOUNT_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+async function notifyNewAccountIfNeeded() {
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const session = sessionData?.session;
+    const user = session?.user;
+    const accessToken = session?.access_token;
+    if (!user || !accessToken) return;
+
+    const createdAt = Date.parse(user.created_at || '');
+    if (!Number.isFinite(createdAt)) return;
+    const age = Date.now() - createdAt;
+    if (age < -5 * 60 * 1000 || age > NEW_ACCOUNT_WINDOW_MS) return;
+
+    const storageKey = `tbd-new-user-notified-${user.id}`;
+    if (window.localStorage.getItem(storageKey) === '1') return;
+
+    const response = await fetch('/api/email/new-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({})
+    });
+
+    if (response.ok) window.localStorage.setItem(storageKey, '1');
+    else console.error('Unable to send new-user notification.', response.status);
+  } catch (notificationError) {
+    console.error('Unable to send new-user notification.', notificationError);
+  }
+}
+
 async function profileNeedsSetup() {
   const { data: userData } = await supabase.auth.getUser();
   const user = userData?.user ?? null;
@@ -46,6 +80,7 @@ export default function MainAccountAccess() {
     let cancelled = false;
 
     async function syncAndPrompt() {
+      await notifyNewAccountIfNeeded();
       await syncAccountOwnerKey();
       if (cancelled) return;
       if (await profileNeedsSetup()) setOpen(true);
