@@ -5,6 +5,7 @@ export default function LogoMark() {
       <div className="tbd-primary-logo-type" aria-hidden="true">
         <strong>TWO BALL</strong>
         <span>DARTS</span>
+        <span className="tbd-primary-logo-tm">™</span>
       </div>
     </div>
   );
