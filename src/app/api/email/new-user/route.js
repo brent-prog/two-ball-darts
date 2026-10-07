@@ -32,17 +32,17 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Invalid session.' }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => ({}));
-  const displayName = String(body?.displayName || '').trim();
-  const username = String(body?.username || '').trim();
+  const createdAt = Date.parse(user.created_at || '');
+  const accountAge = Date.now() - createdAt;
+  if (!Number.isFinite(createdAt) || accountAge < -5 * 60 * 1000 || accountAge > 24 * 60 * 60 * 1000) {
+    return NextResponse.json({ error: 'Account is not newly created.' }, { status: 409 });
+  }
 
   const resend = new Resend(apiKey);
-  const subject = `New TwoBall signup${displayName ? `: ${displayName}` : ''}`;
+  const subject = 'New TwoBall signup';
   const text = [
     'A new user signed up for TwoBall Darts.',
     '',
-    displayName ? `Display name: ${displayName}` : null,
-    username ? `Username: @${username}` : null,
     user.email ? `Email: ${user.email}` : null,
     `User ID: ${user.id}`,
     `Created: ${user.created_at || new Date().toISOString()}`
