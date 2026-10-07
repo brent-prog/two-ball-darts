@@ -278,22 +278,22 @@
 .hero-card .tbd-primary-logo-type{
   position:relative!important;
 }
-.hero-card .tbd-primary-logo-tm{
+.hero-card .tbd-primary-logo-type span.tbd-primary-logo-tm{
   position:absolute!important;
-  top:-4px!important;
-  right:-12px!important;
-  color:var(--tbd-ivory,#f4efe2)!important;
+  top:-2px!important;
+  right:-8px!important;
+  color:#f5e8c6!important;
   font-family:Arial,Helvetica,sans-serif!important;
-  font-size:10px!important;
+  font-size:7px!important;
   font-weight:700!important;
   line-height:1!important;
   letter-spacing:0!important;
   transform:none!important;
 }
 @media(max-width:560px){
-  .hero-card .tbd-primary-logo-tm{
-    top:-3px!important;
-    right:-10px!important;
-    font-size:9px!important;
+  .hero-card .tbd-primary-logo-type span.tbd-primary-logo-tm{
+    top:-1px!important;
+    right:-7px!important;
+    font-size:7px!important;
   }
 }
