@@ -131,10 +131,14 @@ function dartReactionForSequence(dart1, dart2, fallbackKey) {
 
 function pickContextReaction(options, playerId, activeHole, contextKey) {
   if (!options?.length) return '';
-  const seed = `${playerId ?? 'player'}:${activeHole}:${contextKey}`;
+
+  const stableSeed = `${playerId ?? 'player'}:${contextKey}`;
   let hash = 0;
-  for (let index = 0; index < seed.length; index += 1) hash = ((hash << 5) - hash + seed.charCodeAt(index)) | 0;
-  return options[Math.abs(hash) % options.length];
+  for (let index = 0; index < stableSeed.length; index += 1) hash = ((hash << 5) - hash + stableSeed.charCodeAt(index)) | 0;
+
+  const rotationOffset = Math.abs(hash) % options.length;
+  const holeOffset = Math.max(0, activeHole - 1) % options.length;
+  return options[(rotationOffset + holeOffset) % options.length];
 }
 
 function contextualDartReaction(player, activeHole, scoreKey) {
