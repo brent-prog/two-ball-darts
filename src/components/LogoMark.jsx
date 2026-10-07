@@ -1,12 +1,7 @@
 export default function LogoMark() {
   return (
-    <div className="logo-mark tbd-primary-logo" aria-label="TWO BALL DARTS logo">
-      <img className="tbd-primary-logo-mark" src="/brand/twoball-mark.svg" alt="" aria-hidden="true" />
-      <div className="tbd-primary-logo-type" aria-hidden="true">
-        <strong>TWO BALL</strong>
-        <span>DARTS</span>
-        <span className="tbd-primary-logo-tm">™</span>
-      </div>
+    <div className="logo-mark tbd-primary-logo" aria-label="TWO BALL DARTS™ logo">
+      <img className="tbd-primary-logo-full" src="/brand/twoball-logo-tm.svg" alt="TWO BALL DARTS™" />
     </div>
   );
 }
