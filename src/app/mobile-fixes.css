@@ -651,3 +651,50 @@ body{
  .tbd-score-modal-card .tbd-quick-score-grid{gap:6px}
  .tbd-score-modal-card .tbd-quick-score-grid .button{min-height:54px}
 }
+
+
+/* Scoring hierarchy correction: large dart targets, genuinely compact quick score. */
+.tbd-score-modal-card .tbd-custom-dart-options .tbd-custom-dart-option{
+  min-height:76px!important;
+  padding:16px 12px!important;
+  font-size:clamp(1rem,3.4vw,1.18rem)!important;
+  line-height:1.2!important;
+}
+.tbd-score-modal-card .tbd-quick-score-section .tbd-quick-score-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+.tbd-score-modal-card .tbd-quick-score-section .tbd-quick-score-grid>.button{
+  width:100%!important;
+  height:64px!important;
+  min-height:64px!important;
+  max-height:64px!important;
+  min-width:0!important;
+  padding:6px!important;
+  margin:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:3px!important;
+  font-size:.85rem!important;
+  line-height:1.1!important;
+  white-space:normal!important;
+}
+.tbd-score-modal-card .tbd-quick-score-grid>.button strong{
+  font-size:1.1rem!important;
+  line-height:1!important;
+}
+@media(max-width:600px){
+ .tbd-score-modal-card .tbd-custom-dart-options .tbd-custom-dart-option{
+   min-height:72px!important;
+   padding:14px 9px!important;
+   font-size:1rem!important;
+ }
+ .tbd-score-modal-card .tbd-quick-score-section .tbd-quick-score-grid>.button{
+   height:62px!important;
+   min-height:62px!important;
+   max-height:62px!important;
+ }
+}
