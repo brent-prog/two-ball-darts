@@ -1,0 +1,24 @@
+/* Final mobile scoring layout. Keep both scoring methods visible without scrolling. */
+.tbd-score-modal-card .tbd-dart-score-card{padding:10px!important;margin:0!important}
+.tbd-score-modal-card .tbd-dart-score-card .eyebrow{margin:0 0 6px!important}
+.tbd-score-modal-card .tbd-custom-dart-picker-heading{font-size:1rem!important;padding:3px 5px!important;margin:0 0 5px!important}
+.tbd-score-modal-card .tbd-custom-dart-options{gap:5px!important}
+.tbd-score-modal-card .tbd-custom-dart-options .tbd-custom-dart-option{min-height:52px!important;height:52px!important;padding:6px 8px!important;font-size:1rem!important}
+.tbd-score-modal-card .tbd-dart-select-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+.tbd-score-modal-card .tbd-dart-score-card .rule-answer{margin-top:7px!important;padding:7px 10px!important}
+.tbd-score-modal-card .tbd-dart-score-card .rule-answer strong{font-size:1rem!important}
+.tbd-score-modal-card .tbd-dart-score-card .rule-answer p{font-size:.8rem!important;line-height:1.15!important;margin:3px 0 0!important}
+.tbd-score-modal-card .tbd-quick-score-section{margin-top:9px!important}
+.tbd-score-modal-card .tbd-quick-score-section>.eyebrow{margin:0 0 5px!important}
+.tbd-score-modal-card .tbd-quick-score-section .tbd-quick-score-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}
+.tbd-score-modal-card .tbd-quick-score-section .tbd-quick-score-grid>.button{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;width:100%!important;min-width:0!important;height:49px!important;min-height:49px!important;max-height:49px!important;padding:3px!important;margin:0!important;gap:1px!important;font-size:initial!important;line-height:1!important}
+.tbd-score-modal-card .tbd-quick-score-grid>.button::before,.tbd-score-modal-card .tbd-quick-score-grid>.button::after{content:none!important;display:none!important}
+.tbd-score-modal-card .tbd-quick-score-grid>.button span{display:block!important;font-size:.85rem!important;font-weight:850!important;line-height:1!important}
+.tbd-score-modal-card .tbd-quick-score-grid>.button strong{display:block!important;font-size:1.15rem!important;font-weight:1000!important;line-height:1!important}
+.tbd-score-modal-card>.button.ghost{margin-top:6px!important;min-height:32px!important;padding:4px 8px!important}
+@media(max-width:600px){
+ .tbd-score-modal-card{padding:9px!important}
+ .tbd-score-modal-title-row{margin-bottom:7px!important}
+ .tbd-score-modal-title-row h2{font-size:clamp(1.6rem,7vw,2.4rem)!important}
+ .tbd-score-modal-card .tbd-custom-dart-options .tbd-custom-dart-option{min-height:50px!important;height:50px!important}
+}
