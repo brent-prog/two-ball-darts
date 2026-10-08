@@ -36,6 +36,7 @@ import './home-hero-cleanup.css';
 import './android-responsive-polish.css';
 import './display-font-consistency.css';
 import './gameplay-ad-slot.css';
+import './scoring-viewport-fit.css';
 import FreshOpenTopGuard from '@/components/FreshOpenTopGuard';
 import RoundCompletionSaveEnhancer from '@/components/RoundCompletionSaveEnhancer';
 import LiveScoreButtonToneEnhancer from '@/components/LiveScoreButtonToneEnhancer';
