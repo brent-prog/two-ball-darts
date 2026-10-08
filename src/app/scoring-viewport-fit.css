@@ -22,3 +22,11 @@
  .tbd-score-modal-title-row h2{font-size:clamp(1.6rem,7vw,2.4rem)!important}
  .tbd-score-modal-card .tbd-custom-dart-options .tbd-custom-dart-option{min-height:50px!important;height:50px!important}
 }
+
+/* Emphasize and centre Dart 1 / Dart 2 labels without changing layout. */
+.tbd-score-modal-card .tbd-custom-dart-picker-heading{
+  text-align:center!important;
+  font-weight:1000!important;
+  letter-spacing:.095em!important;
+  text-shadow:0 0 .35px currentColor!important;
+}
