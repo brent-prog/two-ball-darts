@@ -129,6 +129,34 @@ function dartReactionForSequence(dart1, dart2, fallbackKey) {
   return dartReactionBySequence[`${dart1}:${dart2}`] ?? dartReactionByScoreKey[fallbackKey];
 }
 
+const dartParReactionBySequence = {
+  'single:single': [
+    'CLEAN PAR.',
+    'JOB DONE.',
+    'TAKE THE PAR.',
+    'NO DRAMA. PAR.'
+  ],
+  'power:safe': [
+    'WASTED A GOOD FIRST DART.',
+    'SHOULD HAVE BEEN BETTER.',
+    'PAR... BUT YOU HAD MORE.',
+    'LEFT ONE OUT THERE.'
+  ],
+  'safe:power': [
+    'THAT SAVED YOUR ASS.',
+    'NICE RECOVERY.',
+    'PAR FROM NOWHERE.',
+    'CLUTCH SECOND DART.'
+  ]
+};
+
+function parReactionForSequence(dart1, dart2, player, activeHole) {
+  const key = `${dart1}:${dart2}`;
+  const options = dartParReactionBySequence[key];
+  if (!options) return '';
+  return pickContextReaction(options, player?.id, activeHole, `par_sequence_${key}`);
+}
+
 function pickContextReaction(options, playerId, activeHole, contextKey) {
   if (!options?.length) return '';
 
@@ -231,17 +259,19 @@ function contextualDartReaction(player, activeHole, scoreKey) {
 
   if (scoreKey === 'par' && previousKeys.slice(0, 3).length === 3 && previousKeys.slice(0, 3).every(key => key === 'par')) {
     return react('four_plus_pars', [
-      'BORINGLY FUCKING SOLID.',
-      'PAR MACHINE.',
-      'FOUR STRAIGHT. ZERO DRAMA.'
+      'STILL NOT BLINKING.',
+      'FOUR STRAIGHT. ICE COLD.',
+      'YOU JUST KEEP MAKING PAR.',
+      'FUCKING METRONOME.'
     ]);
   }
 
   if (scoreKey === 'par' && previousKeys.slice(0, 2).length === 2 && previousKeys.slice(0, 2).every(key => key === 'par')) {
     return react('three_pars', [
-      'PAR RUN.',
-      'THREE PARS. STEADY AS FUCK.',
-      'PAR. PAR. PAR. KEEP IT MOVING.'
+      'THREE STRAIGHT. LOCKED IN.',
+      'PAR HAT TRICK.',
+      'YOU ARE BORING IN A GOOD WAY.',
+      'THREE HOLES. NOTHING GIVEN BACK.'
     ]);
   }
 
@@ -279,9 +309,10 @@ function contextualDartReaction(player, activeHole, scoreKey) {
 
   if (scoreKey === 'par' && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(score => score >= 2)) {
     return react('par_after_two_ugly', [
-      'OKAY. WE\'RE BACK.',
-      'PAR. FUCKING FINALLY.',
-      'THAT STOPPED THE BLEEDING.'
+      'OKAY. DAMAGE CONTROL.',
+      'THERE. STOP THE BLEEDING.',
+      'PAR. MUCH FUCKING BETTER.',
+      'FINALLY, A NORMAL HOLE.'
     ]);
   }
 
@@ -485,7 +516,9 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
     const nextDartTwo = setter === setDartTwo ? value : otherDart;
     const result = scoreTwoDarts(nextDartOne, nextDartTwo);
     if (!result.scoreKey) return;
-    const sequenceReaction = dartReactionForSequence(nextDartOne, nextDartTwo, result.reactionKey ?? result.scoreKey);
+    const sequenceReaction = result.scoreKey === 'par'
+      ? parReactionForSequence(nextDartOne, nextDartTwo, player, activeHole)
+      : dartReactionForSequence(nextDartOne, nextDartTwo, result.reactionKey ?? result.scoreKey);
     const contextReaction = result.reactionKey === 'double_hazard'
       ? ''
       : contextualDartReaction(player, activeHole, result.scoreKey);
