@@ -6,8 +6,8 @@ const FOOTER_HTML = `
   <div class="tbd-rockpail-footer-inner">
     <div class="tbd-footer-twoball">
       <img
-        src="/two-ball-darts-logo-clean.webp"
-        alt="Two Ball Darts"
+        src="/brand/twoball-logo-tm.svg"
+        alt="Two Ball Darts™"
         class="tbd-footer-twoball-logo"
       />
       <p class="tbd-footer-twoball-tagline">No gimmes. Just throw.</p>
@@ -15,15 +15,21 @@ const FOOTER_HTML = `
 
     <div class="tbd-footer-divider"></div>
 
-    <div class="tbd-footer-rockpail">
-      <a href="https://rockpail.com" aria-label="Visit RockPail.com">
+    <div class="tbd-footer-partners">
+      <a class="tbd-footer-partner-link" href="https://rockpail.com" aria-label="Visit RockPail.com">
         <img
           src="/rockpail-production-white-footer.webp"
           alt="A RockPail Production"
           class="tbd-rockpail-footer-logo"
         />
       </a>
-      <p class="tbd-footer-rockpail-purpose">KEEP FUN SIMPLE</p>
+      <a class="tbd-footer-partner-link tbd-footer-kfs-link" href="https://keepfunsimple.com" aria-label="Visit KeepFunSimple.com">
+        <img
+          src="/keepfunsimple-primary-dark-bone-red.svg"
+          alt="Keep Fun Simple™"
+          class="tbd-kfs-footer-logo"
+        />
+      </a>
     </div>
   </div>
   <a class="tbd-footer-contact" href="mailto:info@twoballdarts.com">Contact / Feedback</a>

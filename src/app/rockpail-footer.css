@@ -52,32 +52,36 @@
   min-height:72px;
 }
 
-.tbd-footer-rockpail{
-  flex:0 1 220px;
+.tbd-footer-partners{
+  flex:0 1 360px;
   min-width:0;
   display:flex;
-  flex-direction:column;
-  align-items:flex-end;
+  align-items:center;
+  justify-content:flex-end;
+  gap:24px;
+}
+
+.tbd-footer-partner-link{
+  display:inline-flex;
+  align-items:center;
   justify-content:center;
-  text-align:right;
+  min-width:0;
 }
 
 .tbd-rockpail-footer-logo{
   display:block!important;
-  width:220px!important;
+  width:185px!important;
   max-width:100%!important;
   height:auto!important;
   object-fit:contain!important;
 }
 
-.tbd-footer-rockpail-purpose{
-  margin:8px 0 0;
-  color:#d0a948;
-  font-size:.8rem;
-  font-weight:900;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  white-space:nowrap;
+.tbd-kfs-footer-logo{
+  display:block!important;
+  width:96px!important;
+  max-width:100%!important;
+  height:auto!important;
+  object-fit:contain!important;
 }
 
 .tbd-footer-contact{
@@ -140,24 +144,20 @@
     min-height:1px;
   }
 
-  .tbd-footer-rockpail{
+  .tbd-footer-partners{
     flex:none;
     width:100%;
-    align-items:center;
-    text-align:center;
+    justify-content:center;
+    gap:22px;
   }
 
   .tbd-rockpail-footer-logo{
-    width:150px!important;
-    max-width:62vw!important;
+    width:142px!important;
+    max-width:48vw!important;
   }
 
-  .tbd-footer-rockpail-purpose{
-    margin-top:7px;
-    font-size:.7rem!important;
-    line-height:1.2;
-    letter-spacing:.12em!important;
-    white-space:normal!important;
-    max-width:100%;
+  .tbd-kfs-footer-logo{
+    width:82px!important;
+    max-width:28vw!important;
   }
 }
