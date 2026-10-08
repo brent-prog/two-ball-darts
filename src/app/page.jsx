@@ -134,7 +134,7 @@ const dartParReactionBySequence = {
     'CLEAN PAR.',
     'JOB DONE.',
     'TAKE THE PAR.',
-    'NO DRAMA. PAR.'
+    'THAT\'LL DO.'
   ],
   'power:safe': [
     'WASTED A GOOD FIRST DART.',
