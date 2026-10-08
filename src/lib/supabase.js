@@ -69,5 +69,12 @@ const ownerAwareFetch = async (input, init = {}) => {
 };
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    flowType: 'pkce',
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    appendPkceFlowIdToRedirects: true
+  },
   global: { fetch: ownerAwareFetch }
 });
