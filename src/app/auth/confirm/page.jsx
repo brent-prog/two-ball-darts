@@ -12,7 +12,7 @@ export default function ConfirmEmailActionPage() {
     const params = new URLSearchParams(window.location.search);
     return {
       tokenHash: params.get('token_hash') || '',
-      invite: params.get('invite') || ''
+      redirectTo: params.get('redirect_to') || ''
     };
   }, []);
 
@@ -33,9 +33,17 @@ export default function ConfirmEmailActionPage() {
       return;
     }
 
-    const destination = authRequest.invite
-      ? `/?invite=${encodeURIComponent(authRequest.invite)}`
-      : '/';
+    let destination = '/';
+    if (authRequest.redirectTo) {
+      try {
+        const target = new URL(authRequest.redirectTo, window.location.origin);
+        if (target.origin === window.location.origin) {
+          destination = `${target.pathname}${target.search}`;
+        }
+      } catch {
+        destination = '/';
+      }
+    }
 
     window.location.replace(destination);
   }
