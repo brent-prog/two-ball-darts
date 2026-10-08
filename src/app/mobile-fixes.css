@@ -633,3 +633,21 @@ body{
     padding:6px;
   }
 }
+
+
+/* Dart-first scoring layout - compact secondary manual entry */
+.tbd-score-modal-card .tbd-dart-score-card{margin-top:0}
+.tbd-score-modal-card .tbd-quick-score-section{margin-top:14px}
+.tbd-score-modal-card .tbd-quick-score-section>.eyebrow{margin:0 0 8px}
+.tbd-score-modal-card .tbd-quick-score-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tbd-score-modal-card .tbd-quick-score-grid .button{min-width:0;min-height:58px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:clamp(.72rem,2.5vw,.94rem);line-height:1.12;text-align:center}
+.tbd-score-modal-card .tbd-quick-score-grid .button strong{font-size:1.25rem;line-height:1}
+.tbd-score-modal-card .tbd-custom-dart-option{min-height:54px;padding:10px 7px}
+@media(max-width:600px){
+ .tbd-score-modal-card .tbd-dart-score-card{padding:12px}
+ .tbd-score-modal-card .tbd-dart-select-grid{gap:10px}
+ .tbd-score-modal-card .tbd-custom-dart-option{min-height:49px;padding:8px 5px;font-size:clamp(.75rem,3vw,.95rem);line-height:1.15}
+ .tbd-score-modal-card .tbd-custom-dart-picker-heading{font-size:1rem;margin-bottom:6px}
+ .tbd-score-modal-card .tbd-quick-score-grid{gap:6px}
+ .tbd-score-modal-card .tbd-quick-score-grid .button{min-height:54px}
+}
