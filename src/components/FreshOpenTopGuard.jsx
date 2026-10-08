@@ -12,7 +12,16 @@ export default function FreshOpenTopGuard() {
     }
 
     if (window.location.hash) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const isAuthCallback = hashParams.has('access_token')
+        || hashParams.has('refresh_token')
+        || hashParams.has('error')
+        || hashParams.has('error_code')
+        || hashParams.has('error_description');
+
+      if (!isAuthCallback) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
     }
 
     function scrollTop() {
