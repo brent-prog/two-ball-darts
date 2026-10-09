@@ -363,6 +363,105 @@ function contextualDartReaction(player, activeHole, scoreKey) {
   return '';
 }
 
+const difficultHoleRanks = new Map([
+  [3, 1],
+  [7, 2],
+  [5, 3],
+  [1, 4]
+]);
+
+function difficultHoleReaction(player, activeHole, scoreKey) {
+  const rank = difficultHoleRanks.get(activeHole);
+  const result = scoreByKey.get(scoreKey);
+  if (!rank || !result) return '';
+
+  const score = result.score;
+  const tier = score < 0 ? 'under' : score === 0 ? 'par' : 'over';
+  const optionsByHole = {
+    3: {
+      under: [
+        'ON THREE?! THAT\'S HUGE.',
+        'UNDER PAR ON THE HARDEST HOLE. BEAUTY.',
+        'YOU JUST TOOK THREE APART.'
+      ],
+      par: [
+        'PAR ON THREE. TAKE THAT ALL DAY.',
+        'THAT\'S A GOOD PAR ON THREE.',
+        'THREE WILL TAKE PAR.'
+      ],
+      over: [
+        'THREE BITES BACK.',
+        'TOUGH HOLE. LIMIT THE DAMAGE.',
+        'THREE IS A BASTARD.'
+      ]
+    },
+    7: {
+      under: [
+        'UNDER PAR ON SEVEN. NICE.',
+        'SEVEN? FUCK YEAH.',
+        'THAT\'S A BIG SCORE ON SEVEN.'
+      ],
+      par: [
+        'GOOD PAR ON SEVEN.',
+        'TAKE PAR ON SEVEN.',
+        'SEVEN DIDN\'T GET YOU.'
+      ],
+      over: [
+        'SEVEN GOT A PIECE OF YOU.',
+        'TOUGH ONE. MOVE ON.',
+        'SEVEN CAN DO THAT.'
+      ]
+    },
+    5: {
+      under: [
+        'NICE WORK ON FIVE.',
+        'UNDER PAR ON FIVE. BEAUTY.',
+        'FIVE? TAKE THAT.'
+      ],
+      par: [
+        'GOOD PAR ON FIVE.',
+        'TAKE IT. FIVE ISN\'T EASY.',
+        'PAR WORKS ON FIVE.'
+      ],
+      over: [
+        'FIVE GOT YOU.',
+        'NOT THE HOLE TO GET GREEDY.',
+        'FIVE CAN BITE.'
+      ]
+    },
+    1: {
+      under: [
+        'THAT\'S HOW YOU START.',
+        'UNDER PAR ON ONE. LET\'S GO.',
+        'NICE START ON A TRICKY FIRST.'
+      ],
+      par: [
+        'GOOD START. TAKE THE PAR.',
+        'PAR ON ONE. WE\'RE OFF.',
+        'SETTLE IN. PAR.'
+      ],
+      over: [
+        'ROUGH START. LOTS OF GOLF LEFT.',
+        'ONE GOT YOU. MOVE ON.',
+        'TRICKY START. RESET.'
+      ]
+    }
+  };
+
+  const options = optionsByHole[activeHole]?.[tier];
+  if (!options?.length) return '';
+
+  // Keep hole difficulty as flavour, not the dominant voice.
+  const frequencyByRank = { 1: 2, 2: 3, 3: 4, 4: 5 };
+  const frequency = frequencyByRank[rank];
+  const seed = `${player?.id ?? 'player'}:${activeHole}:${scoreKey}:difficulty`;
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) hash = ((hash << 5) - hash + seed.charCodeAt(index)) | 0;
+  if (Math.abs(hash) % frequency !== 0) return '';
+
+  return pickContextReaction(options, player?.id, activeHole, `difficult_hole_${activeHole}_${tier}`);
+}
+
 function symbolClass(score) {
   if (score === -2) return 'eagle';
   if (score === -1) return 'birdie';
@@ -534,9 +633,12 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
     const contextReaction = result.reactionKey === 'double_hazard'
       ? ''
       : contextualDartReaction(player, activeHole, result.scoreKey);
+    const holeReaction = result.reactionKey === 'double_hazard' || contextReaction
+      ? ''
+      : difficultHoleReaction(player, activeHole, result.scoreKey);
     setDartAnnouncement({
       ...result,
-      reactionText: contextReaction || sequenceReaction
+      reactionText: contextReaction || holeReaction || sequenceReaction
     });
     window.setTimeout(() => onScore(result.scoreKey), 1200);
   }
