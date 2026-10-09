@@ -193,19 +193,31 @@ function contextualDartReaction(player, activeHole, scoreKey) {
 
   const react = (contextKey, options) => pickContextReaction(options, player.id, activeHole, contextKey);
 
-  if (scoreKey === 'eagle' && previousKey === 'eagle') {
-    return react('back_to_back_eagles', [
-      'ARE YOU FUCKING KIDDING ME?!',
-      'BACK-TO-BACK EAGLES. WHAT THE FUCK?!',
-      'TWO EAGLES?! THIS IS ABSURD.'
+  if (
+    scoreKey === 'eagle' &&
+    previousKeys.slice(0, 2).length === 2 &&
+    previousKeys.slice(0, 2).every(key => key === 'eagle')
+  ) {
+    return react('three_straight_eagles', [
+      'THREE FUCKING EAGLES IN A ROW?!',
+      'WHAT THE ACTUAL FUCK?! THREE STRAIGHT.',
+      'THREE EAGLES. THIS IS INSANE.'
     ]);
   }
 
   if (scoreKey === 'eagle' && lastFourWithCurrent.filter(key => key === 'eagle').length >= 3) {
     return react('three_eagles_in_four', [
       'THIS IS GETTING STUPID.',
-      'THREE EAGLES?! COME ON.',
+      'THREE EAGLES IN FOUR?! COME ON.',
       'YOU ARE OUT OF YOUR FUCKING MIND.'
+    ]);
+  }
+
+  if (scoreKey === 'eagle' && previousKey === 'eagle') {
+    return react('back_to_back_eagles', [
+      'ARE YOU FUCKING KIDDING ME?!',
+      'BACK-TO-BACK EAGLES. WHAT THE FUCK?!',
+      'TWO EAGLES?! THIS IS ABSURD.'
     ]);
   }
 
