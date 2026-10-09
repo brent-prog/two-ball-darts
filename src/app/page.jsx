@@ -20,7 +20,7 @@ const IN_PROGRESS_ROUND_KEY = 'twoBallDarts.inProgressRound.v1';
 
 const dartOptions = [
   { value: 'power', label: 'Double / Triple', tone: 'green' },
-  { value: 'single', label: 'Single', tone: 'gold' },
+  { value: 'single', label: 'Single Hit', tone: 'gold' },
   { value: 'safe', label: 'Safe Miss', tone: 'neutral' },
   { value: 'hazard', label: 'Hazard', tone: 'red' }
 ];
