@@ -224,7 +224,7 @@ function contextualDartReaction(player, activeHole, scoreKey) {
   if (scoreKey === 'triple_bogey' && lastFourWithCurrent.filter(key => key === 'triple_bogey').length >= 3) {
     return react('three_triples_in_four', [
       'CALL THE CLUBHOUSE.',
-      'THIS ROUND NEEDS AN INTERVENTION.',
+      'WE HAVE A PROBLEM.',
       'YOU ARE DIGGING TO CHINA.'
     ]);
   }
