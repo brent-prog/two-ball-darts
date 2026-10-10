@@ -125,36 +125,116 @@ const dartReactionBySequence = {
   'hazard:hazard': 'TWO HAZARDS?! JESUS FUCK.'
 };
 
-function dartReactionForSequence(dart1, dart2, fallbackKey) {
-  return dartReactionBySequence[`${dart1}:${dart2}`] ?? dartReactionByScoreKey[fallbackKey];
-}
-
-const dartParReactionBySequence = {
+const dartReactionOptionsBySequence = {
+  'power:power': [
+    'HOLY SHIT!',
+    'NO FUCKING WAY.',
+    'THAT WAS FILTHY.',
+    'ABSOLUTELY DIALED.'
+  ],
+  'power:single': [
+    'BOOM!',
+    'FUCK YEAH.',
+    'THAT\'S A BIRDIE.',
+    'NICELY FUCKING DONE.'
+  ],
+  'single:power': [
+    'FUCK YEAH - BIRDIE!',
+    'BIG SECOND DART.',
+    'THERE IT IS.',
+    'THAT SECOND DART DID THE WORK.'
+  ],
   'single:single': [
     'CLEAN PAR.',
     'JOB DONE.',
     'TAKE THE PAR.',
-    'THAT\'LL DO.'
+    'THAT\'LL DO.',
+    'FAIR ENOUGH.',
+    'RIGHT DOWN THE MIDDLE.'
   ],
   'power:safe': [
     'WASTED A GOOD FIRST DART.',
     'SHOULD HAVE BEEN BETTER.',
     'PAR... BUT YOU HAD MORE.',
-    'LEFT ONE OUT THERE.'
+    'LEFT ONE OUT THERE.',
+    'AH FUCK. STILL PAR.',
+    'YOU HAD BIRDIE IN YOUR HAND.'
   ],
   'safe:power': [
     'THAT SAVED YOUR ASS.',
     'NICE RECOVERY.',
     'PAR FROM NOWHERE.',
-    'CLUTCH SECOND DART.'
+    'CLUTCH SECOND DART.',
+    'THERE\'S THE SAVE.',
+    'GOOD FUCKING RECOVERY.'
+  ],
+  'single:safe': [
+    'AH FUCK... BOGEY.',
+    'YOU HAD PAR.',
+    'LET THAT ONE GET AWAY.',
+    'DAMN. ONE TOO MANY.'
+  ],
+  'safe:single': [
+    'SAVED IT. SORT OF.',
+    'NOT PRETTY, BUT BOGEY.',
+    'AT LEAST YOU GOT ONE BACK.',
+    'COULD HAVE BEEN WORSE.'
+  ],
+  'power:hazard': [
+    'OH COME ON.',
+    'WHAT A FUCKING WASTE.',
+    'FROM GREAT TO SHIT.',
+    'YOU HAD IT.'
+  ],
+  'hazard:power': [
+    'SAVED YOUR ASS.',
+    'HUGE FUCKING RECOVERY.',
+    'THAT SECOND DART MATTERED.',
+    'BOGEY FROM THE DEAD.'
+  ],
+  'safe:safe': [
+    'WELL, THAT SUCKED.',
+    'NOT MUCH TO LOVE THERE.',
+    'DOUBLE. MOVE ON.',
+    'YEAH... NO.'
+  ],
+  'single:hazard': [
+    'FUCK. BLEW IT.',
+    'THAT HURTS.',
+    'YOU JUST THREW AWAY PAR.',
+    'BAD TIME FOR A HAZARD.'
+  ],
+  'hazard:single': [
+    'FUCK... SAVED THE DOUBLE.',
+    'AT LEAST YOU FOUND THE BOARD.',
+    'DOUBLE. TAKE IT AND RUN.',
+    'SMALL MERCIES.'
+  ],
+  'safe:hazard': [
+    'WELL... FUCK.',
+    'THAT WENT SOUTH FAST.',
+    'YEAH, THAT\'S A TRIPLE.',
+    'NOT GOOD.'
+  ],
+  'hazard:safe': [
+    'FUCK. SHIT. FUCK.',
+    'THAT WAS UGLY.',
+    'TRIPLE. BRUTAL.',
+    'JUST GET OFF THIS HOLE.'
+  ],
+  'hazard:hazard': [
+    'TWO HAZARDS?! JESUS FUCK.',
+    'JESUS CHRIST. TWO HAZARDS.',
+    'THAT\'S A FUCKING DISASTER.',
+    'BURN THE SCORECARD.'
   ]
 };
 
-function parReactionForSequence(dart1, dart2, player, activeHole) {
+function dartReactionForSequence(dart1, dart2, fallbackKey, player, activeHole) {
   const key = `${dart1}:${dart2}`;
-  const options = dartParReactionBySequence[key];
-  if (!options) return '';
-  return pickContextReaction(options, player?.id, activeHole, `par_sequence_${key}`);
+  const options = dartReactionOptionsBySequence[key];
+  if (options?.length) return pickContextReaction(options, player?.id, activeHole, `sequence_${key}`);
+  return dartReactionBySequence[key] ?? dartReactionByScoreKey[fallbackKey];
 }
 
 function pickContextReaction(options, playerId, activeHole, contextKey) {
@@ -233,7 +313,9 @@ function contextualDartReaction(player, activeHole, scoreKey) {
     return react('back_to_back_triples', [
       'DIGGING A FUCKING HOLE HERE.',
       'BACK-TO-BACK TRIPLES. JESUS.',
-      'STOP THE FUCKING BLEEDING.'
+      'STOP THE FUCKING BLEEDING.',
+      'TWO TRIPLES. FUCK ME.',
+      'THIS IS A BAD PLACE TO LIVE.'
     ]);
   }
 
@@ -257,7 +339,9 @@ function contextualDartReaction(player, activeHole, scoreKey) {
     return react('back_to_back_birdies', [
       'BACK-TO-BACK BIRDIES. LET\'S GO.',
       'TWO BIRDIES. KEEP FUCKING GOING.',
-      'BIRDIE TRAIN. ALL ABOARD.'
+      'THERE YOU FUCKING GO.',
+      'BACK-TO-BACK. NICE.',
+      'NOW WE\'RE COOKING.'
     ]);
   }
 
@@ -299,7 +383,9 @@ function contextualDartReaction(player, activeHole, scoreKey) {
     return react('back_to_back_doubles', [
       'YOU WANNA STOP DOING THAT?',
       'ANOTHER DOUBLE. COOL. GREAT.',
-      'BACK-TO-BACK DOUBLES. FUCK.'
+      'BACK-TO-BACK DOUBLES. FUCK.',
+      'TWO DOUBLES. THAT\'S ENOUGH.',
+      'OKAY, THIS NEEDS TO CHANGE.'
     ]);
   }
 
@@ -307,7 +393,9 @@ function contextualDartReaction(player, activeHole, scoreKey) {
     return react('back_to_back_bogeys', [
       'WRONG DIRECTION.',
       'TWO BOGEYS. TURN IT AROUND.',
-      'BOGEY TRAIN IS NOT THE TRAIN.'
+      'NOT THE TREND WE WANT.',
+      'BACK-TO-BACK BOGEYS. COME ON.',
+      'TIME TO GET ONE BACK.'
     ]);
   }
 
@@ -619,9 +707,13 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
     const nextDartTwo = setter === setDartTwo ? value : otherDart;
     const result = scoreTwoDarts(nextDartOne, nextDartTwo);
     if (!result.scoreKey) return;
-    const sequenceReaction = result.scoreKey === 'par'
-      ? parReactionForSequence(nextDartOne, nextDartTwo, player, activeHole)
-      : dartReactionForSequence(nextDartOne, nextDartTwo, result.reactionKey ?? result.scoreKey);
+    const sequenceReaction = dartReactionForSequence(
+      nextDartOne,
+      nextDartTwo,
+      result.reactionKey ?? result.scoreKey,
+      player,
+      activeHole
+    );
     const contextReaction = result.reactionKey === 'double_hazard'
       ? ''
       : contextualDartReaction(player, activeHole, result.scoreKey);
