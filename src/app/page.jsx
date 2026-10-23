@@ -130,31 +130,35 @@ const dartReactionOptionsBySequence = {
     'HOLY SHIT!',
     'NO FUCKING WAY.',
     'THAT WAS FILTHY.',
-    'ABSOLUTELY DIALED.'
+    'ABSOLUTELY DIALED.',
+    'PURE FUCKING STRIPE.'
   ],
   'power:single': [
     'BOOM!',
     'FUCK YEAH.',
     'THAT\'S A BIRDIE.',
-    'NICELY FUCKING DONE.'
+    'NICELY FUCKING DONE.',
+    'CENTER CUT.'
   ],
   'single:power': [
     'FUCK YEAH - BIRDIE!',
     'BIG SECOND DART.',
     'THERE IT IS.',
-    'THAT SECOND DART DID THE WORK.'
+    'CLUTCH AS FUCK.',
+    'STRIPED THE SECOND ONE.'
   ],
   'single:single': [
     'CLEAN PAR.',
     'JOB DONE.',
     'TAKE THE PAR.',
     'THAT\'LL DO.',
-    'FAIR ENOUGH.',
-    'RIGHT DOWN THE MIDDLE.'
+    'RIGHT DOWN THE MIDDLE.',
+    'FAIRWAY FINDER.',
+    'FAIRWAYS AND GREENS.'
   ],
   'power:safe': [
     'WASTED A GOOD FIRST DART.',
-    'SHOULD HAVE BEEN BETTER.',
+    'BE BETTER.',
     'PAR... BUT YOU HAD MORE.',
     'LEFT ONE OUT THERE.',
     'AH FUCK. STILL PAR.',
@@ -166,67 +170,79 @@ const dartReactionOptionsBySequence = {
     'PAR FROM NOWHERE.',
     'CLUTCH SECOND DART.',
     'THERE\'S THE SAVE.',
-    'GOOD FUCKING RECOVERY.'
+    'GOOD FUCKING RECOVERY.',
+    'SCRAMBLED THE PAR.'
   ],
   'single:safe': [
     'AH FUCK... BOGEY.',
     'YOU HAD PAR.',
     'LET THAT ONE GET AWAY.',
-    'DAMN. ONE TOO MANY.'
+    'DAMN. ONE TOO MANY.',
+    'MISSED THE FUCKING GREEN.'
   ],
   'safe:single': [
     'SAVED IT. SORT OF.',
     'NOT PRETTY, BUT BOGEY.',
     'AT LEAST YOU GOT ONE BACK.',
-    'COULD HAVE BEEN WORSE.'
+    'TAKE YOUR MEDICINE.',
+    'UGLY BOGEY. THEY ALL COUNT.'
   ],
   'power:hazard': [
-    'OH COME ON.',
+    'OH, FOR FUCK.',
     'WHAT A FUCKING WASTE.',
     'FROM GREAT TO SHIT.',
-    'YOU HAD IT.'
+    'YOU HAD IT.',
+    'IN THE DRINK. FUCK.'
   ],
   'hazard:power': [
     'SAVED YOUR ASS.',
     'HUGE FUCKING RECOVERY.',
-    'THAT SECOND DART MATTERED.',
-    'BOGEY FROM THE DEAD.'
+    'THAT\'S A FUCKING SAVE.',
+    'BOGEY FROM THE DEAD.',
+    'GREAT RECOVERY FROM THE SHIT.'
   ],
   'safe:safe': [
     'WELL, THAT SUCKED.',
-    'NOT MUCH TO LOVE THERE.',
-    'DOUBLE. MOVE ON.',
-    'YEAH... NO.'
+    'THAT BLOWS.',
+    'FUCK, FUCK.',
+    'SUCKS TO BE YOU.',
+    'BE BETTER.',
+    'DOUBLE. PICK IT UP.'
   ],
   'single:hazard': [
     'FUCK. BLEW IT.',
-    'THAT HURTS.',
+    'THAT BLOWS.',
     'YOU JUST THREW AWAY PAR.',
-    'BAD TIME FOR A HAZARD.'
+    'IN THE DRINK. NICE ONE.',
+    'OH, FOR FUCK.'
   ],
   'hazard:single': [
     'FUCK... SAVED THE DOUBLE.',
-    'AT LEAST YOU FOUND THE BOARD.',
+    'AT LEAST YOU FOUND DRY LAND.',
     'DOUBLE. TAKE IT AND RUN.',
-    'SMALL MERCIES.'
+    'TAKE YOUR MEDICINE.',
+    'UGLY SAVE. STILL A SAVE.'
   ],
   'safe:hazard': [
     'WELL... FUCK.',
-    'THAT WENT SOUTH FAST.',
-    'YEAH, THAT\'S A TRIPLE.',
-    'NOT GOOD.'
+    'THAT BLOWS.',
+    'SON OF A FUCKING BITCH.',
+    'OH, FOR FUCK.',
+    'PICK IT UP.'
   ],
   'hazard:safe': [
     'FUCK. SHIT. FUCK.',
-    'THAT WAS UGLY.',
+    'SON OF A FUCKING BITCH.',
     'TRIPLE. BRUTAL.',
-    'JUST GET OFF THIS HOLE.'
+    'JUST GET OFF THIS HOLE.',
+    'THAT BLOWS.'
   ],
   'hazard:hazard': [
     'TWO HAZARDS?! JESUS FUCK.',
     'JESUS CHRIST. TWO HAZARDS.',
     'THAT\'S A FUCKING DISASTER.',
-    'BURN THE SCORECARD.'
+    'BURN THE SCORECARD.',
+    'JUST PICK IT UP AND GO.'
   ]
 };
 
@@ -235,6 +251,16 @@ function dartReactionForSequence(dart1, dart2, fallbackKey, player, activeHole) 
   const options = dartReactionOptionsBySequence[key];
   if (options?.length) return pickContextReaction(options, player?.id, activeHole, `sequence_${key}`);
   return dartReactionBySequence[key] ?? dartReactionByScoreKey[fallbackKey];
+}
+
+function reactionToneForSequence(dart1, dart2) {
+  const key = `${dart1}:${dart2}`;
+  if (['power:power', 'power:single', 'single:power'].includes(key)) return 'celebrate';
+  if (['safe:power', 'hazard:power', 'safe:single', 'hazard:single'].includes(key)) return 'save';
+  if (['power:safe', 'single:safe'].includes(key)) return 'letdown';
+  if (['power:hazard', 'single:hazard', 'safe:hazard', 'hazard:safe'].includes(key)) return 'collapse';
+  if (key === 'safe:safe') return 'chirp';
+  return 'golf';
 }
 
 function pickContextReaction(options, playerId, activeHole, contextKey) {
@@ -249,8 +275,8 @@ function pickContextReaction(options, playerId, activeHole, contextKey) {
   return options[(rotationOffset + holeOffset) % options.length];
 }
 
-function contextualDartReaction(player, activeHole, scoreKey) {
-  if (!player || activeHole <= 1 || !scoreByKey.has(scoreKey)) return '';
+function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2) {
+  if (!player || activeHole <= 1 || !scoreByKey.has(scoreKey)) return null;
 
   const previousKeys = [];
   for (let hole = activeHole - 1; hole >= 1; hole -= 1) {
@@ -259,19 +285,23 @@ function contextualDartReaction(player, activeHole, scoreKey) {
     previousKeys.push(key);
   }
 
-  if (!previousKeys.length) return '';
+  if (!previousKeys.length) return null;
 
   const previousScores = previousKeys.map(key => scoreByKey.get(key)?.score ?? 0);
   const currentScore = scoreByKey.get(scoreKey)?.score ?? 0;
   const previousKey = previousKeys[0];
-  const previousScore = previousScores[0];
   const lastThreeKeys = previousKeys.slice(0, 3);
   const lastFourWithCurrent = [scoreKey, ...lastThreeKeys];
   const lastThreeScores = previousScores.slice(0, 3);
   const underPar = score => score < 0;
   const overPar = score => score > 0;
+  const sequenceKey = `${dart1}:${dart2}`;
 
-  const react = (contextKey, options) => pickContextReaction(options, player.id, activeHole, contextKey);
+  const react = (contextKey, options, tone = 'golf') => ({
+    text: pickContextReaction(options, player.id, activeHole, contextKey),
+    tone,
+    contextKey
+  });
 
   if (
     scoreKey === 'eagle' &&
@@ -281,32 +311,36 @@ function contextualDartReaction(player, activeHole, scoreKey) {
     return react('three_straight_eagles', [
       'THREE FUCKING EAGLES IN A ROW?!',
       'WHAT THE ACTUAL FUCK?! THREE STRAIGHT.',
-      'THREE EAGLES. THIS IS INSANE.'
-    ]);
+      'THREE EAGLES. THIS IS INSANE.',
+      'SOMEBODY CHECK THIS FUCKING GUY.'
+    ], 'celebrate');
   }
 
   if (scoreKey === 'eagle' && lastFourWithCurrent.filter(key => key === 'eagle').length >= 3) {
     return react('three_eagles_in_four', [
       'THIS IS GETTING STUPID.',
-      'THREE EAGLES IN FOUR?! COME ON.',
-      'YOU ARE OUT OF YOUR FUCKING MIND.'
-    ]);
+      'THREE EAGLES IN FOUR?! FUCK OFF.',
+      'YOU ARE OUT OF YOUR FUCKING MIND.',
+      'THREE EAGLES. ABSOLUTELY DIALED.'
+    ], 'celebrate');
   }
 
   if (scoreKey === 'eagle' && previousKey === 'eagle') {
     return react('back_to_back_eagles', [
       'ARE YOU FUCKING KIDDING ME?!',
       'BACK-TO-BACK EAGLES. WHAT THE FUCK?!',
-      'TWO EAGLES?! THIS IS ABSURD.'
-    ]);
+      'TWO EAGLES?! FUCK OFF.',
+      'BACK-TO-BACK. ABSOLUTELY PURE.'
+    ], 'celebrate');
   }
 
   if (scoreKey === 'triple_bogey' && lastFourWithCurrent.filter(key => key === 'triple_bogey').length >= 3) {
     return react('three_triples_in_four', [
       'CALL THE CLUBHOUSE.',
       'WE HAVE A PROBLEM.',
-      'YOU ARE DIGGING TO CHINA.'
-    ]);
+      'YOU ARE DIGGING TO CHINA.',
+      'MAYBE TAKE UP BOWLING.'
+    ], 'collapse');
   }
 
   if (scoreKey === 'triple_bogey' && previousKey === 'triple_bogey') {
@@ -315,24 +349,48 @@ function contextualDartReaction(player, activeHole, scoreKey) {
       'BACK-TO-BACK TRIPLES. JESUS.',
       'STOP THE FUCKING BLEEDING.',
       'TWO TRIPLES. FUCK ME.',
-      'THIS IS A BAD PLACE TO LIVE.'
-    ]);
+      'JUST PICK IT UP.'
+    ], 'collapse');
   }
 
   if (scoreKey === 'eagle' && previousKey === 'triple_bogey') {
     return react('eagle_after_triple', [
       'REDEMPTION. HOLY SHIT.',
       'NOW THAT IS A FUCKING COMEBACK.',
-      'FROM DISASTER TO EAGLE. BOOM.'
-    ]);
+      'TRIPLE TO EAGLE. FUCK YEAH.',
+      'THAT\'S HOW YOU ANSWER.'
+    ], 'celebrate');
+  }
+
+  if (previousKey === 'birdie' && currentScore >= 2) {
+    return react('post_birdie_fuckup', [
+      'PBF. POST-BIRDIE FUCK-UP.',
+      'CLASSIC PBF.',
+      'BIRDIE THEN THAT? FUCK ME.',
+      'WAY TO GIVE THE BIRDIE RIGHT BACK.'
+    ], 'collapse');
+  }
+
+  if (
+    scoreKey === 'triple_bogey' &&
+    previousKeys.slice(0, 3).length === 3 &&
+    previousKeys.slice(0, 3).every(key => key === 'par')
+  ) {
+    return react('triple_after_three_pars', [
+      'DID YOU SMOKE A JOINT ON THE LAST HOLE?',
+      'THREE PARS THEN THAT? WHAT THE FUCK?',
+      'WHERE THE FUCK DID THAT COME FROM?',
+      'WELL, THERE GOES THE NICE LITTLE PAR RUN.'
+    ], 'collapse');
   }
 
   if (scoreKey === 'triple_bogey' && ['eagle', 'birdie'].includes(previousKey)) {
     return react('triple_after_under', [
-      'OH FOR FUCK\'S SAKE.',
+      'OH, FOR FUCK\'S SAKE.',
       'WELL... THAT WENT TO SHIT FAST.',
-      'FROM HERO TO TRAINWRECK.'
-    ]);
+      'FROM HERO TO TRAINWRECK.',
+      'GAVE THAT ONE RIGHT THE FUCK BACK.'
+    ], 'collapse');
   }
 
   if (scoreKey === 'birdie' && previousKey === 'birdie') {
@@ -342,105 +400,118 @@ function contextualDartReaction(player, activeHole, scoreKey) {
       'THERE YOU FUCKING GO.',
       'BACK-TO-BACK. NICE.',
       'NOW WE\'RE COOKING.'
-    ]);
+    ], 'celebrate');
   }
 
   if (underPar(currentScore) && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(underPar)) {
     return react('three_under_par', [
       'YOU\'RE ON A FUCKING RUN.',
-      'THREE STRAIGHT UNDER PAR. LOCKED IN.',
-      'KEEP YOUR FOOT ON THEIR THROAT.'
-    ]);
+      'THREE STRAIGHT UNDER PAR. DIALED.',
+      'KEEP YOUR FOOT DOWN.',
+      'THE CARD IS GETTING SEXY.'
+    ], 'swagger');
   }
 
   if (scoreKey === 'par' && previousKeys.slice(0, 3).length === 3 && previousKeys.slice(0, 3).every(key => key === 'par')) {
     return react('four_plus_pars', [
-      'STILL NOT BLINKING.',
-      'FOUR STRAIGHT. ICE COLD.',
-      'YOU JUST KEEP MAKING PAR.',
-      'FUCKING METRONOME.'
-    ]);
+      'FAIRWAYS. GREENS. PARS.',
+      'FOUR STRAIGHT. JUST KEEP STRIPING IT.',
+      'FUCKING METRONOME.',
+      'KEEP THE CARD CLEAN.'
+    ], 'swagger');
   }
 
   if (scoreKey === 'par' && previousKeys.slice(0, 2).length === 2 && previousKeys.slice(0, 2).every(key => key === 'par')) {
     return react('three_pars', [
-      'THREE STRAIGHT. LOCKED IN.',
+      'THREE STRAIGHT PARS. NICE.',
+      'FAIRWAYS AND GREENS.',
       'PAR HAT TRICK.',
-      'YOU ARE BORING IN A GOOD WAY.',
-      'THREE HOLES. NOTHING GIVEN BACK.'
-    ]);
+      'KEEP STRIPING IT.'
+    ], 'swagger');
   }
 
   if (scoreKey === 'bogey' && previousKeys.slice(0, 3).length === 3 && previousKeys.slice(0, 3).every(key => key === 'par')) {
     return react('bogey_breaks_par_run', [
-      'AND THERE GOES THE STREAK.',
-      'WELP. PAR RUN OVER.',
-      'THERE GOES THE CLEAN CARD.'
-    ]);
+      'THERE GOES THE PAR RUN.',
+      'AH FUCK. STREAK OVER.',
+      'GAVE ONE BACK.',
+      'WELL, SHIT. THERE GOES THE CLEAN CARD.'
+    ], 'letdown');
   }
 
   if (scoreKey === 'double_bogey' && previousKey === 'double_bogey') {
     return react('back_to_back_doubles', [
-      'YOU WANNA STOP DOING THAT?',
-      'ANOTHER DOUBLE. COOL. GREAT.',
       'BACK-TO-BACK DOUBLES. FUCK.',
-      'TWO DOUBLES. THAT\'S ENOUGH.',
-      'OKAY, THIS NEEDS TO CHANGE.'
-    ]);
+      'TWO DOUBLES. THAT BLOWS.',
+      'BE BETTER.',
+      'SUCKS TO BE YOU.',
+      'SON OF A FUCKING BITCH.'
+    ], 'chirp');
   }
 
   if (scoreKey === 'bogey' && previousKey === 'bogey') {
     return react('back_to_back_bogeys', [
-      'WRONG DIRECTION.',
-      'TWO BOGEYS. TURN IT AROUND.',
-      'NOT THE TREND WE WANT.',
-      'BACK-TO-BACK BOGEYS. COME ON.',
-      'TIME TO GET ONE BACK.'
-    ]);
+      'BACK-TO-BACK BOGEYS. FUCK.',
+      'GAVE ANOTHER ONE AWAY.',
+      'BE BETTER.',
+      'TWO BOGEYS. THAT BLOWS.',
+      'GET OFF THE BOGEY TRAIN.'
+    ], 'letdown');
   }
 
-  if (scoreKey === 'par' && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(score => score >= 2)) {
+  // Recovery context only gets to override a Par when the current darts actually felt like a recovery,
+  // not when a strong first dart was wasted.
+  if (
+    scoreKey === 'par' &&
+    sequenceKey !== 'power:safe' &&
+    lastThreeScores.slice(0, 2).length === 2 &&
+    lastThreeScores.slice(0, 2).every(score => score >= 2)
+  ) {
     return react('par_after_two_ugly', [
-      'OKAY. DAMAGE CONTROL.',
-      'THERE. STOP THE BLEEDING.',
-      'PAR. MUCH FUCKING BETTER.',
-      'FINALLY, A NORMAL HOLE.'
-    ]);
+      'BACK IN THE FAIRWAY.',
+      'THAT\'LL FUCKING DO.',
+      'THERE WE GO.',
+      'FINALLY FOUND THE SHORT GRASS.'
+    ], 'save');
   }
 
   if (scoreKey === 'birdie' && lastThreeScores.slice(0, 2).length === 2 && lastThreeScores.slice(0, 2).every(overPar)) {
     return react('birdie_after_two_over', [
       'THERE WE FUCKING GO.',
-      'THAT\'S HOW YOU GET IT BACK.',
-      'BIRDIE. MUCH FUCKING BETTER.'
-    ]);
+      'NOW THAT\'S MORE LIKE IT.',
+      'BIRDIE. ABOUT FUCKING TIME.',
+      'FOUND THE FUCKING SWING AGAIN.'
+    ], 'save');
   }
 
   if (scoreKey === 'bogey' && previousKey === 'eagle') {
     return react('bogey_after_eagle', [
       'HERO TO ZERO.',
       'AND WE GIVE ONE BACK.',
-      'EAGLE TO BOGEY. RUDE.'
-    ]);
+      'EAGLE THEN BOGEY. FUCK.',
+      'COULDN\'T JUST ENJOY THE EAGLE, EH?'
+    ], 'letdown');
   }
 
   if (underPar(currentScore) && previousKeys.length >= 4 && previousScores.slice(0, 4).every(score => score >= 0)) {
     return react('under_par_after_dry_spell', [
       'FINALLY.',
       'ABOUT FUCKING TIME.',
-      'THERE IT IS. FINALLY.'
-    ]);
+      'THERE IT IS.',
+      'FOUND ONE.'
+    ], 'save');
   }
 
   if (currentScore <= 0 && previousKeys.slice(0, 4).length === 4 && previousScores.slice(0, 4).every(score => score <= 0)) {
     return react('five_par_or_better', [
       'LOCKED THE FUCK IN.',
       'FIVE STRAIGHT PAR OR BETTER.',
-      'YOU HAVE NOT BLINKED IN FIVE HOLES.'
-    ]);
+      'FAIRWAYS AND GREENS, BABY.',
+      'THIS CARD IS FUCKING CLEAN.'
+    ], 'swagger');
   }
 
-  return '';
+  return null;
 }
 
 const difficultHoleRanks = new Map([
@@ -450,96 +521,186 @@ const difficultHoleRanks = new Map([
   [1, 4]
 ]);
 
-function difficultHoleReaction(player, activeHole, scoreKey) {
-  const rank = difficultHoleRanks.get(activeHole);
+const secondaryDifficultHoles = new Set([12, 16, 17, 18]);
+
+function difficultHoleReaction(player, activeHole, scoreKey, dart1, dart2) {
   const result = scoreByKey.get(scoreKey);
-  if (!rank || !result) return '';
+  if (!result) return null;
+
+  const primaryRank = difficultHoleRanks.get(activeHole);
+  const isSecondary = secondaryDifficultHoles.has(activeHole);
+  if (!primaryRank && !isSecondary) return null;
 
   const score = result.score;
   const tier = score < 0 ? 'under' : score === 0 ? 'par' : 'over';
-  const optionsByHole = {
+  const sequenceKey = `${dart1}:${dart2}`;
+
+  // If a player hit a power target first and then threw away the Birdie, keep that immediate story.
+  if (tier === 'par' && sequenceKey === 'power:safe') return null;
+
+  const primaryOptions = {
     3: {
-      under: [
-        'ON THREE?! THAT\'S HUGE.',
-        'UNDER PAR ON THE HARDEST HOLE. BEAUTY.',
-        'YOU JUST TOOK THREE APART.'
-      ],
-      par: [
-        'PAR ON THREE. TAKE THAT ALL DAY.',
-        'THAT\'S A GOOD PAR ON THREE.',
-        'THREE WILL TAKE PAR.'
-      ],
-      over: [
-        'THREE BITES BACK.',
-        'TOUGH HOLE. LIMIT THE DAMAGE.',
-        'THREE IS A BASTARD.'
-      ]
+      under: ['BIRDIE OR BETTER ON THREE? FUCK OFF.', 'YOU JUST BEAT THE HARDEST HOLE.', 'THREE IS A BASTARD. NOT THAT TIME.'],
+      par: ['PAR ON THREE? TAKE IT AND RUN.', 'THAT\'S A FUCKING GOOD PAR.', 'THREE WILL TAKE PAR ALL DAY.'],
+      over: ['THREE WILL FUCKING DO THAT.', 'HARDEST HOLE. TAKE YOUR MEDICINE.', 'THREE GOT YOU. MOVE ON.']
     },
     7: {
-      under: [
-        'UNDER PAR ON SEVEN. NICE.',
-        'SEVEN? FUCK YEAH.',
-        'THAT\'S A BIG SCORE ON SEVEN.'
-      ],
-      par: [
-        'GOOD PAR ON SEVEN.',
-        'TAKE PAR ON SEVEN.',
-        'SEVEN DIDN\'T GET YOU.'
-      ],
-      over: [
-        'SEVEN GOT A PIECE OF YOU.',
-        'TOUGH ONE. MOVE ON.',
-        'SEVEN CAN DO THAT.'
-      ]
+      under: ['UNDER PAR ON SEVEN. FUCK YEAH.', 'SEVEN? STRIPED IT.', 'THAT\'S A BIG FUCKING SCORE ON SEVEN.'],
+      par: ['GOOD PAR ON SEVEN.', 'TAKE PAR ON SEVEN ALL DAY.', 'SEVEN DIDN\'T GET YOU.'],
+      over: ['SEVEN GOT A PIECE OF YOU.', 'SEVEN CAN BE A PRICK.', 'FUCK IT. SEVEN DOES THAT.']
     },
     5: {
-      under: [
-        'NICE WORK ON FIVE.',
-        'UNDER PAR ON FIVE. BEAUTY.',
-        'FIVE? TAKE THAT.'
-      ],
-      par: [
-        'GOOD PAR ON FIVE.',
-        'TAKE IT. FIVE ISN\'T EASY.',
-        'PAR WORKS ON FIVE.'
-      ],
-      over: [
-        'FIVE GOT YOU.',
-        'NOT THE HOLE TO GET GREEDY.',
-        'FIVE CAN BITE.'
-      ]
+      under: ['UNDER PAR ON FIVE. BEAUTY.', 'FIVE? FUCKING PURE.', 'NICE WORK ON A TOUGH ONE.'],
+      par: ['GOOD PAR ON FIVE.', 'TAKE THE PAR. FIVE CAN BITE.', 'SOLID FUCKING PAR ON FIVE.'],
+      over: ['FIVE GOT YOU.', 'FIVE CAN BITE. THERE IT IS.', 'THAT BLOWS. TOUGH HOLE.']
     },
     1: {
-      under: [
-        'THAT\'S HOW YOU START.',
-        'UNDER PAR ON ONE. LET\'S GO.',
-        'NICE START ON A TRICKY FIRST.'
-      ],
-      par: [
-        'GOOD START. TAKE THE PAR.',
-        'PAR ON ONE. WE\'RE OFF.',
-        'SETTLE IN. PAR.'
-      ],
-      over: [
-        'ROUGH START. LOTS OF GOLF LEFT.',
-        'ONE GOT YOU. MOVE ON.',
-        'TRICKY START. RESET.'
-      ]
+      under: ['THAT\'S HOW YOU FUCKING START.', 'UNDER PAR ON ONE. LET\'S GO.', 'STRIPED THE TOUGH OPENER.'],
+      par: ['GOOD START. TAKE THE PAR.', 'PAR ON ONE. OFF WE GO.', 'TOUGH OPENER. PAR\'S GOOD.'],
+      over: ['ROUGH START. SHAKE IT OFF.', 'ONE GOT YOU. LOTS OF GOLF LEFT.', 'TOUGH OPENER. FUCK IT.']
     }
   };
 
-  const options = optionsByHole[activeHole]?.[tier];
-  if (!options?.length) return '';
+  const secondaryOptions = {
+    under: [
+      `NICE FUCKING SCORE ON ${activeHole}.`,
+      `${activeHole} CAN BITE. NOT THAT TIME.`,
+      `GOOD ONE ON ${activeHole}.`
+    ],
+    par: [
+      `TAKE PAR ON ${activeHole}.`,
+      `GOOD PAR THERE.`,
+      `${activeHole} CAN BE A PRICK. PAR\'S FINE.`
+    ],
+    over: [
+      `${activeHole} GOT YOU.`,
+      'THAT HOLE CAN BITE.',
+      'FUCK IT. MOVE ON.'
+    ]
+  };
 
-  // Keep hole difficulty as flavour, not the dominant voice.
-  const frequencyByRank = { 1: 2, 2: 3, 3: 4, 4: 5 };
-  const frequency = frequencyByRank[rank];
-  const seed = `${player?.id ?? 'player'}:${activeHole}:${scoreKey}:difficulty`;
-  let hash = 0;
-  for (let index = 0; index < seed.length; index += 1) hash = ((hash << 5) - hash + seed.charCodeAt(index)) | 0;
-  if (Math.abs(hash) % frequency !== 0) return '';
+  const options = primaryRank ? primaryOptions[activeHole]?.[tier] : secondaryOptions[tier];
+  if (!options?.length) return null;
 
-  return pickContextReaction(options, player?.id, activeHole, `difficult_hole_${activeHole}_${tier}`);
+  // The four primary tough holes should feel different. The secondary four only surface lightly.
+  if (isSecondary) {
+    const seed = `${player?.id ?? 'player'}:${activeHole}:${scoreKey}:secondary_hole`;
+    let hash = 0;
+    for (let index = 0; index < seed.length; index += 1) hash = ((hash << 5) - hash + seed.charCodeAt(index)) | 0;
+    if (Math.abs(hash) % 2 !== 0) return null;
+  }
+
+  return {
+    text: pickContextReaction(options, player?.id, activeHole, `difficult_hole_${activeHole}_${tier}`),
+    tone: tier === 'under' ? 'celebrate' : tier === 'par' ? 'golf' : 'chirp',
+    contextKey: `difficult_hole_${activeHole}`
+  };
+}
+
+function matchupReaction(player, players, activeHole, scoreKey) {
+  if (!player || !Array.isArray(players) || players.length < 2 || activeHole < 5) return null;
+
+  const opponents = players.filter(candidate => candidate.id !== player.id);
+  if (!opponents.length) return null;
+
+  const comparablePriorHoles = holes.filter(
+    hole => hole < activeHole && players.every(candidate => scoreByKey.has(candidate.scores[hole]))
+  );
+  if (comparablePriorHoles.length < 3) return null;
+
+  const currentScore = scoreByKey.get(scoreKey)?.score;
+  if (!Number.isFinite(currentScore)) return null;
+
+  let playerTotal = totalForHoles(player, comparablePriorHoles);
+  const opponentTotals = opponents.map(opponent => ({
+    opponent,
+    score: totalForHoles(opponent, comparablePriorHoles)
+  }));
+
+  const everyoneElseScoredCurrent = opponents.every(opponent => scoreByKey.has(opponent.scores[activeHole]));
+  if (everyoneElseScoredCurrent) {
+    playerTotal += currentScore;
+    opponentTotals.forEach(item => {
+      item.score += scoreByKey.get(item.opponent.scores[activeHole])?.score ?? 0;
+    });
+  }
+
+  opponentTotals.sort((a, b) => a.score - b.score);
+  const closestOpponent = opponentTotals[0];
+  const gap = playerTotal - closestOpponent.score;
+  const opponentName = closestOpponent.opponent.name?.toUpperCase() || 'THEM';
+  const late = activeHole >= 15;
+
+  const react = (contextKey, options, tone = 'pressure') => ({
+    text: pickContextReaction(options, player.id, activeHole, contextKey),
+    tone,
+    contextKey
+  });
+
+  const shouldSurface = (key, frequency) => {
+    if (late) return true;
+    const seed = `${player.id}:${activeHole}:${key}`;
+    let hash = 0;
+    for (let index = 0; index < seed.length; index += 1) hash = ((hash << 5) - hash + seed.charCodeAt(index)) | 0;
+    return Math.abs(hash) % frequency === 0;
+  };
+
+  if (Math.abs(gap) <= 1 && shouldSurface('tight_match', 2)) {
+    if (currentScore < 0) {
+      return react('tight_match_good', [
+        'THAT\'S A BIG FUCKING SCORE.',
+        `PRESSURE\'S ON ${opponentName} NOW.`,
+        'BIG SHOT IN A TIGHT MATCH.',
+        'THAT ONE MATTERS.'
+      ], 'pressure');
+    }
+    if (currentScore >= 2) {
+      return react('tight_match_bad', [
+        'BAD TIME FOR THAT SHIT.',
+        'NOT WHEN IT\'S THIS FUCKING TIGHT.',
+        `YOU JUST OPENED THE DOOR FOR ${opponentName}.`,
+        'THAT ONE FUCKING HURTS.'
+      ], 'collapse');
+    }
+    if (currentScore === 0) {
+      return react('tight_match_par', [
+        'TAKE THE PAR. THIS IS TIGHT.',
+        'NO SHOTS GIVEN AWAY.',
+        'PAR KEEPS THE PRESSURE ON.',
+        'RIGHT DOWN THE MIDDLE. KEEP GOING.'
+      ], 'pressure');
+    }
+  }
+
+  if (gap <= -5 && shouldSurface('big_lead', 3)) {
+    if (currentScore <= 0) {
+      return react('big_lead_good', [
+        `${opponentName} IS GETTING BURIED.`,
+        'KEEP YOUR FOOT ON THE GAS.',
+        'THIS IS TURNING INTO A FUCKING ROUT.',
+        'NO MERCY.'
+      ], 'swagger');
+    }
+    if (currentScore >= 2) {
+      return react('big_lead_bad', [
+        'DON\'T OPEN THE FUCKING DOOR.',
+        'YOU\'RE TRYING TO LET THEM BACK IN.',
+        'BIG LEAD. DUMB TIME FOR THAT.',
+        'QUIT FUCKING AROUND.'
+      ], 'letdown');
+    }
+  }
+
+  if (gap >= 5 && currentScore < 0 && shouldSurface('chasing', 2)) {
+    return react('chasing_good', [
+      'THAT\'S ONE BACK.',
+      'CHIP AWAY.',
+      'NOW GO GET ANOTHER.',
+      `START MAKING ${opponentName} SWEAT.`
+    ], 'save');
+  }
+
+  return null;
 }
 
 function symbolClass(score) {
@@ -694,7 +855,7 @@ function DartChoiceGroup({ label, value, setValue }) {
   return <div className="tbd-custom-dart-picker"><div className="tbd-custom-dart-picker-heading">{label}</div><div className="tbd-custom-dart-options">{dartOptions.map(option => <button key={option.value} type="button" className={`tbd-custom-dart-option is-${option.tone} ${value === option.value ? 'is-selected' : ''}`} onClick={() => setValue(option.value)}>{option.label}</button>)}</div></div>;
 }
 
-function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose }) {
+function ScoreModal({ player, players, activeHole, currentKey, onScore, onClear, onClose }) {
   const [dartOne, setDartOne] = useState('');
   const [dartTwo, setDartTwo] = useState('');
   const [dartAnnouncement, setDartAnnouncement] = useState(null);
@@ -714,20 +875,32 @@ function ScoreModal({ player, activeHole, currentKey, onScore, onClear, onClose 
       player,
       activeHole
     );
-    const contextReaction = result.reactionKey === 'double_hazard'
-      ? ''
-      : contextualDartReaction(player, activeHole, result.scoreKey);
-    const holeReaction = result.reactionKey === 'double_hazard' || contextReaction
-      ? ''
-      : difficultHoleReaction(player, activeHole, result.scoreKey);
+    const sequenceTone = reactionToneForSequence(nextDartOne, nextDartTwo);
+
+    const streakReaction = result.reactionKey === 'double_hazard'
+      ? null
+      : contextualDartReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo);
+    const scorecardReaction = result.reactionKey === 'double_hazard' || streakReaction
+      ? null
+      : matchupReaction(player, players, activeHole, result.scoreKey);
+    const holeReaction = result.reactionKey === 'double_hazard' || streakReaction || scorecardReaction
+      ? null
+      : difficultHoleReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo);
+
+    const chosenReaction = streakReaction || scorecardReaction || holeReaction || {
+      text: sequenceReaction,
+      tone: sequenceTone
+    };
+
     setDartAnnouncement({
       ...result,
-      reactionText: contextReaction || holeReaction || sequenceReaction
+      reactionText: chosenReaction.text,
+      reactionTone: chosenReaction.tone
     });
     window.setTimeout(() => onScore(result.scoreKey), 1500);
   }
 
-  return <div className="tbd-score-modal-shell"><div className="card tbd-score-modal-card"><div className="tbd-score-modal-title-row"><div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div><button className="button secondary" onClick={onClose}>Close</button></div><div className="tbd-dart-score-card"><p className="eyebrow">Score by Darts</p><div className="tbd-dart-select-grid has-custom-dart-pickers"><DartChoiceGroup label="Dart 1" value={dartOne} setValue={value => chooseDart(setDartOne, value, dartTwo)} /><DartChoiceGroup label="Dart 2" value={dartTwo} setValue={value => chooseDart(setDartTwo, value, dartOne)} /></div>{!dartAnnouncement && <div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div>}</div><div className="tbd-quick-score-section"><p className="eyebrow">Quick Score</p><div className="tbd-quick-score-grid">{scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}><span>{result.label}</span><strong>{fmt(result.score)}</strong></button>)}</div></div><button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button></div>{dartAnnouncement && <div role="status" aria-live="assertive" className={`tbd-dart-announcement is-${dartAnnouncement.reactionKey ?? dartAnnouncement.scoreKey}`}><div className="tbd-dart-announcement-card"><span className="tbd-dart-announcement-hole">Hole {activeHole}</span><strong className="tbd-dart-announcement-reaction">{dartAnnouncement.reactionText ?? dartReactionByScoreKey[dartAnnouncement.reactionKey ?? dartAnnouncement.scoreKey]}</strong><span className="tbd-dart-announcement-result">{dartAnnouncement.title}</span><strong className="tbd-dart-announcement-score">{fmt(scoreByKey.get(dartAnnouncement.scoreKey)?.score ?? 0)}</strong>{dartAnnouncement.capNote && <span className="tbd-dart-announcement-cap-note">{dartAnnouncement.capNote}</span>}</div></div>}</div>;
+  return <div className="tbd-score-modal-shell"><div className="card tbd-score-modal-card"><div className="tbd-score-modal-title-row"><div><p className="eyebrow">Hole {activeHole}</p><h2>{player.name}</h2></div><button className="button secondary" onClick={onClose}>Close</button></div><div className="tbd-dart-score-card"><p className="eyebrow">Score by Darts</p><div className="tbd-dart-select-grid has-custom-dart-pickers"><DartChoiceGroup label="Dart 1" value={dartOne} setValue={value => chooseDart(setDartOne, value, dartTwo)} /><DartChoiceGroup label="Dart 2" value={dartTwo} setValue={value => chooseDart(setDartTwo, value, dartOne)} /></div>{!dartAnnouncement && <div className="rule-answer" style={{ marginTop: '12px' }}><strong>{dartResult.title}</strong><p style={{ margin: '6px 0 0' }}>{dartResult.answer}</p></div>}</div><div className="tbd-quick-score-section"><p className="eyebrow">Quick Score</p><div className="tbd-quick-score-grid">{scoreResults.map(result => <button key={result.key} className={`button ${currentKey === result.key ? 'primary' : 'secondary'}`} onClick={() => onScore(result.key)}><span>{result.label}</span><strong>{fmt(result.score)}</strong></button>)}</div></div><button className="button ghost" style={{ marginTop: '12px' }} onClick={onClear}>Clear score</button></div>{dartAnnouncement && <div role="status" aria-live="assertive" className={`tbd-dart-announcement is-${dartAnnouncement.reactionKey ?? dartAnnouncement.scoreKey} tone-${dartAnnouncement.reactionTone ?? 'golf'}`}><div className="tbd-dart-announcement-card"><span className="tbd-dart-announcement-hole">Hole {activeHole}</span><strong className="tbd-dart-announcement-reaction">{dartAnnouncement.reactionText ?? dartReactionByScoreKey[dartAnnouncement.reactionKey ?? dartAnnouncement.scoreKey]}</strong><span className="tbd-dart-announcement-result">{dartAnnouncement.title}</span><strong className="tbd-dart-announcement-score">{fmt(scoreByKey.get(dartAnnouncement.scoreKey)?.score ?? 0)}</strong>{dartAnnouncement.capNote && <span className="tbd-dart-announcement-cap-note">{dartAnnouncement.capNote}</span>}</div></div>}</div>;
 }
 
 export default function Home() {
@@ -1244,6 +1417,6 @@ export default function Home() {
     </section>
     {!showScoringMode && <section className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>{historyStatus && <p className="status-line">{historyStatus}</p>}<div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span>{!isSavedRoundComplete(game) && <button className="button secondary" style={{ marginTop: '10px', marginRight: '8px' }} onClick={() => resumeSavedGame(game)}>Resume Round</button>}<button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}</div></section>}
     {!showScoringMode && <footer style={{ marginTop: '22px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '22px', padding: '18px', background: 'linear-gradient(180deg, rgba(6,57,39,.88), rgba(2,20,15,.96))', boxShadow: '0 18px 44px rgba(0,0,0,.35)' }}><div style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 240px) 1fr', gap: '16px', alignItems: 'center' }}><img src="/brand/twoball-logo-tm.svg" alt="TWO BALL DARTS™" style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} /><div><span style={{ color: '#d0a948', fontWeight: 900 }}>No gimmes. Just throw.</span><p style={{ margin: '6px 0 0', color: '#f5e8c6' }}>18 holes. Two darts per hole. Bulls, 19s, and 20s are hazards.</p></div></div></footer>}
-    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />{showRoundComplete && <RoundCompleteModal players={players} onClose={() => setShowRoundComplete(false)} onMainMenu={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(false); }} onNewRound={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(true); }} />}
+    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} players={players} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />{showRoundComplete && <RoundCompleteModal players={players} onClose={() => setShowRoundComplete(false)} onMainMenu={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(false); }} onNewRound={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(true); }} />}
   </main>;
 }
