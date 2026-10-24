@@ -246,10 +246,10 @@ const dartReactionOptionsBySequence = {
   ]
 };
 
-function dartReactionForSequence(dart1, dart2, fallbackKey, player, activeHole) {
+function dartReactionForSequence(dart1, dart2, fallbackKey, player, activeHole, usedReactionTexts = []) {
   const key = `${dart1}:${dart2}`;
   const options = dartReactionOptionsBySequence[key];
-  if (options?.length) return pickContextReaction(options, player?.id, activeHole, `sequence_${key}`);
+  if (options?.length) return pickUnusedReaction(options, usedReactionTexts, player?.id, activeHole, `sequence_${key}`);
   return dartReactionBySequence[key] ?? dartReactionByScoreKey[fallbackKey];
 }
 
@@ -275,7 +275,15 @@ function pickContextReaction(options, playerId, activeHole, contextKey) {
   return options[(rotationOffset + holeOffset) % options.length];
 }
 
-function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2) {
+function pickUnusedReaction(options, usedReactionTexts, playerId, activeHole, contextKey) {
+  if (!options?.length) return '';
+  const used = new Set(usedReactionTexts ?? []);
+  const available = options.filter(option => !used.has(option));
+  const pool = available.length ? available : options;
+  return pickContextReaction(pool, playerId, activeHole, contextKey);
+}
+
+function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2, usedReactionTexts = []) {
   if (!player || activeHole <= 1 || !scoreByKey.has(scoreKey)) return null;
 
   const previousKeys = [];
@@ -298,9 +306,10 @@ function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2) {
   const sequenceKey = `${dart1}:${dart2}`;
 
   const react = (contextKey, options, tone = 'golf') => ({
-    text: pickContextReaction(options, player.id, activeHole, contextKey),
+    text: pickUnusedReaction(options, usedReactionTexts, player.id, activeHole, contextKey),
     tone,
-    contextKey
+    contextKey,
+    options
   });
 
   if (
@@ -523,7 +532,7 @@ const difficultHoleRanks = new Map([
 
 const secondaryDifficultHoles = new Set([12, 16, 17, 18]);
 
-function difficultHoleReaction(player, activeHole, scoreKey, dart1, dart2) {
+function difficultHoleReaction(player, activeHole, scoreKey, dart1, dart2, usedReactionTexts = []) {
   const result = scoreByKey.get(scoreKey);
   if (!result) return null;
 
@@ -591,13 +600,14 @@ function difficultHoleReaction(player, activeHole, scoreKey, dart1, dart2) {
   }
 
   return {
-    text: pickContextReaction(options, player?.id, activeHole, `difficult_hole_${activeHole}_${tier}`),
+    text: pickUnusedReaction(options, usedReactionTexts, player?.id, activeHole, `difficult_hole_${activeHole}_${tier}`),
     tone: tier === 'under' ? 'celebrate' : tier === 'par' ? 'golf' : 'chirp',
-    contextKey: `difficult_hole_${activeHole}`
+    contextKey: `difficult_hole_${activeHole}`,
+    options
   };
 }
 
-function matchupReaction(player, players, activeHole, scoreKey) {
+function matchupReaction(player, players, activeHole, scoreKey, usedReactionTexts = []) {
   if (!player || !Array.isArray(players) || players.length < 2 || activeHole < 5) return null;
 
   const opponents = players.filter(candidate => candidate.id !== player.id);
@@ -632,9 +642,10 @@ function matchupReaction(player, players, activeHole, scoreKey) {
   const late = activeHole >= 15;
 
   const react = (contextKey, options, tone = 'pressure') => ({
-    text: pickContextReaction(options, player.id, activeHole, contextKey),
+    text: pickUnusedReaction(options, usedReactionTexts, player.id, activeHole, contextKey),
     tone,
-    contextKey
+    contextKey,
+    options
   });
 
   const shouldSurface = (key, frequency) => {
@@ -855,7 +866,7 @@ function DartChoiceGroup({ label, value, setValue }) {
   return <div className="tbd-custom-dart-picker"><div className="tbd-custom-dart-picker-heading">{label}</div><div className="tbd-custom-dart-options">{dartOptions.map(option => <button key={option.value} type="button" className={`tbd-custom-dart-option is-${option.tone} ${value === option.value ? 'is-selected' : ''}`} onClick={() => setValue(option.value)}>{option.label}</button>)}</div></div>;
 }
 
-function ScoreModal({ player, players, activeHole, currentKey, onScore, onClear, onClose }) {
+function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts, onUseReaction, onScore, onClear, onClose }) {
   const [dartOne, setDartOne] = useState('');
   const [dartTwo, setDartTwo] = useState('');
   const [dartAnnouncement, setDartAnnouncement] = useState(null);
@@ -873,24 +884,27 @@ function ScoreModal({ player, players, activeHole, currentKey, onScore, onClear,
       nextDartTwo,
       result.reactionKey ?? result.scoreKey,
       player,
-      activeHole
+      activeHole,
+      usedReactionTexts
     );
     const sequenceTone = reactionToneForSequence(nextDartOne, nextDartTwo);
 
     const streakReaction = result.reactionKey === 'double_hazard'
       ? null
-      : contextualDartReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo);
+      : contextualDartReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo, usedReactionTexts);
     const scorecardReaction = result.reactionKey === 'double_hazard' || streakReaction
       ? null
-      : matchupReaction(player, players, activeHole, result.scoreKey);
+      : matchupReaction(player, players, activeHole, result.scoreKey, usedReactionTexts);
     const holeReaction = result.reactionKey === 'double_hazard' || streakReaction || scorecardReaction
       ? null
-      : difficultHoleReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo);
+      : difficultHoleReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo, usedReactionTexts);
 
     const chosenReaction = streakReaction || scorecardReaction || holeReaction || {
       text: sequenceReaction,
       tone: sequenceTone
     };
+
+    if (chosenReaction.text) onUseReaction?.(chosenReaction.text);
 
     setDartAnnouncement({
       ...result,
@@ -905,6 +919,7 @@ function ScoreModal({ player, players, activeHole, currentKey, onScore, onClear,
 
 export default function Home() {
   const [players, setPlayers] = useState(defaults);
+  const [usedReactionTexts, setUsedReactionTexts] = useState([]);
   const [activeHole, setActiveHole] = useState(1);
   const [status, setStatus] = useState('');
   const [historyStatus, setHistoryStatus] = useState('');
@@ -990,6 +1005,7 @@ export default function Home() {
           : [];
         if (cancelled) return;
         if (restoredPlayers.length) setPlayers(restoredPlayers);
+        if (Array.isArray(draft?.usedReactionTexts)) setUsedReactionTexts(draft.usedReactionTexts.filter(text => typeof text === 'string'));
         if (Number.isInteger(draft?.activeHole) && draft.activeHole >= 1 && draft.activeHole <= 18) setActiveHole(draft.activeHole);
         setSavedGameId(typeof draft?.savedGameId === 'string' ? draft.savedGameId : null);
         setIsRoundDirty(typeof draft?.isRoundDirty === 'boolean' ? draft.isRoundDirty : true);
@@ -1012,6 +1028,7 @@ export default function Home() {
     try {
       window.localStorage.setItem(IN_PROGRESS_ROUND_KEY, JSON.stringify({
         players,
+        usedReactionTexts,
         activeHole,
         showScoringMode,
         savedGameId,
@@ -1021,9 +1038,13 @@ export default function Home() {
     } catch (error) {
       console.warn('Could not persist in-progress round.', error);
     }
-  }, [draftHydrated, players, activeHole, showScoringMode, savedGameId, isRoundDirty]);
+  }, [draftHydrated, players, usedReactionTexts, activeHole, showScoringMode, savedGameId, isRoundDirty]);
 
   function markRoundDirty() { setIsRoundDirty(true); setStatus(''); }
+  function recordReaction(text) {
+    if (!text) return;
+    setUsedReactionTexts(current => current.includes(text) ? current : [...current, text]);
+  }
   function updateScoreForHole(playerId, score, hole) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
   function updateScore(playerId, score) {
     autoAdvanceArmedHoleRef.current = activeHole;
@@ -1089,6 +1110,7 @@ export default function Home() {
     setShowRoundComplete(false);
     setIsAdvancing(false);
     setActiveHole(1);
+    setUsedReactionTexts([]);
     setPlayers(current => current.map(player => ({ ...player, scores: {} })));
   }
   function changeHole(nextHole, { manual = false } = {}) {
@@ -1417,6 +1439,6 @@ export default function Home() {
     </section>
     {!showScoringMode && <section className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>{historyStatus && <p className="status-line">{historyStatus}</p>}<div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span>{!isSavedRoundComplete(game) && <button className="button secondary" style={{ marginTop: '10px', marginRight: '8px' }} onClick={() => resumeSavedGame(game)}>Resume Round</button>}<button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}</div></section>}
     {!showScoringMode && <footer style={{ marginTop: '22px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '22px', padding: '18px', background: 'linear-gradient(180deg, rgba(6,57,39,.88), rgba(2,20,15,.96))', boxShadow: '0 18px 44px rgba(0,0,0,.35)' }}><div style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 240px) 1fr', gap: '16px', alignItems: 'center' }}><img src="/brand/twoball-logo-tm.svg" alt="TWO BALL DARTS™" style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} /><div><span style={{ color: '#d0a948', fontWeight: 900 }}>No gimmes. Just throw.</span><p style={{ margin: '6px 0 0', color: '#f5e8c6' }}>18 holes. Two darts per hole. Bulls, 19s, and 20s are hazards.</p></div></div></footer>}
-    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} players={players} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />{showRoundComplete && <RoundCompleteModal players={players} onClose={() => setShowRoundComplete(false)} onMainMenu={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(false); }} onNewRound={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(true); }} />}
+    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} players={players} usedReactionTexts={usedReactionTexts} onUseReaction={recordReaction} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />{showRoundComplete && <RoundCompleteModal players={players} onClose={() => setShowRoundComplete(false)} onMainMenu={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(false); }} onNewRound={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(true); }} />}
   </main>;
 }
