@@ -154,7 +154,18 @@ const dartReactionOptionsBySequence = {
     'THAT\'LL DO.',
     'RIGHT DOWN THE MIDDLE.',
     'FAIRWAY FINDER.',
-    'FAIRWAYS AND GREENS.'
+    'FAIRWAYS AND GREENS.',
+    'CENTER OF THE FAIRWAY.',
+    'NOTHING WRONG WITH THAT.',
+    'PUT IT IN THE BOOK.',
+    'BORING GOLF. GOOD GOLF.',
+    'JUST KEEP MAKING PARS.',
+    'STRAIGHT DOWN BROADWAY.',
+    'MIDDLE OF THE SHORT GRASS.',
+    'TEXTBOOK PAR.',
+    'EASY MONEY.',
+    'NICE AND CLEAN.',
+    'KEEP THE CARD CLEAN.'
   ],
   'power:safe': [
     'WASTED A GOOD FIRST DART.',
@@ -162,7 +173,15 @@ const dartReactionOptionsBySequence = {
     'PAR... BUT YOU HAD MORE.',
     'LEFT ONE OUT THERE.',
     'AH FUCK. STILL PAR.',
-    'YOU HAD BIRDIE IN YOUR HAND.'
+    'YOU HAD BIRDIE IN YOUR HAND.',
+    'THAT SHOULD HAVE BEEN BIRDIE.',
+    'GAVE ONE AWAY.',
+    'GOOD START. SHIT FINISH.',
+    'LEFT THE BIRDIE OUT THERE.',
+    'YOU HAD THE HOLE BY THE BALLS.',
+    'PAR FEELS LIKE A BOGEY THERE.',
+    'THAT ONE GOT AWAY.',
+    'SHOULD HAVE CASHED THAT.'
   ],
   'safe:power': [
     'THAT SAVED YOUR ASS.',
@@ -171,21 +190,42 @@ const dartReactionOptionsBySequence = {
     'CLUTCH SECOND DART.',
     'THERE\'S THE SAVE.',
     'GOOD FUCKING RECOVERY.',
-    'SCRAMBLED THE PAR.'
+    'SCRAMBLED THE PAR.',
+    'HELL OF A SAVE.',
+    'GOT UP AND DOWN.',
+    'THAT\'S A SCRAMBLE.',
+    'WAY TO STEAL PAR.',
+    'FOUND PAR THE HARD WAY.',
+    'SAVED IT FROM THE SHIT.',
+    'THAT SECOND DART WAS MONEY.'
   ],
   'single:safe': [
     'AH FUCK... BOGEY.',
     'YOU HAD PAR.',
     'LET THAT ONE GET AWAY.',
     'DAMN. ONE TOO MANY.',
-    'MISSED THE FUCKING GREEN.'
+    'MISSED THE FUCKING GREEN.',
+    'THAT BLOWS.',
+    'GAVE PAR AWAY.',
+    'LEFT A SHOT OUT THERE.',
+    'BE BETTER.',
+    'BOGEY FROM THE MIDDLE OF THE FAIRWAY. NICE.',
+    'THAT\'S A STUPID BOGEY.',
+    'FUCK. SHOULD HAVE BEEN PAR.'
   ],
   'safe:single': [
     'SAVED IT. SORT OF.',
     'NOT PRETTY, BUT BOGEY.',
     'AT LEAST YOU GOT ONE BACK.',
     'TAKE YOUR MEDICINE.',
-    'UGLY BOGEY. THEY ALL COUNT.'
+    'UGLY BOGEY. THEY ALL COUNT.',
+    'COULD HAVE BEEN A LOT WORSE.',
+    'BOGEY AND GET THE FUCK OUT.',
+    'UGLY, BUT YOU SAVED A SHOT.',
+    'THAT\'S A GRINDY BOGEY.',
+    'TAKE IT AND MOVE ON.',
+    'NOT DEAD YET.',
+    'FOUND A SHOT WHEN YOU NEEDED ONE.'
   ],
   'power:hazard': [
     'OH, FOR FUCK.',
@@ -207,35 +247,73 @@ const dartReactionOptionsBySequence = {
     'FUCK, FUCK.',
     'SUCKS TO BE YOU.',
     'BE BETTER.',
-    'DOUBLE. PICK IT UP.'
+    'DOUBLE. PICK IT UP.',
+    'SON OF A FUCKING BITCH.',
+    'OH, FOR FUCK.',
+    'THAT WAS SHIT.',
+    'NOT EXACTLY TOUR GOLF.',
+    'NICE HANDICAP BUILDER.',
+    'THAT\'S ONE TO FORGET.',
+    'JUST WRITE DOWN FIVE.',
+    'PUT THE DRIVER AWAY.',
+    'ABSOLUTE DOGSHIT.',
+    'WELL PLAYED, TIGER.'
   ],
   'single:hazard': [
     'FUCK. BLEW IT.',
     'THAT BLOWS.',
     'YOU JUST THREW AWAY PAR.',
     'IN THE DRINK. NICE ONE.',
-    'OH, FOR FUCK.'
+    'OH, FOR FUCK.',
+    'PBF ENERGY WITHOUT THE BIRDIE.',
+    'THAT WENT SIDEWAYS FAST.',
+    'FOUND THE WATER. BEAUTIFUL.',
+    'WAY TO TURN PAR INTO SHIT.',
+    'FUCKING HAZARD.',
+    'THAT ONE HURTS.',
+    'GAVE AWAY TWO SHOTS.'
   ],
   'hazard:single': [
     'FUCK... SAVED THE DOUBLE.',
     'AT LEAST YOU FOUND DRY LAND.',
     'DOUBLE. TAKE IT AND RUN.',
     'TAKE YOUR MEDICINE.',
-    'UGLY SAVE. STILL A SAVE.'
+    'UGLY SAVE. STILL A SAVE.',
+    'FOUND LAND EVENTUALLY.',
+    'DOUBLE FROM THE SHIT. TAKE IT.',
+    'YOU SAVED ONE. CONGRATS, I GUESS.',
+    'NOT PRETTY. NOT TRIPLE.',
+    'THAT SECOND DART SAVED YOUR ASS.',
+    'DAMAGE LIMITED.',
+    'GET OUT WITH THE DOUBLE.'
   ],
   'safe:hazard': [
     'WELL... FUCK.',
     'THAT BLOWS.',
     'SON OF A FUCKING BITCH.',
     'OH, FOR FUCK.',
-    'PICK IT UP.'
+    'PICK IT UP.',
+    'THAT\'S A FUCKING MESS.',
+    'JUST GET OFF THE HOLE.',
+    'NOTHING GOOD HAPPENED THERE.',
+    'THAT ESCALATED QUICKLY.',
+    'WRITE DOWN SIX AND WALK.',
+    'ROUGH DAY AT THE OFFICE.',
+    'FOUND TROUBLE AND STAYED THERE.'
   ],
   'hazard:safe': [
     'FUCK. SHIT. FUCK.',
     'SON OF A FUCKING BITCH.',
     'TRIPLE. BRUTAL.',
     'JUST GET OFF THIS HOLE.',
-    'THAT BLOWS.'
+    'THAT BLOWS.',
+    'FUCK ME SIDEWAYS.',
+    'NOTHING TO SEE HERE.',
+    'THAT HOLE OWNED YOU.',
+    'PICK IT UP BEFORE IT GETS WORSE.',
+    'ABSOLUTE CARNAGE.',
+    'THAT WAS A TRAINWRECK.',
+    'GET TO THE NEXT TEE.'
   ],
   'hazard:hazard': [
     'TWO HAZARDS?! JESUS FUCK.',
@@ -279,8 +357,8 @@ function pickUnusedReaction(options, usedReactionTexts, playerId, activeHole, co
   if (!options?.length) return '';
   const used = new Set(usedReactionTexts ?? []);
   const available = options.filter(option => !used.has(option));
-  const pool = available.length ? available : options;
-  return pickContextReaction(pool, playerId, activeHole, contextKey);
+  if (!available.length) return '';
+  return pickContextReaction(available, playerId, activeHole, contextKey);
 }
 
 function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2, usedReactionTexts = []) {
@@ -426,7 +504,23 @@ function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2, used
       'FAIRWAYS. GREENS. PARS.',
       'FOUR STRAIGHT. JUST KEEP STRIPING IT.',
       'FUCKING METRONOME.',
-      'KEEP THE CARD CLEAN.'
+      'KEEP THE CARD CLEAN.',
+      'ANOTHER PAR. KEEP WALKING.',
+      'THIS IS BORING AS FUCK. I LOVE IT.',
+      'RIGHT DOWN THE MIDDLE AGAIN.',
+      'JUST KEEP HITTING FAIRWAYS.',
+      'THE CARD IS CLEAN.',
+      'PAR TRAIN KEEPS ROLLING.',
+      'YOU\'RE MAKING THIS LOOK EASY.',
+      'STEADY FUCKING GOLF.',
+      'NO MISTAKES. KEEP GOING.',
+      'JUST ANOTHER DAY AT PAR.',
+      'STRIPE. PAR. REPEAT.',
+      'NOTHING FANCY. JUST GOOD GOLF.',
+      'KEEP PILING UP THE PARS.',
+      'YOU\'RE LIVING IN THE FAIRWAY.',
+      'THE BORING STUFF WINS.',
+      'ANOTHER ONE IN THE MIDDLE.'
     ], 'swagger');
   }
 
@@ -435,7 +529,15 @@ function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2, used
       'THREE STRAIGHT PARS. NICE.',
       'FAIRWAYS AND GREENS.',
       'PAR HAT TRICK.',
-      'KEEP STRIPING IT.'
+      'KEEP STRIPING IT.',
+      'THREE CLEAN HOLES.',
+      'THREE IN A ROW. SOLID.',
+      'JUST KEEP FINDING FAIRWAYS.',
+      'THE CARD LIKES THIS.',
+      'THREE PARS. NOTHING WRONG WITH THAT.',
+      'NICE LITTLE RUN.',
+      'STEADY AS FUCK.',
+      'KEEP THE PEDAL DOWN.'
     ], 'swagger');
   }
 
@@ -516,7 +618,15 @@ function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2, used
       'LOCKED THE FUCK IN.',
       'FIVE STRAIGHT PAR OR BETTER.',
       'FAIRWAYS AND GREENS, BABY.',
-      'THIS CARD IS FUCKING CLEAN.'
+      'THIS CARD IS FUCKING CLEAN.',
+      'YOU\'RE DIALED.',
+      'KEEP THIS SHIT GOING.',
+      'THE CARD IS LOOKING PRETTY.',
+      'NOTHING BUT QUALITY GOLF.',
+      'YOU\'RE IN A GROOVE NOW.',
+      'JUST KEEP MAKING SWINGS.',
+      'THIS IS HOW YOU BUILD A ROUND.',
+      'NO LEAKS IN THE CARD.'
     ], 'swagger');
   }
 
@@ -866,6 +976,66 @@ function DartChoiceGroup({ label, value, setValue }) {
   return <div className="tbd-custom-dart-picker"><div className="tbd-custom-dart-picker-heading">{label}</div><div className="tbd-custom-dart-options">{dartOptions.map(option => <button key={option.value} type="button" className={`tbd-custom-dart-option is-${option.tone} ${value === option.value ? 'is-selected' : ''}`} onClick={() => setValue(option.value)}>{option.label}</button>)}</div></div>;
 }
 
+const reserveGolfReactions = [
+  'KEEP SWINGING.',
+  'NEXT TEE.',
+  'PUT IT ON THE CARD.',
+  'THAT\'S GOLF.',
+  'MOVE ON.',
+  'PLAY THE NEXT ONE.',
+  'ONE SHOT AT A TIME.',
+  'KEEP IT IN PLAY.',
+  'BACK TO WORK.',
+  'FIND THE FAIRWAY.',
+  'JUST HIT THE NEXT SHOT.',
+  'NO GIMMES HERE.',
+  'MAKE THE NEXT ONE COUNT.',
+  'KEEP THE BALL ROLLING.',
+  'GET AFTER THE NEXT HOLE.',
+  'CARD IT AND GO.',
+  'ONTO THE NEXT.',
+  'KEEP GRINDING.',
+  'STAY IN THE ROUND.',
+  'SHORT MEMORY.',
+  'RESET AND THROW.',
+  'JUST KEEP PLAYING.',
+  'THE SCORECARD REMEMBERS EVERYTHING.',
+  'GOLF IS A STUPID GAME.',
+  'SOMETIMES YOU STRIPE IT. SOMETIMES YOU DON\'T.',
+  'NEXT SHOT.',
+  'KEEP IT MOVING.',
+  'PLAY YOUR GAME.',
+  'STICK WITH IT.',
+  'THE ROUND AIN\'T OVER.',
+  'KEEP THE CARD HONEST.',
+  'FIND SOME SHORT GRASS.',
+  'SWING AGAIN.',
+  'STILL GOT HOLES LEFT.',
+  'GO MAKE ONE.',
+  'GET ONE BACK.',
+  'KEEP THROWING.',
+  'PUT A NUMBER DOWN.',
+  'THERE\'S ALWAYS THE NEXT HOLE.',
+  'GOLF, BABY.'
+];
+
+function reserveReaction(usedReactionTexts, player, activeHole, scoreKey) {
+  const text = pickUnusedReaction(
+    reserveGolfReactions,
+    usedReactionTexts,
+    player?.id,
+    activeHole,
+    `reserve_${scoreKey}`
+  );
+  if (!text) {
+    return {
+      text: `HOLE ${activeHole}. NEW SHIT, SAME ROUND.`,
+      tone: 'golf'
+    };
+  }
+  return { text, tone: 'golf' };
+}
+
 function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts, onUseReaction, onScore, onClear, onClose }) {
   const [dartOne, setDartOne] = useState('');
   const [dartTwo, setDartTwo] = useState('');
@@ -899,10 +1069,12 @@ function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts
       ? null
       : difficultHoleReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo, usedReactionTexts);
 
-    const chosenReaction = streakReaction || scorecardReaction || holeReaction || {
-      text: sequenceReaction,
-      tone: sequenceTone
-    };
+    const chosenReaction =
+      (streakReaction?.text ? streakReaction : null) ||
+      (scorecardReaction?.text ? scorecardReaction : null) ||
+      (holeReaction?.text ? holeReaction : null) ||
+      (sequenceReaction ? { text: sequenceReaction, tone: sequenceTone } : null) ||
+      reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey);
 
     if (chosenReaction.text) onUseReaction?.(chosenReaction.text);
 
