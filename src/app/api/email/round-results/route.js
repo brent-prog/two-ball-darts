@@ -147,7 +147,6 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
                   </table>
                   <p style="margin:18px 0 8px;font-size:15px;color:#f5e8c6;">${escapeHtml(copy.rematch)}</p>
                   <a href="${PLAY_URL}" style="display:block;text-align:center;background:#be1412;background-image:linear-gradient(#be1412,#be1412);color:#fff4d6;text-decoration:none;font-weight:900;padding:14px 18px;border-radius:10px;margin:12px 0;">PLAY AGAIN</a>
-                  <a href="${SWAG_URL}" style="display:block;text-align:center;border:1px solid #d0a948;color:#d0a948;text-decoration:none;font-weight:900;padding:13px 18px;border-radius:10px;margin:12px 0 0;">TWOBALL SWAG</a>
                   <div style="height:1px;background:#315447;margin:24px 0 14px;"></div>
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                     <tr>
@@ -179,8 +178,6 @@ ${board}
 ${copy.rematch}
 
 Play again: ${PLAY_URL}
-TwoBall swag: ${SWAG_URL}
-
 Keep Fun Simple`;
 }
 
@@ -284,7 +281,7 @@ export async function POST(request) {
       deficit,
       winningMargin
     });
-    const subject = copy.subject;
+    const subject = `Your TwoBall Darts round results - ${copy.subject}`;
 
     const payload = {
       recipientName: recipient.displayName,
