@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 const FROM = 'TwoBall Darts <login@twoballdarts.com>';
 const PLAY_URL = 'https://play.twoballdarts.com';
 const LOGO_URL = `${PLAY_URL}/twoball-email-logo-v5.webp`;
-const SWAG_URL = process.env.TWOBALL_SWAG_URL || 'https://twoballdarts.com';
+const TWOBALL_SHOP_URL = 'https://www.keepfunsimple.com/shop/twoball';
 
 function escapeHtml(value = '') {
   return String(value)
@@ -150,7 +150,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
                   <div style="height:1px;background:#315447;margin:24px 0 14px;"></div>
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                      <td valign="middle"><a href="${SWAG_URL}" style="text-decoration:none;"><img src="${PLAY_URL}/AC2D21DA-3222-4931-93BB-1E52D3F05305.png" alt="Keep Fun Simple - TwoBall Shop" width="120" style="display:block;width:120px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;" /></a></td>
+                      <td valign="middle"><a href="${TWOBALL_SHOP_URL}" style="text-decoration:none;"><img src="${PLAY_URL}/AC2D21DA-3222-4931-93BB-1E52D3F05305.png" alt="Keep Fun Simple - TwoBall Shop" width="120" style="display:block;width:120px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;" /></a></td>
                       <td align="right" valign="middle"><a href="https://rockpail.com" style="text-decoration:none;"><img src="${PLAY_URL}/rockpail-production-white-footer.png" alt="A RockPail Production" width="132" style="display:inline-block;width:132px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;background:transparent;" /></a></td>
                     </tr>
                   </table>
