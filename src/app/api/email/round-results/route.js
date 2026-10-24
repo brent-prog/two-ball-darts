@@ -151,7 +151,7 @@ function emailHtml({ recipientName, standings, winnerNames, bestScore, recipient
                   <div style="height:1px;background:#315447;margin:24px 0 14px;"></div>
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                      <td valign="middle" style="font-family:'Barlow Condensed','Arial Narrow',Arial,Helvetica,sans-serif;font-size:14px;line-height:1;letter-spacing:1.1px;text-transform:uppercase;color:#d0a948;font-weight:900;white-space:nowrap;">Keep Fun Simple</td>
+                      <td valign="middle"><a href="${SWAG_URL}" style="text-decoration:none;"><img src="${PLAY_URL}/kfs-primary-dark-bone-yellow.webp" alt="Keep Fun Simple - TwoBall Shop" width="150" style="display:inline-block;width:150px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;" /></a></td>
                       <td align="right" valign="middle"><a href="https://rockpail.com" style="text-decoration:none;"><img src="${PLAY_URL}/rockpail-production-white-footer.png" alt="A RockPail Production" width="132" style="display:inline-block;width:132px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;background:transparent;" /></a></td>
                     </tr>
                   </table>
