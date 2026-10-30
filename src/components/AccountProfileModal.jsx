@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase';
 import { getOwnerKey } from '@/lib/storage';
 
 const cleanUsername = value => value.replace(/[^A-Za-z0-9_]/g, '').slice(0, 24);
+const appleSignInEnabled = process.env.NEXT_PUBLIC_TWOBALL_APPLE_SIGNIN_ENABLED === 'true';
+const googleSignInEnabled = process.env.NEXT_PUBLIC_TWOBALL_GOOGLE_SIGNIN_ENABLED === 'true';
 
 export default function AccountProfileModal({ open, onClose }) {
   const [user, setUser] = useState(null);
@@ -224,11 +226,11 @@ export default function AccountProfileModal({ open, onClose }) {
 
         {!user ? <>
           <p style={{ marginTop: 0, opacity: .82 }}>Sign in to keep your profile, rounds and stats connected across devices. No account is required to play.</p>
-          <div style={{ display: 'grid', gap: '10px', marginBottom: '16px' }}>
-            <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('apple')}>Continue with Apple</button>
-            <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('google')}>Continue with Google</button>
+          {(appleSignInEnabled || googleSignInEnabled) && <div style={{ display: 'grid', gap: '10px', marginBottom: '16px' }}>
+            {appleSignInEnabled && <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('apple')}>Continue with Apple</button>}
+            {googleSignInEnabled && <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('google')}>Continue with Google</button>}
             <p style={{ margin: '2px 0', textAlign: 'center', opacity: .65 }}>or sign in with email</p>
-          </div>
+          </div>}
           <form onSubmit={sendMagicLink} style={{ display: 'grid', gap: '10px' }}>
             <label htmlFor="twoball-email" style={{ color: '#fff4d6', fontWeight: 900 }}>Email</label>
             <input id="twoball-email" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" />
@@ -247,11 +249,11 @@ export default function AccountProfileModal({ open, onClose }) {
             <strong style={{ color: '#fff4d6', fontSize: '1.15rem' }}>@{profile.username}</strong>
           </div>
 
-          <div style={{ display: 'grid', gap: '8px' }}>
+          {(appleSignInEnabled || googleSignInEnabled) && <div style={{ display: 'grid', gap: '8px' }}>
             <p style={{ margin: 0, opacity: .72, fontSize: '.85rem' }}>Add a sign-in method to this account without losing your stats or friends.</p>
-            <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('apple', true)}>Connect Apple Sign-In</button>
-            <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('google', true)}>Connect Google Sign-In</button>
-          </div>
+            {appleSignInEnabled && <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('apple', true)}>Connect Apple Sign-In</button>}
+            {googleSignInEnabled && <button className="button secondary" type="button" disabled={loading} onClick={() => continueWithProvider('google', true)}>Connect Google Sign-In</button>}
+          </div>}
           <button className="button primary" type="button" onClick={() => { setEditing(true); setStatus(''); }}>Edit Profile</button>
           {accountPlayer && <button className="button secondary" type="button" onClick={() => setShowStats(true)}>My Stats</button>}
           <button className="button ghost" type="button" onClick={signOut} disabled={loading}>Sign Out</button>
