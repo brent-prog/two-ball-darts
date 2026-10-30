@@ -1341,6 +1341,29 @@ export default function Home() {
     let cancelled = false;
 
     async function restoreInProgressRound() {
+      // Read the device draft before requesting the server version. Unsaved player
+      // selections must not be discarded just because a prior active game exists.
+      let draft = null;
+      try {
+        const raw = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
+        if (raw) draft = JSON.parse(raw);
+      } catch (error) {
+        console.warn('Could not read local round draft.', error);
+      }
+      const draftPlayers = Array.isArray(draft?.players)
+        ? draft.players.filter(player => player && typeof player.id === 'string' && typeof player.name === 'string' && player.scores && typeof player.scores === 'object')
+        : [];
+      const applyDraft = () => {
+        if (!draftPlayers.length || cancelled) return false;
+        setPlayers(draftPlayers);
+        if (Array.isArray(draft.usedReactionTexts)) setUsedReactionTexts(draft.usedReactionTexts.filter(text => typeof text === 'string'));
+        if (Number.isInteger(draft.activeHole) && draft.activeHole >= 1 && draft.activeHole <= 18) setActiveHole(draft.activeHole);
+        setSavedGameId(typeof draft.savedGameId === 'string' ? draft.savedGameId : null);
+        setIsRoundDirty(typeof draft.isRoundDirty === 'boolean' ? draft.isRoundDirty : true);
+        setShowScoringMode(Boolean(draft.showScoringMode) || hasRoundScores(draftPlayers));
+        if (draft.showScoringMode || hasRoundScores(draftPlayers)) setStatus('Round In Progress restored.');
+        return true;
+      };
       try {
         const ownerKey = getOwnerKey();
         const { data: activeGame, error: activeGameError } = await supabase
@@ -1352,6 +1375,16 @@ export default function Home() {
           .limit(1)
           .maybeSingle();
         if (activeGameError) throw activeGameError;
+        if (cancelled) return;
+
+        // A dirty local draft represents changes that have not yet reached the
+        // database, including players added before the first score is entered.
+        // Also honour a local draft belonging to a different, newer round.
+        if (draftPlayers.length && draft?.showScoringMode &&
+            (draft.isRoundDirty !== false || !activeGame?.id || draft.savedGameId !== activeGame.id)) {
+          applyDraft();
+          return;
+        }
 
         if (activeGame?.id) {
           const { data: rows, error: rowsError } = await supabase
@@ -1361,47 +1394,22 @@ export default function Home() {
             .order('display_order', { ascending: true });
           if (rowsError) throw rowsError;
           if (cancelled) return;
-
           const restoredPlayers = playersFromSavedRows(rows ?? []);
           setPlayers(restoredPlayers);
           setActiveHole(firstUnscoredHole(restoredPlayers));
           setSavedGameId(activeGame.id);
-          try {
-            const rawDraft = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
-            if (rawDraft) {
-              const draft = JSON.parse(rawDraft);
-              if (
-                draft?.savedGameId === activeGame.id &&
-                Array.isArray(draft?.usedReactionTexts)
-              ) {
-                setUsedReactionTexts(draft.usedReactionTexts.filter(text => typeof text === 'string'));
-              }
-            }
-          } catch (error) {
-            console.warn('Could not restore used reaction history.', error);
+          if (draft?.savedGameId === activeGame.id && Array.isArray(draft.usedReactionTexts)) {
+            setUsedReactionTexts(draft.usedReactionTexts.filter(text => typeof text === 'string'));
           }
-          setIsRoundDirty(true);
+          setIsRoundDirty(false);
           setShowScoringMode(true);
           setStatus('Round In Progress restored.');
           return;
         }
-
-        const rawDraft = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
-        if (!rawDraft) return;
-        const draft = JSON.parse(rawDraft);
-        const restoredPlayers = Array.isArray(draft?.players)
-          ? draft.players.filter(player => player && typeof player.id === 'string' && typeof player.name === 'string' && player.scores && typeof player.scores === 'object')
-          : [];
-        if (cancelled) return;
-        if (restoredPlayers.length) setPlayers(restoredPlayers);
-        if (Array.isArray(draft?.usedReactionTexts)) setUsedReactionTexts(draft.usedReactionTexts.filter(text => typeof text === 'string'));
-        if (Number.isInteger(draft?.activeHole) && draft.activeHole >= 1 && draft.activeHole <= 18) setActiveHole(draft.activeHole);
-        setSavedGameId(typeof draft?.savedGameId === 'string' ? draft.savedGameId : null);
-        setIsRoundDirty(typeof draft?.isRoundDirty === 'boolean' ? draft.isRoundDirty : true);
-        setShowScoringMode(Boolean(draft?.showScoringMode) || hasRoundScores(restoredPlayers));
-        if (hasRoundScores(restoredPlayers)) setStatus('Round In Progress restored.');
+        applyDraft();
       } catch (error) {
-        console.warn('Could not restore in-progress round.', error);
+        console.warn('Could not restore cloud round; attempting device draft.', error);
+        applyDraft();
       } finally {
         if (!cancelled) setDraftHydrated(true);
       }
