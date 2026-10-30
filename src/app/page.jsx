@@ -440,6 +440,25 @@ function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2, used
     ], 'collapse');
   }
 
+  const currentAndPreviousBadScores = [currentScore, ...previousScores];
+  if (
+    currentAndPreviousBadScores.length >= 4 &&
+    currentAndPreviousBadScores.slice(0, 4).every(overPar)
+  ) {
+    return react('four_plus_bad_holes', [
+      'SOMEONE\'S GOT A CASE OF THE SHANKS.'
+    ], 'collapse');
+  }
+
+  if (
+    currentAndPreviousBadScores.length >= 3 &&
+    currentAndPreviousBadScores.slice(0, 3).every(overPar)
+  ) {
+    return react('three_bad_holes', [
+      'NEED TO HIT THE RANGE.'
+    ], 'collapse');
+  }
+
   if (scoreKey === 'eagle' && previousKey === 'triple_bogey') {
     return react('eagle_after_triple', [
       'REDEMPTION. HOLY SHIT.',
