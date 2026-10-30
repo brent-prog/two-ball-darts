@@ -663,6 +663,183 @@ const difficultHoleRanks = new Map([
 
 const secondaryDifficultHoles = new Set([12, 16, 17, 18]);
 
+function finalHoleReaction(player, players, activeHole, scoreKey, usedReactionTexts = []) {
+  if (!player || activeHole !== 18 || !scoreByKey.has(scoreKey)) return null;
+
+  const priorHoles = holes.filter(hole => hole < 18);
+  if (!priorHoles.every(hole => scoreByKey.has(player.scores[hole]))) return null;
+
+  const currentScore = scoreByKey.get(scoreKey)?.score ?? 0;
+  const priorTotal = totalForHoles(player, priorHoles);
+  const finalTotal = priorTotal + currentScore;
+  const opponents = (players ?? []).filter(candidate => candidate.id !== player.id);
+
+  const react = (contextKey, options, tone = 'golf') => ({
+    text: pickUnusedReaction(options, usedReactionTexts, player.id, activeHole, contextKey),
+    tone,
+    contextKey,
+    options
+  });
+
+  const opponentsHaveSeventeen = opponents.length > 0 && opponents.every(opponent =>
+    priorHoles.every(hole => scoreByKey.has(opponent.scores[hole]))
+  );
+  const opponentsFinished = opponents.length > 0 && opponents.every(opponent =>
+    scoreByKey.has(opponent.scores[18])
+  );
+
+  if (opponentsHaveSeventeen && opponentsFinished) {
+    const opponentPriorTotals = opponents.map(opponent => totalForHoles(opponent, priorHoles));
+    const bestOpponentPrior = Math.min(...opponentPriorTotals);
+    const opponentFinalTotals = opponents.map(opponent =>
+      totalForHoles(opponent, priorHoles) + (scoreByKey.get(opponent.scores[18])?.score ?? 0)
+    );
+    const bestOpponentFinal = Math.min(...opponentFinalTotals);
+    const wasLeading = priorTotal < bestOpponentPrior;
+
+    if (wasLeading && finalTotal > bestOpponentFinal && currentScore >= 2) {
+      return react('eighteen_choked_lead', [
+        'YOU HAD THE ROUND. THEN YOU DID THAT.',
+        'BLEW IT ON EIGHTEEN. FUCK.',
+        'THAT\'S A FUCKING HEARTBREAKER.',
+        'YOU JUST HANDED THEM THE ROUND.'
+      ], 'collapse');
+    }
+
+    if (finalTotal < bestOpponentFinal) {
+      if (currentScore >= 2) {
+        return react('eighteen_won_ugly', [
+          'MADE IT INTERESTING, BUT YOU GOT IT DONE.',
+          'UGLY FINISH. STILL A WIN.',
+          'SHAKE HANDS. YOU SURVIVED IT.'
+        ], 'pressure');
+      }
+      return react('eighteen_won', [
+        'SHAKE HANDS. YOU GOT IT DONE.',
+        'THAT\'S HOW YOU CLOSE A ROUND.',
+        'GOOD FUCKING WIN.',
+        'JOB DONE. NICE ROUND.'
+      ], currentScore < 0 ? 'celebrate' : 'swagger');
+    }
+
+    if (finalTotal === bestOpponentFinal) {
+      return react('eighteen_tied', [
+        'ALL SQUARE AFTER EIGHTEEN.',
+        'EIGHTEEN HOLES. NOTHING BETWEEN YOU.',
+        'WELL... NOBODY WON THAT FUCKING THING.'
+      ], 'pressure');
+    }
+
+    if (currentScore < 0 && priorTotal >= 6) {
+      return react('eighteen_too_late', [
+        'THAT\'LL KEEP YOU COMING BACK.',
+        'WHERE THE FUCK WAS THAT ALL DAY?',
+        'OF COURSE YOU FIND IT ON EIGHTEEN.',
+        'TOO LITTLE, TOO LATE.'
+      ], 'save');
+    }
+  }
+
+  if (currentScore < 0) {
+    if (priorTotal >= 6) {
+      return react('eighteen_good_finish_bad_round', [
+        'THAT\'LL KEEP YOU COMING BACK.',
+        'WHERE THE FUCK WAS THAT ALL DAY?',
+        'OF COURSE YOU FIND IT ON EIGHTEEN.',
+        'NOW YOU FIND YOUR GAME.'
+      ], 'save');
+    }
+
+    if (priorTotal <= 1) {
+      return react('eighteen_good_finish_good_round', [
+        'THAT\'S HOW YOU FINISH A ROUND.',
+        'STRONG FUCKING FINISH.',
+        'WAY TO CLOSE.',
+        'GOOD ROUND. GREAT FINISH.'
+      ], 'celebrate');
+    }
+
+    return react('eighteen_good_finish_mixed_round', [
+      'NICE WAY TO FINISH.',
+      'FINISHED STRONG.',
+      'THAT\'S A GOOD ONE TO END ON.'
+    ], 'celebrate');
+  }
+
+  if (currentScore === 0) {
+    if (priorTotal <= 1) {
+      return react('eighteen_par_good_round', [
+        'SOLID ROUND.',
+        'PAR TO FINISH. NICE WORK.',
+        'GOOD ROUND. SHAKE HANDS.',
+        'THAT\'S A GOOD DAY\'S WORK.'
+      ], 'swagger');
+    }
+
+    if (priorTotal >= 6) {
+      return react('eighteen_par_bad_round', [
+        'PAR TO FINISH. AT LEAST THERE\'S THAT.',
+        'FOUND A PAR BEFORE THE PARKING LOT.',
+        'SHAKE HANDS. FORGET THE REST.'
+      ], 'golf');
+    }
+
+    return react('eighteen_par_mixed_round', [
+      'PAR TO FINISH. FAIR ENOUGH.',
+      'SOLID FINISH.',
+      'SHAKE HANDS. THAT\'S A ROUND.'
+    ], 'golf');
+  }
+
+  if (currentScore >= 2) {
+    if (priorTotal <= 1) {
+      return react('eighteen_bad_finish_good_round', [
+        'GOOD ROUND. SHIT FINISH.',
+        'WAY TO FUCK UP THE LAST HOLE.',
+        'SEVENTEEN GOOD HOLES. THEN THAT.',
+        'THAT\'S GONNA PISS YOU OFF.'
+      ], 'collapse');
+    }
+
+    if (priorTotal >= 6) {
+      return react('eighteen_bad_finish_bad_round', [
+        'FITTING FUCKING ENDING.',
+        'MERCIFULLY, IT\'S OVER.',
+        'JUST SHAKE HANDS AND GO HOME.',
+        'AND THAT\'S HOW YOU FINISH A SHIT ROUND.'
+      ], 'collapse');
+    }
+
+    return react('eighteen_bad_finish_mixed_round', [
+      'ROUGH FUCKING FINISH.',
+      'NOT HOW YOU WANTED TO END IT.',
+      'EIGHTEEN JUST KICKED YOU IN THE BALLS.'
+    ], 'collapse');
+  }
+
+  if (priorTotal <= 1) {
+    return react('eighteen_bogey_good_round', [
+      'GOOD ROUND. ANNOYING FINISH.',
+      'BOGEY ON EIGHTEEN. FUCK IT. GOOD ROUND.',
+      'NOT PRETTY, BUT THE ROUND WAS SOLID.'
+    ], 'letdown');
+  }
+
+  if (priorTotal >= 6) {
+    return react('eighteen_bogey_bad_round', [
+      'BOGEY TO FINISH. SOUNDS ABOUT RIGHT.',
+      'SHAKE HANDS. GET A DRINK.',
+      'AT LEAST IT\'S OVER.'
+    ], 'chirp');
+  }
+
+  return react('eighteen_bogey_mixed_round', [
+    'BOGEY TO FINISH. FUCK.',
+    'NOT THE FINISH YOU WANTED.',
+    'ONE LAST FUCKING BOGEY.'
+  ], 'letdown');
+}
+
 function difficultHoleReaction(player, activeHole, scoreKey, dart1, dart2, usedReactionTexts = []) {
   const result = scoreByKey.get(scoreKey);
   if (!result) return null;
@@ -1080,26 +1257,29 @@ function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts
     );
     const sequenceTone = reactionToneForSequence(nextDartOne, nextDartTwo);
 
-    const streakReaction = result.reactionKey === 'double_hazard'
+    const finalReaction = finalHoleReaction(player, players, activeHole, result.scoreKey, usedReactionTexts);
+    const streakReaction = finalReaction || result.reactionKey === 'double_hazard'
       ? null
       : contextualDartReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo, usedReactionTexts);
-    const scorecardReaction = result.reactionKey === 'double_hazard' || streakReaction
+    const scorecardReaction = finalReaction || result.reactionKey === 'double_hazard' || streakReaction
       ? null
       : matchupReaction(player, players, activeHole, result.scoreKey, usedReactionTexts);
-    const holeReaction = result.reactionKey === 'double_hazard' || streakReaction || scorecardReaction
+    const holeReaction = finalReaction || result.reactionKey === 'double_hazard' || streakReaction || scorecardReaction
       ? null
       : difficultHoleReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo, usedReactionTexts);
 
     const hasHazard = nextDartOne === 'hazard' || nextDartTwo === 'hazard';
     const sequenceChoice = sequenceReaction ? { text: sequenceReaction, tone: sequenceTone } : null;
 
-    const chosenReaction = hasHazard
-      ? sequenceChoice || reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey)
-      : (streakReaction?.text ? streakReaction : null) ||
-        (scorecardReaction?.text ? scorecardReaction : null) ||
-        (holeReaction?.text ? holeReaction : null) ||
-        sequenceChoice ||
-        reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey);
+    const chosenReaction =
+      (finalReaction?.text ? finalReaction : null) ||
+      (hasHazard
+        ? sequenceChoice || reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey)
+        : (streakReaction?.text ? streakReaction : null) ||
+          (scorecardReaction?.text ? scorecardReaction : null) ||
+          (holeReaction?.text ? holeReaction : null) ||
+          sequenceChoice ||
+          reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey));
 
     if (chosenReaction.text) onUseReaction?.(chosenReaction.text);
 
