@@ -18,6 +18,7 @@ const defaults = [
 ];
 
 const IN_PROGRESS_ROUND_KEY = 'twoBallDarts.inProgressRound.v1';
+const SWEARING_PREF_KEY = 'twoBallDarts.swearingEnabled.v1';
 
 const dartOptions = [
   { value: 'power', label: 'Double / Triple', tone: 'green' },
@@ -1122,7 +1123,7 @@ function HowToPlayModal({ onClose }) {
   return <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,.78)', padding: '20px', display: 'grid', placeItems: 'center' }}><div className="card" style={{ width: 'min(760px, 96vw)', maxHeight: '90vh', overflow: 'auto', margin: 0, borderColor: '#d0a948' }}><div className="section-heading compact" style={{ marginBottom: '14px', alignItems: 'flex-start' }}><div><p className="eyebrow">Quick start</p><h2 style={{ fontSize: 'clamp(2rem, 6vw, 3.8rem)' }}>How to Play</h2></div><button className="button primary" onClick={onClose}>Close</button></div><div className="rule-answer" style={{ borderLeftColor: '#d0a948' }}><h3>Two Ball Darts is golf scoring on a dartboard.</h3><ol style={{ display: 'grid', gap: '10px', margin: '12px 0 0', paddingLeft: '22px', lineHeight: 1.45 }}><li>Play holes 1 through 18. The hole number is your target.</li><li>Each player throws two darts at that number.</li><li>Hazards are the complete 19 and 20 wedges, the bull, or completely off the board.</li><li>Lowest score after 18 holes wins.</li></ol></div><figure className="tbd-rules-board"><Image src="/two-ball-darts-board.webp" alt="Official TwoBall dartboard with the complete 20 wedge, complete 19 wedge, and bull marked blue" width={1200} height={1183} sizes="(max-width: 760px) 88vw, 680px" /><figcaption><strong>Blue means hazard.</strong> The complete 20, complete 19 and bull all count as hazards.</figcaption></figure><div style={{ marginTop: '16px' }}><p className="eyebrow">Scoring cheat sheet</p><div style={{ display: 'grid', gap: '8px' }}>{cheatRows.map(([label, description, score]) => <div key={label} style={{ display: 'grid', gridTemplateColumns: 'minmax(110px, 150px) 1fr 58px', gap: '10px', alignItems: 'center', border: '1px solid rgba(208,169,72,.45)', borderRadius: '12px', padding: '10px', background: 'rgba(0,0,0,.18)' }}><strong style={{ color: '#fff4d6' }}>{label}</strong><span style={{ lineHeight: 1.35 }}>{description}</span><strong style={{ color: '#d0a948', textAlign: 'right' }}>{score}</strong></div>)}</div></div></div></div>;
 }
 
-function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemovePlayer, resetRound, saveRound, saveDisabled, saveLabel, exitScoring }) {
+function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemovePlayer, swearingEnabled, toggleSwearing, resetRound, saveRound, saveDisabled, saveLabel, exitScoring }) {
   const menuRef = useRef(null);
   const popupRef = useRef(null);
   useEffect(() => {
@@ -1138,7 +1139,7 @@ function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemove
   return <div ref={menuRef} style={{ position: 'relative' }}>
     <button className="button secondary" aria-label="Scoring menu" aria-expanded={isOpen} onClick={() => setIsOpen(current => !current)} style={{ minWidth: '44px', padding: '10px 9px', fontSize: '1.35rem', lineHeight: 1 }}>☰</button>
     {isOpen && typeof document !== 'undefined' && createPortal(<div ref={popupRef} role="menu" aria-label="Round options" style={{ position: 'fixed', zIndex: 9999, top: Math.min((menuRef.current?.getBoundingClientRect().bottom ?? 100) + 6, window.innerHeight - 340), right: 'max(18px, env(safe-area-inset-right))', width: 'min(210px, calc(100vw - 36px))', maxHeight: 'min(320px, 55dvh)', overflowY: 'auto', border: '1px solid #d0a948', borderRadius: '12px', background: '#02140f', boxShadow: '0 12px 30px rgba(0,0,0,.6)', padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      {[[ 'Add Player', addPlayer, false ], [ 'Remove Player', openRemovePlayer, !canRemovePlayer ], [ saveLabel, saveRound, saveDisabled ], [ 'Reset Round', resetRound, false ], [ 'Exit Scoring', exitScoring, false ]].map(([label, action, disabled], index) => <button key={index} role="menuitem" className="button secondary" disabled={disabled} onClick={() => { setIsOpen(false); action(); }} style={{ display: 'block', width: '100%', minHeight: '40px', padding: '8px 10px', fontSize: '.8rem', lineHeight: 1.2, textAlign: 'left', whiteSpace: 'normal', flex: '0 0 auto' }}>{label}</button>)}
+      {[[ 'Add Player', addPlayer, false ], [ 'Remove Player', openRemovePlayer, !canRemovePlayer ], [ `Swearing: ${swearingEnabled ? 'On' : 'Off'}`, toggleSwearing, false ], [ saveLabel, saveRound, saveDisabled ], [ 'Reset Round', resetRound, false ], [ 'Exit Scoring', exitScoring, false ]].map(([label, action, disabled], index) => <button key={index} role="menuitem" className="button secondary" disabled={disabled} onClick={() => { action(); if (!String(label).startsWith('Swearing:')) setIsOpen(false); }} aria-pressed={String(label).startsWith('Swearing:') ? swearingEnabled : undefined} style={{ display: 'block', width: '100%', minHeight: '40px', padding: '8px 10px', fontSize: '.8rem', lineHeight: 1.2, textAlign: 'left', whiteSpace: 'normal', flex: '0 0 auto' }}>{label}</button>)}
     </div>, document.body)}
   </div>;
 }
@@ -1170,6 +1171,10 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
 
 function DartChoiceGroup({ label, value, setValue }) {
   return <div className="tbd-custom-dart-picker"><div className="tbd-custom-dart-picker-heading">{label}</div><div className="tbd-custom-dart-options">{dartOptions.map(option => <button key={option.value} type="button" className={`tbd-custom-dart-option is-${option.tone} ${value === option.value ? 'is-selected' : ''}`} onClick={() => setValue(option.value)}>{option.label}</button>)}</div></div>;
+}
+
+function containsSwearing(text = '') {
+  return /\b(fuck(?:ing|ed|er|ers|ety)?|shit(?:ty|show)?|bullshit|bitch|bastard|ass(?:hole|holes)?|balls|damn|goddamn|hell|prick|jesus|christ)\b/i.test(text);
 }
 
 const reserveGolfReactions = [
@@ -1215,24 +1220,50 @@ const reserveGolfReactions = [
   'GOLF, BABY.'
 ];
 
-function reserveReaction(usedReactionTexts, player, activeHole, scoreKey) {
+function reserveReaction(usedReactionTexts, player, activeHole, scoreKey, swearingEnabled = true) {
+  const options = swearingEnabled
+    ? reserveGolfReactions
+    : reserveGolfReactions.filter(option => !containsSwearing(option));
   const text = pickUnusedReaction(
-    reserveGolfReactions,
+    options,
     usedReactionTexts,
     player?.id,
     activeHole,
-    `reserve_${scoreKey}`
+    `reserve_${scoreKey}_${swearingEnabled ? 'full' : 'clean'}`
   );
   if (!text) {
     return {
-      text: `HOLE ${activeHole}. NEW SHIT, SAME ROUND.`,
+      text: swearingEnabled
+        ? `HOLE ${activeHole}. NEW SHIT, SAME ROUND.`
+        : `HOLE ${activeHole}. KEEP IT MOVING, ${(player?.name || 'PLAYER').toUpperCase()}.`,
       tone: 'golf'
     };
   }
   return { text, tone: 'golf' };
 }
 
-function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts, onUseReaction, onScore, onClear, onClose }) {
+function cleanReactionChoice(chosenReaction, usedReactionTexts, player, activeHole, scoreKey, sequenceOptions = []) {
+  if (!chosenReaction?.text || !containsSwearing(chosenReaction.text)) return chosenReaction;
+
+  const contextualOptions = Array.isArray(chosenReaction.options)
+    ? chosenReaction.options.filter(option => !containsSwearing(option))
+    : [];
+  const sequenceCleanOptions = (sequenceOptions ?? []).filter(option => !containsSwearing(option));
+  const options = contextualOptions.length ? contextualOptions : sequenceCleanOptions;
+
+  const replacement = pickUnusedReaction(
+    options,
+    usedReactionTexts,
+    player?.id,
+    activeHole,
+    `clean_${chosenReaction.contextKey ?? scoreKey}`
+  );
+
+  if (replacement) return { ...chosenReaction, text: replacement };
+  return reserveReaction(usedReactionTexts, player, activeHole, scoreKey, false);
+}
+
+function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts, swearingEnabled, onUseReaction, onScore, onClear, onClose }) {
   const [dartOne, setDartOne] = useState('');
   const [dartTwo, setDartTwo] = useState('');
   const [dartAnnouncement, setDartAnnouncement] = useState(null);
@@ -1268,16 +1299,21 @@ function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts
 
     const hasHazard = nextDartOne === 'hazard' || nextDartTwo === 'hazard';
     const sequenceChoice = sequenceReaction ? { text: sequenceReaction, tone: sequenceTone } : null;
+    const sequenceOptions = dartReactionOptionsBySequence[`${nextDartOne}:${nextDartTwo}`] ?? [];
 
-    const chosenReaction =
+    const rawChosenReaction =
       (finalReaction?.text ? finalReaction : null) ||
       (hasHazard
-        ? sequenceChoice || reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey)
+        ? sequenceChoice || reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey, swearingEnabled)
         : (streakReaction?.text ? streakReaction : null) ||
           (scorecardReaction?.text ? scorecardReaction : null) ||
           (holeReaction?.text ? holeReaction : null) ||
           sequenceChoice ||
-          reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey));
+          reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey, swearingEnabled));
+
+    const chosenReaction = swearingEnabled
+      ? rawChosenReaction
+      : cleanReactionChoice(rawChosenReaction, usedReactionTexts, player, activeHole, result.scoreKey, sequenceOptions);
 
     if (chosenReaction.text) onUseReaction?.(chosenReaction.text);
 
@@ -1295,6 +1331,7 @@ function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts
 export default function Home() {
   const [players, setPlayers] = useState(defaults);
   const [usedReactionTexts, setUsedReactionTexts] = useState([]);
+  const [swearingEnabled, setSwearingEnabled] = useState(true);
   const [activeHole, setActiveHole] = useState(1);
   const [status, setStatus] = useState('');
   const [historyStatus, setHistoryStatus] = useState('');
@@ -1348,6 +1385,16 @@ export default function Home() {
   const isActiveHoleComplete = players.length > 0 && players.every(player => scoreByKey.has(player.scores[activeHole]));
   const honoursIndex = useMemo(() => getHonoursIndex(players, activeHole), [players, activeHole]);
   const scoringPlayer = players.find(player => player.id === scoringPlayerId);
+
+  useEffect(() => {
+    try {
+      const savedPreference = window.localStorage.getItem(SWEARING_PREF_KEY);
+      if (savedPreference === 'false') setSwearingEnabled(false);
+      if (savedPreference === 'true') setSwearingEnabled(true);
+    } catch (error) {
+      console.warn('Could not restore swearing preference.', error);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -1448,6 +1495,18 @@ export default function Home() {
       console.warn('Could not persist in-progress round.', error);
     }
   }, [draftHydrated, players, usedReactionTexts, activeHole, showScoringMode, savedGameId, isRoundDirty]);
+
+  function toggleSwearing() {
+    setSwearingEnabled(current => {
+      const next = !current;
+      try {
+        window.localStorage.setItem(SWEARING_PREF_KEY, String(next));
+      } catch (error) {
+        console.warn('Could not persist swearing preference.', error);
+      }
+      return next;
+    });
+  }
 
   function markRoundDirty() { setIsRoundDirty(true); setStatus(''); }
   function recordReaction(text) {
@@ -1863,13 +1922,13 @@ export default function Home() {
     {!showScoringMode && <section className="hero-card"><LogoMark /><div className="hero-copy"><p className="eyebrow">18 holes · 2 darts per hole · all holes par 3</p><h1>No gimmes. Just throw.</h1><p>Golf-course scoring for the dartboard. Play holes 1 through 18 by throwing two darts at each number. Lowest score wins.</p><div className="hero-actions"><button className="button primary" onClick={() => setShowScoringMode(true)}>{hasRoundScores(players) ? 'Resume Scoring' : 'Start New Round'}</button><button className="button secondary" onClick={() => setShowHowToPlay(true)}>How to Play</button><button className="button secondary" onClick={() => loadHistory()}>Saved Rounds</button></div></div></section>}
     <section className={`card ${currentRoundComplete(players) ? 'tbd-round-complete' : ''}`} id="scorecard" style={{ paddingTop: showScoringMode ? '22px' : '18px' }}>
       <div className="section-heading" style={{ marginBottom: '12px', alignItems: 'center' }}><div><p className="eyebrow" style={{ margin: 0 }}>{showScoringMode ? 'Scoring Mode' : 'Live round'}</p>{!showScoringMode && <p style={{ margin: '6px 0 0', color: '#fff4d6', fontWeight: 900 }}>Start or resume a round to enter scores.</p>}</div>{!showScoringMode && <div className="actions-inline"><button className="button secondary" onClick={() => setShowScoringMode(true)}>{hasRoundScores(players) ? 'Resume Scoring' : 'Start New Round'}</button><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button></div>}</div>
-      {showScoringMode && <div style={{ height: stickyGameplayHeight + 10 }} aria-hidden="true" />}{showScoringMode && <div ref={stickyGameplayRef} className="tbd-sticky-gameplay" style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: 'min(1220px, calc(100% - 28px))', zIndex: 90, background: '#021b14', padding: '6px 0 8px', borderBottom: '1px solid rgba(208,169,72,.28)', boxShadow: '0 8px 16px rgba(0,0,0,.2)' }}><div className="tbd-scoring-header" style={{ marginBottom: '8px' }}><GameplayAdSlot /></div><div className="tbd-hole-title-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px', minWidth: 0 }}><h3 style={{ fontSize: '1.55rem', marginBottom: 0, flexShrink: 0 }}>Hole {activeHole}</h3>{showScoringMode && <img src="/brand/twoball-logo-tm.svg" alt="TwoBall Darts" style={{ display: 'block', flex: '1 1 auto', width: 'min(115px, 22vw)', minWidth: 0, maxWidth: '130px', height: '38px', objectFit: 'contain' }} />}{showScoringMode && <div className="tbd-scoring-nav" style={{ display: 'flex', gap: '5px', alignItems: 'center', minWidth: 0 }}><button className="button secondary" disabled={activeHole === 1} onClick={goToPreviousHole} style={{ opacity: activeHole === 1 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#e6a348', color: '#251408', borderColor: '#ffcf73', minHeight: '48px', minWidth: '48px' }} aria-label="Previous hole">❮</button><button className="button primary" disabled={activeHole === 18} onClick={goToNextHole} style={{ opacity: activeHole === 18 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#19885b', color: '#fff4d6', borderColor: '#64cfa0', minHeight: '48px', minWidth: '48px' }} aria-label="Next hole">❯</button><ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} openRemovePlayer={() => setShowRemovePlayer(true)} canRemovePlayer={players.length > 1} resetRound={resetRound} saveRound={saveRound} saveDisabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} saveLabel={saveButtonLabel()} exitScoring={() => setShowScoringMode(false)} /></div>}</div></div>}
+      {showScoringMode && <div style={{ height: stickyGameplayHeight + 10 }} aria-hidden="true" />}{showScoringMode && <div ref={stickyGameplayRef} className="tbd-sticky-gameplay" style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: 'min(1220px, calc(100% - 28px))', zIndex: 90, background: '#021b14', padding: '6px 0 8px', borderBottom: '1px solid rgba(208,169,72,.28)', boxShadow: '0 8px 16px rgba(0,0,0,.2)' }}><div className="tbd-scoring-header" style={{ marginBottom: '8px' }}><GameplayAdSlot /></div><div className="tbd-hole-title-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px', minWidth: 0 }}><h3 style={{ fontSize: '1.55rem', marginBottom: 0, flexShrink: 0 }}>Hole {activeHole}</h3>{showScoringMode && <img src="/brand/twoball-logo-tm.svg" alt="TwoBall Darts" style={{ display: 'block', flex: '1 1 auto', width: 'min(115px, 22vw)', minWidth: 0, maxWidth: '130px', height: '38px', objectFit: 'contain' }} />}{showScoringMode && <div className="tbd-scoring-nav" style={{ display: 'flex', gap: '5px', alignItems: 'center', minWidth: 0 }}><button className="button secondary" disabled={activeHole === 1} onClick={goToPreviousHole} style={{ opacity: activeHole === 1 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#e6a348', color: '#251408', borderColor: '#ffcf73', minHeight: '48px', minWidth: '48px' }} aria-label="Previous hole">❮</button><button className="button primary" disabled={activeHole === 18} onClick={goToNextHole} style={{ opacity: activeHole === 18 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#19885b', color: '#fff4d6', borderColor: '#64cfa0', minHeight: '48px', minWidth: '48px' }} aria-label="Next hole">❯</button><ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} openRemovePlayer={() => setShowRemovePlayer(true)} canRemovePlayer={players.length > 1} swearingEnabled={swearingEnabled} toggleSwearing={toggleSwearing} resetRound={resetRound} saveRound={saveRound} saveDisabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} saveLabel={saveButtonLabel()} exitScoring={() => setShowScoringMode(false)} /></div>}</div></div>}
       {!showScoringMode && <div className="hole-picker" style={{ marginBottom: '12px' }}>{holes.map(hole => <button key={hole} className={hole === activeHole ? 'active' : ''} onClick={() => setActiveHole(hole)}>{hole}</button>)}</div>}
-      <div className={`active-hole-panel ${isAdvancing ? 'tbd-hole-advancing' : ''}`} style={{ padding: '14px', marginBottom: '16px' }}>{!showScoringMode && <div className="tbd-hole-title-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px', minWidth: 0 }}><h3 style={{ fontSize: '1.55rem', marginBottom: 0, flexShrink: 0 }}>Hole {activeHole}</h3>{showScoringMode && <img src="/brand/twoball-logo-tm.svg" alt="TwoBall Darts" style={{ display: 'block', flex: '1 1 auto', width: 'min(115px, 22vw)', minWidth: 0, maxWidth: '130px', height: '38px', objectFit: 'contain' }} />}{showScoringMode && <div className="tbd-scoring-nav" style={{ display: 'flex', gap: '5px', alignItems: 'center', minWidth: 0 }}><button className="button secondary" disabled={activeHole === 1} onClick={goToPreviousHole} style={{ opacity: activeHole === 1 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#e6a348', color: '#251408', borderColor: '#ffcf73', minHeight: '48px', minWidth: '48px' }} aria-label="Previous hole">❮</button><button className="button primary" disabled={activeHole === 18} onClick={goToNextHole} style={{ opacity: activeHole === 18 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#19885b', color: '#fff4d6', borderColor: '#64cfa0', minHeight: '48px', minWidth: '48px' }} aria-label="Next hole">❯</button><ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} openRemovePlayer={() => setShowRemovePlayer(true)} canRemovePlayer={players.length > 1} resetRound={resetRound} saveRound={saveRound} saveDisabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} saveLabel={saveButtonLabel()} exitScoring={() => setShowScoringMode(false)} /></div>}</div>}<div className="tbd-live-score-list">{players.map((player, index) => { const result = scoreByKey.get(player.scores[activeHole]); const playerTotal = total(player); const comparableTotal = totalForHoles(player, comparableLeaderHoles); const isLeader = leaderScore !== null && comparableTotal === leaderScore; return <PlayerScoringRow key={player.id} player={player} result={result} totalScore={playerTotal} isLeader={isLeader} hasHonours={index === honoursIndex} openScore={setScoringPlayerId} updateName={updateName} choosePlayer={choosePlayer} />; })}</div>{isActiveHoleComplete && <div style={{ marginTop: '16px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '16px', padding: '14px', background: 'linear-gradient(135deg, rgba(208,169,72,.18), rgba(6,57,39,.62))' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#fff4d6' }}>{activeHole === 18 ? 'Round complete' : `Hole ${activeHole} complete`}</strong><span style={{ display: 'block', marginTop: '4px', color: '#d0a948', fontWeight: 900 }}>{activeHole === 18 ? 'Every player has a score for 18.' : 'Every player has a score for this hole.'}</span></div>}</div>
+      <div className={`active-hole-panel ${isAdvancing ? 'tbd-hole-advancing' : ''}`} style={{ padding: '14px', marginBottom: '16px' }}>{!showScoringMode && <div className="tbd-hole-title-nav" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px', minWidth: 0 }}><h3 style={{ fontSize: '1.55rem', marginBottom: 0, flexShrink: 0 }}>Hole {activeHole}</h3>{showScoringMode && <img src="/brand/twoball-logo-tm.svg" alt="TwoBall Darts" style={{ display: 'block', flex: '1 1 auto', width: 'min(115px, 22vw)', minWidth: 0, maxWidth: '130px', height: '38px', objectFit: 'contain' }} />}{showScoringMode && <div className="tbd-scoring-nav" style={{ display: 'flex', gap: '5px', alignItems: 'center', minWidth: 0 }}><button className="button secondary" disabled={activeHole === 1} onClick={goToPreviousHole} style={{ opacity: activeHole === 1 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#e6a348', color: '#251408', borderColor: '#ffcf73', minHeight: '48px', minWidth: '48px' }} aria-label="Previous hole">❮</button><button className="button primary" disabled={activeHole === 18} onClick={goToNextHole} style={{ opacity: activeHole === 18 ? .45 : 1, minWidth: 0, padding: '8px 6px', fontSize: '1.4rem', fontWeight: 900, background: '#19885b', color: '#fff4d6', borderColor: '#64cfa0', minHeight: '48px', minWidth: '48px' }} aria-label="Next hole">❯</button><ScoringMenu isOpen={scoringMenuOpen} setIsOpen={setScoringMenuOpen} addPlayer={addPlayer} openRemovePlayer={() => setShowRemovePlayer(true)} canRemovePlayer={players.length > 1} swearingEnabled={swearingEnabled} toggleSwearing={toggleSwearing} resetRound={resetRound} saveRound={saveRound} saveDisabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} saveLabel={saveButtonLabel()} exitScoring={() => setShowScoringMode(false)} /></div>}</div>}<div className="tbd-live-score-list">{players.map((player, index) => { const result = scoreByKey.get(player.scores[activeHole]); const playerTotal = total(player); const comparableTotal = totalForHoles(player, comparableLeaderHoles); const isLeader = leaderScore !== null && comparableTotal === leaderScore; return <PlayerScoringRow key={player.id} player={player} result={result} totalScore={playerTotal} isLeader={isLeader} hasHonours={index === honoursIndex} openScore={setScoringPlayerId} updateName={updateName} choosePlayer={choosePlayer} />; })}</div>{isActiveHoleComplete && <div style={{ marginTop: '16px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '16px', padding: '14px', background: 'linear-gradient(135deg, rgba(208,169,72,.18), rgba(6,57,39,.62))' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#fff4d6' }}>{activeHole === 18 ? 'Round complete' : `Hole ${activeHole} complete`}</strong><span style={{ display: 'block', marginTop: '4px', color: '#d0a948', fontWeight: 900 }}>{activeHole === 18 ? 'Every player has a score for 18.' : 'Every player has a score for this hole.'}</span></div>}</div>
       <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: showScorecard ? '12px' : 0 }}><button className="button secondary" onClick={() => setShowScorecard(current => !current)}>{showScorecard ? 'Hide Scorecard' : 'Show Scorecard'}</button></div>{showScorecard && <LiveScorecard players={players} />}{status && <p className="status-line">{status}</p>}
     </section>
     {!showScoringMode && <section className="card"><div className="section-heading compact"><div><p className="eyebrow">Supabase history</p><h2>Saved rounds</h2></div><button className="button secondary" onClick={() => loadHistory()}>Load</button></div>{historyStatus && <p className="status-line">{historyStatus}</p>}<div className="history-list">{history.map(game => <div className="history-row" key={game.id}><strong>{game.title}</strong><span>{new Date(game.played_at).toLocaleString()} · {savedRoundLabel(game)}</span><span>{savedRoundSummary(game)}</span>{!isSavedRoundComplete(game) && <button className="button secondary" style={{ marginTop: '10px', marginRight: '8px' }} onClick={() => resumeSavedGame(game)}>Resume Round</button>}<button className="button primary" style={{ marginTop: '10px' }} onClick={() => viewSavedGame(game)}>View Scorecard</button></div>)}</div></section>}
     {!showScoringMode && <footer style={{ marginTop: '22px', border: '2px solid rgba(208,169,72,.72)', borderRadius: '22px', padding: '18px', background: 'linear-gradient(180deg, rgba(6,57,39,.88), rgba(2,20,15,.96))', boxShadow: '0 18px 44px rgba(0,0,0,.35)' }}><div style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 240px) 1fr', gap: '16px', alignItems: 'center' }}><img src="/brand/twoball-logo-tm.svg" alt="TWO BALL DARTS™" style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} /><div><span style={{ color: '#d0a948', fontWeight: 900 }}>No gimmes. Just throw.</span><p style={{ margin: '6px 0 0', color: '#f5e8c6' }}>18 holes. Two darts per hole. Bulls, 19s, and 20s are hazards.</p></div></div></footer>}
-    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} players={players} usedReactionTexts={usedReactionTexts} onUseReaction={recordReaction} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />{showRoundComplete && <RoundCompleteModal players={players} onClose={() => setShowRoundComplete(false)} onMainMenu={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(false); }} onNewRound={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(true); }} />}
+    <PlayerProfilesModal open={showPlayerProfiles} onClose={closePlayerPicker} onSelectProfile={addSavedProfile} onAddGuest={addGuest} activePlayerIds={players.map(player => player.playerId).filter(Boolean)} /><RemovePlayerModal open={showRemovePlayer} players={players} onRemove={removePlayer} onClose={() => setShowRemovePlayer(false)} />{scoringPlayer && <ScoreModal player={scoringPlayer} players={players} usedReactionTexts={usedReactionTexts} swearingEnabled={swearingEnabled} onUseReaction={recordReaction} activeHole={activeHole} currentKey={scoringPlayer.scores[activeHole] || ''} onScore={scoreKey => applyScore(scoringPlayer.id, scoreKey)} onClear={() => clearScore(scoringPlayer.id)} onClose={() => setScoringPlayerId(null)} />}{showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}<SavedScorecard game={selectedGame} rows={selectedRows} onClose={() => { setSelectedGame(null); setSelectedRows([]); }} />{showRoundComplete && <RoundCompleteModal players={players} onClose={() => setShowRoundComplete(false)} onMainMenu={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(false); }} onNewRound={() => { setShowRoundComplete(false); resetRound(); setShowScoringMode(true); }} />}
   </main>;
 }
