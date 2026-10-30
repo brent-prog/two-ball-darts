@@ -1368,6 +1368,20 @@ export default function Home() {
           setPlayers(restoredPlayers);
           setActiveHole(firstUnscoredHole(restoredPlayers));
           setSavedGameId(activeGame.id);
+          try {
+            const rawDraft = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
+            if (rawDraft) {
+              const draft = JSON.parse(rawDraft);
+              if (
+                draft?.savedGameId === activeGame.id &&
+                Array.isArray(draft?.usedReactionTexts)
+              ) {
+                setUsedReactionTexts(draft.usedReactionTexts.filter(text => typeof text === 'string'));
+              }
+            }
+          } catch (error) {
+            console.warn('Could not restore used reaction history.', error);
+          }
           setIsRoundDirty(true);
           setShowScoringMode(true);
           setStatus('Round In Progress restored.');
@@ -1420,7 +1434,29 @@ export default function Home() {
   function markRoundDirty() { setIsRoundDirty(true); setStatus(''); }
   function recordReaction(text) {
     if (!text) return;
-    setUsedReactionTexts(current => current.includes(text) ? current : [...current, text]);
+    setUsedReactionTexts(current => {
+      if (current.includes(text)) return current;
+      const next = [...current, text];
+
+      try {
+        const rawDraft = window.localStorage.getItem(IN_PROGRESS_ROUND_KEY);
+        const draft = rawDraft ? JSON.parse(rawDraft) : {};
+        window.localStorage.setItem(IN_PROGRESS_ROUND_KEY, JSON.stringify({
+          ...draft,
+          players,
+          usedReactionTexts: next,
+          activeHole,
+          showScoringMode,
+          savedGameId,
+          isRoundDirty,
+          updatedAt: new Date().toISOString()
+        }));
+      } catch (error) {
+        console.warn('Could not persist used reaction history.', error);
+      }
+
+      return next;
+    });
   }
   function updateScoreForHole(playerId, score, hole) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
   function updateScore(playerId, score) {
