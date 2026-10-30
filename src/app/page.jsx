@@ -231,7 +231,7 @@ const dartReactionOptionsBySequence = {
     'OH, FOR FUCK.',
     'WHAT A FUCKING WASTE.',
     'FROM GREAT TO SHIT.',
-    'YOU HAD IT.',
+    'HAD BIRDIE. FOUND THE FUCKING WATER.',
     'IN THE DRINK. FUCK.'
   ],
   'hazard:power': [
@@ -265,62 +265,63 @@ const dartReactionOptionsBySequence = {
     'YOU JUST THREW AWAY PAR.',
     'IN THE DRINK. NICE ONE.',
     'OH, FOR FUCK.',
-    'PBF ENERGY WITHOUT THE BIRDIE.',
-    'THAT WENT SIDEWAYS FAST.',
+    'NICE WAY TO FUCK UP A GOOD HOLE.',
+    'WELL... THAT WENT TO SHIT.',
     'FOUND THE WATER. BEAUTIFUL.',
     'WAY TO TURN PAR INTO SHIT.',
     'FUCKING HAZARD.',
-    'THAT ONE HURTS.',
-    'GAVE AWAY TWO SHOTS.'
+    'YOU HAD PAR. THEN YOU DID THAT.',
+    'THAT\'S TWO SHOTS YOU\'RE NOT GETTING BACK.'
   ],
   'hazard:single': [
-    'FUCK... SAVED THE DOUBLE.',
-    'AT LEAST YOU FOUND DRY LAND.',
-    'DOUBLE. TAKE IT AND RUN.',
-    'TAKE YOUR MEDICINE.',
-    'UGLY SAVE. STILL A SAVE.',
-    'FOUND LAND EVENTUALLY.',
-    'DOUBLE FROM THE SHIT. TAKE IT.',
-    'YOU SAVED ONE. CONGRATS, I GUESS.',
-    'NOT PRETTY. NOT TRIPLE.',
-    'THAT SECOND DART SAVED YOUR ASS.',
-    'DAMAGE LIMITED.',
-    'GET OUT WITH THE DOUBLE.'
+    'NICE RECOVERY. SHAME ABOUT THE FUCKING WATER.',
+    'TOO FUCKING LATE.',
+    'AT LEAST YOU HIT SOMETHING.',
+    'SMALL FUCKING MIRACLE.',
+    'DOUBLE. TAKE IT.',
+    'NOW YOU HIT IT.',
+    'GOOD SECOND DART. DAMAGE WAS ALREADY DONE.',
+    'NOT GOOD. NOT A DISASTER.',
+    'YOU STOPPED THE BLEEDING.',
+    'SECOND DART SAVED YOUR ASS.'
   ],
   'safe:hazard': [
-    'WELL... FUCK.',
-    'THAT BLOWS.',
     'SON OF A FUCKING BITCH.',
     'OH, FOR FUCK.',
-    'PICK IT UP.',
-    'THAT\'S A FUCKING MESS.',
-    'JUST GET OFF THE HOLE.',
-    'NOTHING GOOD HAPPENED THERE.',
-    'THAT ESCALATED QUICKLY.',
-    'WRITE DOWN SIX AND WALK.',
-    'ROUGH DAY AT THE OFFICE.',
-    'FOUND TROUBLE AND STAYED THERE.'
+    'THAT\'S A FUCKING DISASTER.',
+    'WHAT A FUCKING MESS.',
+    'ABSOLUTE SHITSHOW.',
+    'THAT HOLE ATE YOU ALIVE.',
+    'TRIPLE. BEAUTIFUL.',
+    'WHAT THE FUCK WAS THAT?',
+    'YOU FUCKED THAT HOLE.',
+    'FUCKING UGLY.',
+    'ARE YOU SURE YOU\'RE RIGHT-HANDED?'
   ],
   'hazard:safe': [
-    'FUCK. SHIT. FUCK.',
-    'SON OF A FUCKING BITCH.',
-    'TRIPLE. BRUTAL.',
-    'JUST GET OFF THIS HOLE.',
-    'THAT BLOWS.',
-    'FUCK ME SIDEWAYS.',
-    'NOTHING TO SEE HERE.',
-    'THAT HOLE OWNED YOU.',
-    'PICK IT UP BEFORE IT GETS WORSE.',
-    'ABSOLUTE CARNAGE.',
-    'THAT WAS A TRAINWRECK.',
-    'GET TO THE NEXT TEE.'
+    'WELL, THAT\'S FUCKED.',
+    'IN THE WATER, THEN NOWHERE.',
+    'THAT\'S A TRIPLE.',
+    'ABSOLUTE DISASTER.',
+    'YOU\'RE MAKING THIS HARD ON YOURSELF.',
+    'THAT HOLE JUST BEAT THE SHIT OUT OF YOU.',
+    'FUCKING BRUTAL.',
+    'NICE FOLLOW-UP. FUCKING USELESS.',
+    'TRIPLE. FUCK.',
+    'THAT WAS A COMPLETE FUCKING MESS.',
+    'ARE YOU SURE YOU\'RE RIGHT-HANDED?'
   ],
   'hazard:hazard': [
-    'TWO HAZARDS?! JESUS FUCK.',
-    'JESUS CHRIST. TWO HAZARDS.',
-    'THAT\'S A FUCKING DISASTER.',
-    'BURN THE SCORECARD.',
-    'JUST PICK IT UP AND GO.'
+    'JESUS FUCKING CHRIST!',
+    'MAXED OUT. IT SHOULD BE WORSE.',
+    'TWO FUCKING HAZARDS.',
+    'YOU\'VE GOT TO BE KIDDING ME!',
+    'ABSOLUTE FUCKING CARNAGE.',
+    'WHAT THE FUCK ARE YOU DOING?',
+    'JUST PICK IT UP.',
+    'YOU FOUND EVERYTHING BUT THE TARGET.',
+    'FUCKING DISASTER.',
+    'THAT HOLE OWNS YOU.'
   ]
 };
 
@@ -423,9 +424,10 @@ function contextualDartReaction(player, activeHole, scoreKey, dart1, dart2, used
 
   if (scoreKey === 'triple_bogey' && lastFourWithCurrent.filter(key => key === 'triple_bogey').length >= 3) {
     return react('three_triples_in_four', [
-      'CALL THE CLUBHOUSE.',
-      'WE HAVE A PROBLEM.',
-      'YOU ARE DIGGING TO CHINA.',
+      'ARE YOU DIGGING TO CHINA?',
+      'THIS IS A FUCKING DISASTER.',
+      'WHAT THE FUCK ARE YOU DOING?',
+      'THIS IS FUCKING UGLY.',
       'MAYBE TAKE UP BOWLING.'
     ], 'collapse');
   }
@@ -1088,12 +1090,16 @@ function ScoreModal({ player, players, activeHole, currentKey, usedReactionTexts
       ? null
       : difficultHoleReaction(player, activeHole, result.scoreKey, nextDartOne, nextDartTwo, usedReactionTexts);
 
-    const chosenReaction =
-      (streakReaction?.text ? streakReaction : null) ||
-      (scorecardReaction?.text ? scorecardReaction : null) ||
-      (holeReaction?.text ? holeReaction : null) ||
-      (sequenceReaction ? { text: sequenceReaction, tone: sequenceTone } : null) ||
-      reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey);
+    const hasHazard = nextDartOne === 'hazard' || nextDartTwo === 'hazard';
+    const sequenceChoice = sequenceReaction ? { text: sequenceReaction, tone: sequenceTone } : null;
+
+    const chosenReaction = hasHazard
+      ? sequenceChoice || reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey)
+      : (streakReaction?.text ? streakReaction : null) ||
+        (scorecardReaction?.text ? scorecardReaction : null) ||
+        (holeReaction?.text ? holeReaction : null) ||
+        sequenceChoice ||
+        reserveReaction(usedReactionTexts, player, activeHole, result.scoreKey);
 
     if (chosenReaction.text) onUseReaction?.(chosenReaction.text);
 
