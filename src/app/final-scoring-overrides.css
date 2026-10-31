@@ -128,3 +128,32 @@
 }
 .tbd-remove-cancel{background:#133b2e;color:#fff4d6;border:1px solid #638575;}
 .tbd-remove-confirm{background:#b81e2b;color:white;border:1px solid #ed5260;}
+
+/* Player removal: compact destructive control and branded confirmation. */
+#scorecard .tbd-player-name-line > .tbd-player-options-trigger{
+  background:#48181b!important;color:#ffe6e2!important;border:1px solid #a9484e!important;
+  font-size:16px!important;font-weight:900!important;border-radius:9px!important;
+}
+.tbd-remove-dialog-backdrop{
+  position:fixed;inset:0;z-index:10050;background:rgba(0,8,6,.78);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(5px);
+}
+.tbd-remove-dialog{
+  box-sizing:border-box;width:min(100%,420px);border:1px solid #b99747;
+  border-radius:22px;padding:25px 22px 22px;text-align:center;
+  background:linear-gradient(150deg,#103a2c,#041b15 70%);
+  color:#fff4d6;box-shadow:0 24px 65px rgba(0,0,0,.65);
+}
+.tbd-remove-dialog-icon{
+  display:grid;place-items:center;width:46px;height:46px;margin:0 auto 12px;
+  border-radius:50%;background:#571d24;color:#ffdad6;border:2px solid #b94750;font-size:23px;font-weight:900;
+}
+.tbd-remove-dialog h2{font-size:1.45rem;line-height:1.2;margin:0 0 12px;color:#fff4d6;}
+.tbd-remove-dialog p{font-size:.98rem;line-height:1.5;color:#d2d9d1;margin:0 0 22px;}
+.tbd-remove-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tbd-remove-dialog-actions button{
+  min-height:48px;border-radius:11px;padding:10px 8px;font-size:.9rem;font-weight:900;cursor:pointer;
+}
+.tbd-remove-cancel{border:1px solid #b99747;background:#143b2d;color:#fff4d6;}
+.tbd-remove-confirm{border:1px solid #f36c71;background:#bd1727;color:white;}
