@@ -22,3 +22,53 @@
   line-height:1!important;
   letter-spacing:.02em!important;
 }
+
+
+/* Player options: reserve an actual column, never displace or overlay scoring. */
+#scorecard .tbd-player-score-row .tbd-player-name-line:has(.tbd-player-options-trigger){
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) 32px 28px!important;
+  align-items:center!important;
+  gap:6px!important;
+  min-width:0!important;
+}
+#scorecard .tbd-player-score-row .tbd-player-name-line:has(.tbd-player-options-trigger) > .tbd-player-total-score{
+  grid-column:1!important;grid-row:1!important;
+}
+#scorecard .tbd-player-score-row .tbd-player-name-line:has(.tbd-player-options-trigger) > .tbd-player-name-input{
+  grid-column:2!important;grid-row:1!important;
+  min-width:0!important;width:100%!important;
+}
+#scorecard .tbd-player-score-row .tbd-player-name-line:has(.tbd-player-options-trigger) > .tbd-player-options-trigger{
+  grid-column:3!important;grid-row:1!important;
+  position:static!important;
+  width:32px!important;height:32px!important;min-width:32px!important;
+  min-height:32px!important;max-width:32px!important;
+  margin:0!important;padding:0!important;
+  border-radius:8px!important;
+  background:#0a2b21!important;color:#f5e8c6!important;
+  box-shadow:none!important;
+}
+#scorecard .tbd-player-score-row .tbd-player-name-line:has(.tbd-player-options-trigger) > .tbd-honours-chip{
+  grid-column:4!important;grid-row:1!important;
+}
+#scorecard .tbd-player-score-row:not(.has-honours) .tbd-player-name-line:has(.tbd-player-options-trigger){
+  grid-template-columns:auto minmax(0,1fr) 32px!important;
+}
+#scorecard .tbd-player-score-row:has(.tbd-player-options-trigger){
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+}
+#scorecard .tbd-player-score-row:has(.tbd-player-options-trigger) > .button{
+  position:static!important;
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:center!important;
+  margin:0!important;
+  transform:none!important;
+}
+@media(max-width:520px){
+  #scorecard .tbd-player-score-row .tbd-player-name-line:has(.tbd-player-options-trigger){
+    gap:4px!important;
+  }
+}
