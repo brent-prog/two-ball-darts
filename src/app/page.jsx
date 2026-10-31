@@ -1168,7 +1168,6 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
           {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
         </div>
         <span className="tbd-hole-status">{scoreLabel}</span>
-      </div>}
       </div>
       <button className="button secondary" onClick={() => openScore(player.id)}>{buttonLabel}</button>
     </div>
