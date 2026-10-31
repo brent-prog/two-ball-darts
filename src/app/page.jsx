@@ -1124,6 +1124,7 @@ function HowToPlayModal({ onClose }) {
 }
 
 function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemovePlayer, swearingEnabled, toggleSwearing, resetRound, saveRound, saveDisabled, saveLabel, exitScoring }) {
+  const [resetPending, setResetPending] = useState(false);
   const menuRef = useRef(null);
   const popupRef = useRef(null);
   useEffect(() => {
@@ -1139,8 +1140,20 @@ function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemove
   return <div ref={menuRef} style={{ position: 'relative' }}>
     <button className="button secondary" aria-label="Scoring menu" aria-expanded={isOpen} onClick={() => setIsOpen(current => !current)} style={{ minWidth: '44px', padding: '8px 9px', fontSize: '1.35rem', lineHeight: 1, height: '46px', minHeight: '46px', boxSizing: 'border-box' }}>☰</button>
     {isOpen && typeof document !== 'undefined' && createPortal(<div ref={popupRef} role="menu" aria-label="Round options" style={{ position: 'fixed', zIndex: 9999, top: Math.min((menuRef.current?.getBoundingClientRect().bottom ?? 100) + 6, window.innerHeight - 340), right: 'max(18px, env(safe-area-inset-right))', width: 'min(210px, calc(100vw - 36px))', maxHeight: 'min(320px, 55dvh)', overflowY: 'auto', border: '1px solid #d0a948', borderRadius: '12px', background: '#02140f', boxShadow: '0 12px 30px rgba(0,0,0,.6)', padding: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      {[[ 'Add Player', addPlayer, false ], [ 'Remove Player', openRemovePlayer, !canRemovePlayer ], [ `Swearing: ${swearingEnabled ? 'On' : 'Off'}`, toggleSwearing, false ], [ saveLabel, saveRound, saveDisabled ], [ 'Reset Round', resetRound, false ], [ 'Exit Scoring', exitScoring, false ]].map(([label, action, disabled], index) => <button key={index} role="menuitem" className="button secondary" disabled={disabled} onClick={() => { action(); if (!String(label).startsWith('Swearing:')) setIsOpen(false); }} aria-pressed={String(label).startsWith('Swearing:') ? swearingEnabled : undefined} style={{ display: 'block', width: '100%', minHeight: '40px', padding: '8px 10px', fontSize: '.8rem', lineHeight: 1.2, textAlign: 'left', whiteSpace: 'normal', flex: '0 0 auto' }}>{label}</button>)}
+      {[[ 'Add Player', addPlayer, false ], [ 'Remove Player', openRemovePlayer, !canRemovePlayer ], [ `Swearing: ${swearingEnabled ? 'On' : 'Off'}`, toggleSwearing, false ], [ saveLabel, saveRound, saveDisabled ], [ 'Reset Round', () => setResetPending(true), false ], [ 'Exit Scoring', exitScoring, false ]].map(([label, action, disabled], index) => <button key={index} role="menuitem" className="button secondary" disabled={disabled} onClick={() => { action(); if (!String(label).startsWith('Swearing:')) setIsOpen(false); }} aria-pressed={String(label).startsWith('Swearing:') ? swearingEnabled : undefined} style={{ display: 'block', width: '100%', minHeight: '40px', padding: '8px 10px', fontSize: '.8rem', lineHeight: 1.2, textAlign: 'left', whiteSpace: 'normal', flex: '0 0 auto' }}>{label}</button>)}
     </div>, document.body)}
+    {resetPending && typeof document !== 'undefined' && createPortal(
+      <div className="tbd-remove-dialog-backdrop" onClick={() => setResetPending(false)}>
+        <div className="tbd-remove-dialog" role="alertdialog" aria-modal="true" aria-labelledby="tbd-reset-title" aria-describedby="tbd-reset-description" onClick={event => event.stopPropagation()}>
+          <div className="tbd-remove-dialog-icon" aria-hidden="true">↻</div>
+          <h2 id="tbd-reset-title">Reset this round?</h2>
+          <p id="tbd-reset-description">All scores from this round will be cleared and play will return to Hole 1. Your players will stay in the round. This cannot be undone.</p>
+          <div className="tbd-remove-dialog-actions">
+            <button type="button" className="tbd-remove-cancel" onClick={() => setResetPending(false)}>Keep Playing</button>
+            <button type="button" className="tbd-remove-confirm" onClick={() => { setResetPending(false); resetRound(); }}>Reset Round</button>
+          </div>
+        </div>
+      </div>, document.body)}
   </div>;
 }
 
