@@ -65,3 +65,30 @@
   align-self:center!important;transform:none!important;margin:0!important;
 }
 #scorecard .tbd-player-name-line::before{display:none!important;}
+
+/* Stable score badge, options, name sequence: no flex spacer. */
+#scorecard .tbd-player-name-line{
+  display:grid!important;
+  grid-template-columns:auto 30px minmax(0,1fr)!important;
+  justify-content:start!important;
+  align-items:center!important;
+  column-gap:8px!important;
+}
+#scorecard .tbd-player-name-line > .tbd-player-total-score{
+  grid-column:1!important;grid-row:1!important;order:unset!important;
+}
+#scorecard .tbd-player-name-line > .tbd-player-options-trigger{
+  grid-column:2!important;grid-row:1!important;order:unset!important;
+}
+#scorecard .tbd-player-name-line > .tbd-player-name-input{
+  grid-column:3!important;grid-row:1!important;order:unset!important;
+}
+#scorecard .tbd-player-name-line:has(> .tbd-honours-chip){
+  grid-template-columns:auto 30px 28px minmax(0,1fr)!important;
+}
+#scorecard .tbd-player-name-line > .tbd-honours-chip{
+  grid-column:3!important;grid-row:1!important;order:unset!important;
+}
+#scorecard .tbd-player-name-line:has(> .tbd-honours-chip) > .tbd-player-name-input{
+  grid-column:4!important;
+}
