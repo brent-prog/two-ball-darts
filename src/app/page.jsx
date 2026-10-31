@@ -1165,15 +1165,15 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
           <span className={badgeClasses.join(' ')}>{fmt(totalScore)}</span>
           {hasHonours && <span className="tbd-honours-chip">H</span>}
           {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
+          {canRemove && <button type="button" onClick={() => setShowRemove(value => !value)} aria-label={`Player options for ${player.name}`} aria-expanded={showRemove} style={{ flex: '0 0 32px', width: '32px', height: '32px', minWidth: '32px', padding: 0, marginLeft: '6px', border: '1px solid #60786c', borderRadius: '9px', background: '#0a2b21', color: '#f5e8c6', fontSize: '20px', fontWeight: 700, lineHeight: 1, display: 'grid', placeItems: 'center', cursor: 'pointer' }}>⋯</button>}
         </div>
         <span className="tbd-hole-status">{scoreLabel}</span>
+        {showRemove && canRemove && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+          <button type="button" onClick={() => { if (window.confirm(`Remove ${player.name} from this round? Their round scores will be removed.`)) onRemove(player.id); else setShowRemove(false); }} style={{ minHeight: '36px', padding: '5px 12px', border: '1px solid #f04a53', borderRadius: '9px', background: '#c8192b', color: 'white', fontWeight: 900, fontSize: '.8rem' }}>Remove player</button>
+          <button type="button" onClick={() => setShowRemove(false)} style={{ minHeight: '36px', padding: '5px 10px', border: '1px solid #60786c', borderRadius: '9px', background: '#173a2e', color: '#fff4d6', fontWeight: 700 }}>Cancel</button>
+        </div>}
       </div>
       <button className="button secondary" onClick={() => openScore(player.id)}>{buttonLabel}</button>
-      {canRemove && <button type="button" onClick={() => setShowRemove(value => !value)} aria-label={`Player options for ${player.name}`} aria-expanded={showRemove} style={{ position: 'absolute', top: '3px', right: '3px', width: '24px', height: '24px', minWidth: '24px', minHeight: '24px', maxWidth: '24px', padding: 0, margin: 0, border: '1px solid #60786c', borderRadius: '50%', background: '#0a2b21', color: '#f5e8c6', fontSize: '16px', fontWeight: 700, lineHeight: '20px', display: 'grid', placeItems: 'center', boxShadow: '0 2px 6px #00160e', cursor: 'pointer', zIndex: 2 }}>⋯</button>}
-      {showRemove && canRemove && <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', zIndex: 3, display: 'flex', alignItems: 'center', gap: '6px', padding: '5px', borderRadius: '12px', background: '#061c16', border: '1px solid #52665c', boxShadow: '0 4px 14px #00150e' }}>
-        <button type="button" onClick={() => setShowRemove(false)} aria-label="Cancel remove" style={{ width: '34px', height: '38px', minWidth: '34px', padding: 0, border: 0, borderRadius: '8px', background: '#173a2e', color: '#fff4d6', fontSize: '21px' }}>×</button>
-        <button type="button" onClick={() => { if (window.confirm(`Remove ${player.name} from this round? Their round scores will be removed.`)) onRemove(player.id); else setShowRemove(false); }} style={{ width: '88px', height: '38px', minWidth: '88px', padding: '0 8px', border: 0, borderRadius: '8px', background: '#c8192b', color: 'white', fontWeight: 900, fontSize: '0.8rem' }}>REMOVE</button>
-      </div>}
     </div>
   </div>;
 }
