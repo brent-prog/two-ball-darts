@@ -1145,7 +1145,8 @@ function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemove
 }
 
 function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName, choosePlayer, onRemove, canRemove }) {
-  const confirmRemoval = () => { if (canRemove && window.confirm(`Remove ${player.name} from this round? Their round scores will be removed.`)) onRemove(player.id); };
+  const [removePending, setRemovePending] = useState(false);
+  const confirmRemoval = () => { if (canRemove) setRemovePending(true); };
   const touchStart = useRef(null);
   const scored = Boolean(result);
   const hasAnyScore = scoredHoleCount(player) > 0;
@@ -1162,7 +1163,7 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
     <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`} style={{ position: 'relative', minWidth: 0 }}>
       <div className="tbd-player-score-main">
         <div className="tbd-player-name-line">
-          {canRemove && <button type="button" onClick={confirmRemoval} aria-label={`Remove ${player.name} from round`} className="tbd-player-options-trigger">⋯</button>}
+          {canRemove && <button type="button" onClick={confirmRemoval} aria-label={`Remove ${player.name} from round`} title={`Remove ${player.name}`} className="tbd-player-options-trigger">✕</button>}
           <span className={badgeClasses.join(' ')}>{fmt(totalScore)}</span>
           {hasHonours && <span className="tbd-honours-chip">H</span>}
           {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
@@ -1171,6 +1172,18 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
       </div>
       <button className="button secondary" onClick={() => openScore(player.id)}>{buttonLabel}</button>
     </div>
+    {removePending && typeof document !== 'undefined' && createPortal(
+      <div className="tbd-remove-dialog-backdrop" onClick={() => setRemovePending(false)}>
+        <div className="tbd-remove-dialog" role="alertdialog" aria-modal="true" aria-labelledby="tbd-remove-title" aria-describedby="tbd-remove-description" onClick={event => event.stopPropagation()}>
+          <div className="tbd-remove-dialog-icon" aria-hidden="true">✕</div>
+          <h2 id="tbd-remove-title">Remove {player.name}?</h2>
+          <p id="tbd-remove-description">This player and their scores will be removed from the current round. This cannot be undone.</p>
+          <div className="tbd-remove-dialog-actions">
+            <button type="button" className="tbd-remove-cancel" onClick={() => setRemovePending(false)}>Keep Player</button>
+            <button type="button" className="tbd-remove-confirm" onClick={() => { setRemovePending(false); onRemove(player.id); }}>Remove Player</button>
+          </div>
+        </div>
+      </div>, document.body)}
   </div>;
 }
 
