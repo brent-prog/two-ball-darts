@@ -1145,7 +1145,7 @@ function ScoringMenu({ isOpen, setIsOpen, addPlayer, openRemovePlayer, canRemove
 }
 
 function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, openScore, updateName, choosePlayer, onRemove, canRemove }) {
-  const [showRemove, setShowRemove] = useState(false);
+  const confirmRemoval = () => { if (canRemove && window.confirm(`Remove ${player.name} from this round? Their round scores will be removed.`)) onRemove(player.id); };
   const touchStart = useRef(null);
   const scored = Boolean(result);
   const hasAnyScore = scoredHoleCount(player) > 0;
@@ -1158,20 +1158,17 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
   if (totalScore > 0) badgeClasses.push('is-over');
   if (totalScore === 0 && hasAnyScore) badgeClasses.push('is-even');
 
-  return <div style={{ position: 'relative', minWidth: 0 }} onTouchStart={event => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!touchStart.current || !canRemove) return; const dx = event.changedTouches[0].clientX - touchStart.current.x; const dy = event.changedTouches[0].clientY - touchStart.current.y; if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) setShowRemove(dx < 0); touchStart.current = null; }}>
+  return <div style={{ position: 'relative', minWidth: 0 }} onTouchStart={event => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!touchStart.current || !canRemove) return; const dx = event.changedTouches[0].clientX - touchStart.current.x; const dy = event.changedTouches[0].clientY - touchStart.current.y; if (dx < -75 && Math.abs(dx) > Math.abs(dy) * 1.5) confirmRemoval(); touchStart.current = null; }}>
     <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`} style={{ position: 'relative', minWidth: 0 }}>
       <div className="tbd-player-score-main">
         <div className="tbd-player-name-line">
+          {canRemove && <button type="button" onClick={confirmRemoval} aria-label={`Remove ${player.name} from round`} className="tbd-player-options-trigger">⋯</button>}
           <span className={badgeClasses.join(' ')}>{fmt(totalScore)}</span>
           {hasHonours && <span className="tbd-honours-chip">H</span>}
           {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
-          {canRemove && <button type="button" onClick={() => setShowRemove(value => !value)} aria-label={`Player options for ${player.name}`} aria-expanded={showRemove} className="tbd-player-options-trigger" style={{ flex: '0 0 32px', width: '32px', height: '32px', minWidth: '32px', padding: 0, marginLeft: '6px', border: '1px solid #60786c', borderRadius: '9px', background: '#0a2b21', color: '#f5e8c6', fontSize: '20px', fontWeight: 700, lineHeight: 1, display: 'grid', placeItems: 'center', cursor: 'pointer' }}>⋯</button>}
         </div>
         <span className="tbd-hole-status">{scoreLabel}</span>
-        {showRemove && canRemove && <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-          <button type="button" onClick={() => { if (window.confirm(`Remove ${player.name} from this round? Their round scores will be removed.`)) onRemove(player.id); else setShowRemove(false); }} style={{ minHeight: '36px', padding: '5px 12px', border: '1px solid #f04a53', borderRadius: '9px', background: '#c8192b', color: 'white', fontWeight: 900, fontSize: '.8rem' }}>Remove player</button>
-          <button type="button" onClick={() => setShowRemove(false)} style={{ minHeight: '36px', padding: '5px 10px', border: '1px solid #60786c', borderRadius: '9px', background: '#173a2e', color: '#fff4d6', fontWeight: 700 }}>Cancel</button>
-        </div>}
+      </div>}
       </div>
       <button className="button secondary" onClick={() => openScore(player.id)}>{buttonLabel}</button>
     </div>
