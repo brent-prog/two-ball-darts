@@ -1158,18 +1158,26 @@ function PlayerScoringRow({ player, result, totalScore, isLeader, hasHonours, op
   if (totalScore > 0) badgeClasses.push('is-over');
   if (totalScore === 0 && hasAnyScore) badgeClasses.push('is-even');
 
-  return <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px' }} onTouchStart={event => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!touchStart.current || !canRemove) return; const dx = event.changedTouches[0].clientX - touchStart.current.x; const dy = event.changedTouches[0].clientY - touchStart.current.y; if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) setShowRemove(dx < 0); touchStart.current = null; }}><button type="button" aria-label={`Remove ${player.name} from round`} disabled={!canRemove} onClick={() => { if (window.confirm(`Remove ${player.name} from this round? Their round scores will be removed.`)) onRemove(player.id); }} style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '92px', border: 0, borderRadius: '12px', background: '#c8192b', color: 'white', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer' }}>REMOVE</button><div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`} style={{ position: 'relative', zIndex: 1, transform: showRemove ? 'translateX(-96px)' : 'translateX(0)', transition: 'transform 180ms ease', touchAction: 'pan-y' }}>
-    <div className="tbd-player-score-main">
-      <div className="tbd-player-name-line">
-        <span className={badgeClasses.join(' ')}>{fmt(totalScore)}</span>
-        {hasHonours && <span className="tbd-honours-chip">H</span>}
-        {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
+  return <div style={{ position: 'relative', minWidth: 0 }} onTouchStart={event => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!touchStart.current || !canRemove) return; const dx = event.changedTouches[0].clientX - touchStart.current.x; const dy = event.changedTouches[0].clientY - touchStart.current.y; if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.5) setShowRemove(dx < 0); touchStart.current = null; }}>
+    <div className={`tbd-player-score-row ${scored ? 'scored' : ''} ${hasHonours ? 'has-honours' : ''}`} style={{ position: 'relative', minWidth: 0 }}>
+      <div className="tbd-player-score-main">
+        <div className="tbd-player-name-line">
+          <span className={badgeClasses.join(' ')}>{fmt(totalScore)}</span>
+          {hasHonours && <span className="tbd-honours-chip">H</span>}
+          {player.isProfile ? <input className="tbd-player-name-input" aria-label={`${player.name} saved profile`} value={player.name} readOnly title="Saved player profile" /> : player.isGuest ? <input className="tbd-player-name-input" aria-label={`${player.name} guest name`} value={player.name} title="Guest player" onFocus={event => event.target.select()} onChange={event => updateName(player.id, event.target.value)} /> : <button type="button" className="tbd-player-name-input" onClick={() => choosePlayer(player.id)} style={{ textAlign: 'left', cursor: 'pointer' }} aria-label={`Choose ${player.name}`}>{player.name} · Choose player</button>}
+        </div>
+        <span className="tbd-hole-status">{scoreLabel}</span>
       </div>
-      <span className="tbd-hole-status">{scoreLabel}</span>
+      <div style={{ position: 'relative', flex: '0 0 auto' }}>
+        <button className="button secondary" onClick={() => openScore(player.id)}>{buttonLabel}</button>
+        {canRemove && <button type="button" onClick={() => setShowRemove(value => !value)} aria-label={`Player options for ${player.name}`} aria-expanded={showRemove} style={{ position: 'absolute', top: '-7px', right: '-7px', width: '26px', height: '26px', minWidth: '26px', minHeight: '26px', maxWidth: '26px', padding: 0, margin: 0, border: '1px solid #60786c', borderRadius: '50%', background: '#0a2b21', color: '#f5e8c6', fontSize: '17px', fontWeight: 700, lineHeight: '22px', display: 'grid', placeItems: 'center', boxShadow: '0 2px 6px #00160e', cursor: 'pointer', zIndex: 2 }}>⋯</button>}
+      </div>
+      {showRemove && canRemove && <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', zIndex: 3, display: 'flex', alignItems: 'center', gap: '6px', padding: '5px', borderRadius: '12px', background: '#061c16', border: '1px solid #52665c', boxShadow: '0 4px 14px #00150e' }}>
+        <button type="button" onClick={() => setShowRemove(false)} aria-label="Cancel remove" style={{ width: '34px', height: '38px', minWidth: '34px', padding: 0, border: 0, borderRadius: '8px', background: '#173a2e', color: '#fff4d6', fontSize: '21px' }}>×</button>
+        <button type="button" onClick={() => { if (window.confirm(`Remove ${player.name} from this round? Their round scores will be removed.`)) onRemove(player.id); else setShowRemove(false); }} style={{ width: '88px', height: '38px', minWidth: '88px', padding: '0 8px', border: 0, borderRadius: '8px', background: '#c8192b', color: 'white', fontWeight: 900, fontSize: '0.8rem' }}>REMOVE</button>
+      </div>}
     </div>
-    <button className="button secondary" onClick={() => openScore(player.id)}>{buttonLabel}</button>
-    {canRemove && <button type="button" onClick={() => setShowRemove(value => !value)} aria-label={`Show remove option for ${player.name}`} aria-expanded={showRemove} style={{ position: 'absolute', right: '4px', top: '2px', border: 0, background: 'transparent', color: '#c4b88c', fontSize: '14px', lineHeight: 1, padding: '2px 5px', cursor: 'pointer' }}>⋯</button>}
-  </div></div>;
+  </div>;
 }
 
 function DartChoiceGroup({ label, value, setValue }) {
