@@ -6,7 +6,7 @@ const FOOTER_HTML = `
   <div class="tbd-rockpail-footer-inner">
     <div class="tbd-footer-twoball">
       <img
-        src="/brand/twoball-logo-tm.svg"
+        src="/brand/twoball-approved-full.svg"
         alt="Two Ball Darts™"
         class="tbd-footer-twoball-logo"
       />
