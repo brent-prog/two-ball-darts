@@ -1404,6 +1404,7 @@ export default function Home() {
   const noSleepRef = useRef(null);
   const autosaveTimeoutRef = useRef(null);
   const autosaveInFlightRef = useRef(false);
+  const completionSaveAttemptRef = useRef(false);
 
   const comparableLeaderHoles = useMemo(
     () => holes.filter(hole => players.length > 0 && players.every(player => scoreByKey.has(player.scores[hole]))),
@@ -1566,7 +1567,7 @@ export default function Home() {
       return next;
     });
   }
-  function updateScoreForHole(playerId, score, hole) { markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
+  function updateScoreForHole(playerId, score, hole) { completionSaveAttemptRef.current = false; markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
   function updateScore(playerId, score) {
     autoAdvanceArmedHoleRef.current = activeHole;
     updateScoreForHole(playerId, score, activeHole);
@@ -1615,6 +1616,8 @@ export default function Home() {
     holeSettleTimeoutRef.current = null;
   }
   function resetRound() {
+    if (isSaving) return;
+    completionSaveAttemptRef.current = false;
     clearHoleNavigationTimers();
     if (savedGameId) {
       supabase.from('games').delete().eq('id', savedGameId).eq('status', 'active').then(({ error }) => {
@@ -1658,9 +1661,18 @@ export default function Home() {
   function applyScore(playerId, scoreKey) { updateScore(playerId, scoreKey); setScoringPlayerId(null); }
   function clearScore(playerId) { updateScore(playerId, ''); setScoringPlayerId(null); }
 
+  // Completing the 18th hole must persist the round before the finish dialog
+  // allows the player to leave or start another game.
   useEffect(() => {
-    if (showScoringMode && currentRoundComplete(players)) setShowRoundComplete(true);
-  }, [showScoringMode, players]);
+    if (!draftHydrated || !showScoringMode || !currentRoundComplete(players)) return;
+    if (!isRoundDirty) {
+      setShowRoundComplete(true);
+      return;
+    }
+    if (isSaving || completionSaveAttemptRef.current) return;
+    completionSaveAttemptRef.current = true;
+    saveRound();
+  }, [draftHydrated, showScoringMode, players, isRoundDirty, isSaving]);
 
   useEffect(() => {
     if (!showScoringMode || !isActiveHoleComplete || activeHole >= 18) return;
