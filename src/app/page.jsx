@@ -1391,6 +1391,7 @@ export default function Home() {
   const [savedGameId, setSavedGameId] = useState(null);
   const [isRoundDirty, setIsRoundDirty] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [completionSaveError, setCompletionSaveError] = useState('');
   const [scoringMenuOpen, setScoringMenuOpen] = useState(false);
   const [scoringPlayerId, setScoringPlayerId] = useState(null);
   const [isAdvancing, setIsAdvancing] = useState(false);
@@ -1567,7 +1568,7 @@ export default function Home() {
       return next;
     });
   }
-  function updateScoreForHole(playerId, score, hole) { completionSaveAttemptRef.current = false; markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
+  function updateScoreForHole(playerId, score, hole) { completionSaveAttemptRef.current = false; setCompletionSaveError(''); markRoundDirty(); setPlayers(current => current.map(player => player.id === playerId ? { ...player, scores: { ...player.scores, [hole]: score } } : player)); }
   function updateScore(playerId, score) {
     autoAdvanceArmedHoleRef.current = activeHole;
     updateScoreForHole(playerId, score, activeHole);
@@ -1616,14 +1617,14 @@ export default function Home() {
     holeSettleTimeoutRef.current = null;
   }
   function resetRound() {
-    if (isSaving) return;
+    if (isSaving || (currentRoundComplete(players) && isRoundDirty)) {
+      setStatus('Finish saving this round before starting another. Your scores are still on this device.');
+      return;
+    }
     completionSaveAttemptRef.current = false;
     clearHoleNavigationTimers();
-    if (savedGameId) {
-      supabase.from('games').delete().eq('id', savedGameId).eq('status', 'active').then(({ error }) => {
-        if (error) console.warn('Could not clear active round.', error);
-      });
-    }
+    // Never delete an unfinished cloud round on reset: it may be the only backup.
+
     try { window.localStorage.removeItem(IN_PROGRESS_ROUND_KEY); } catch {}
     lastAutoAdvanceHoleRef.current = null;
     autoAdvanceArmedHoleRef.current = null;
@@ -1669,7 +1670,7 @@ export default function Home() {
       setShowRoundComplete(true);
       return;
     }
-    if (isSaving || completionSaveAttemptRef.current) return;
+    if (isSaving || completionSaveAttemptRef.current || completionSaveError) return;
     completionSaveAttemptRef.current = true;
     saveRound();
   }, [draftHydrated, showScoringMode, players, isRoundDirty, isSaving]);
@@ -1896,15 +1897,22 @@ export default function Home() {
       window.clearTimeout(autosaveTimeoutRef.current);
       autosaveTimeoutRef.current = null;
     }
-    setIsSaving(true); setStatus('Saving round...');
+    setIsSaving(true); setCompletionSaveError(''); setStatus('Saving round...');
     while (autosaveInFlightRef.current) {
       await new Promise(resolve => window.setTimeout(resolve, 50));
     }
     const ownerKey = getOwnerKey(); const roundLabel = currentRoundComplete(players) ? 'Official 18' : 'Incomplete round'; let gameId = savedGameId; let createdNewGame = false;
     try {
-      if (gameId) { const { error: gameUpdateError } = await supabase.from('games').update({ course_name: roundLabel, status: 'complete' }).eq('id', gameId).eq('owner_key', ownerKey); if (gameUpdateError) throw new Error(gameUpdateError.message || 'Could not update saved round.'); }
+      if (gameId) { const { data: updated, error: gameUpdateError } = await supabase.from('games').update({ course_name: roundLabel, status: 'complete' }).eq('id', gameId).eq('owner_key', ownerKey).select('id'); if (gameUpdateError) throw new Error(gameUpdateError.message || 'Could not update saved round.'); if (!updated?.length) throw new Error('Round not found under this browser account. Your local scores are preserved.'); }
       else { const { data: game, error: gameError } = await supabase.from('games').insert({ owner_key: ownerKey, title: `Two Ball Darts - ${new Date().toLocaleDateString()}`, course_name: roundLabel, status: 'complete' }).select('id,title,played_at,course_name').single(); if (gameError || !game) throw new Error(gameError?.message || 'Could not create saved round.'); gameId = game.id; createdNewGame = true; }
       await writeRoundRows(gameId);
+      // Verify the database contains every score before marking the round saved.
+      const { data: checkPlayers, error: checkError } = await supabase.from('game_players').select('id,hole_scores(hole_number)').eq('game_id', gameId);
+      if (checkError) throw checkError;
+      const expectedCounts = players.map(player => scoredHoleCount(player));
+      const actualCounts = (checkPlayers ?? []).map(row => new Set((row.hole_scores ?? []).map(score => score.hole_number)).size);
+      if (actualCounts.length !== expectedCounts.length || actualCounts.some((count, index) => count !== expectedCounts[index])) throw new Error('Saved score verification failed. Scores remain on this device; please retry.');
+      setCompletionSaveError('');
       setSavedGameId(gameId);
       setIsRoundDirty(false);
       if (autosaveTimeoutRef.current) {
@@ -1934,7 +1942,12 @@ export default function Home() {
       } else {
         await loadHistory(gameId);
       }
-    } catch (error) { if (createdNewGame) await cleanupFailedGame(gameId); setStatus(`Save failed: ${error.message}`); }
+    } catch (error) {
+      // Never destroy partial data on a failed save; preserve both local draft and cloud rows.
+      if (gameId) setSavedGameId(gameId);
+      setCompletionSaveError(error.message || 'Unknown save error');
+      setStatus(`Save failed: ${error.message}`);
+    }
     finally { setIsSaving(false); }
   }
   async function enrichGamesWithPlayers(games) { if (!games?.length) return []; const gameIds = games.map(game => game.id); const { data: rows, error } = await supabase.from('game_players').select('id,game_id,player_id,display_order,total_score,total_strokes,players(id,display_name,is_profile),hole_scores(hole_number)').in('game_id', gameIds).order('display_order', { ascending: true }); if (error) { setHistoryStatus(error.message); return games; } return games.map(game => ({ ...game, game_players: (rows ?? []).filter(row => row.game_id === game.id) })); }
@@ -1962,6 +1975,7 @@ export default function Home() {
   }
 
   return <main className="app-shell">
+    {completionSaveError && currentRoundComplete(players) && <section className="card" role="alert" style={{ borderColor: '#d0a948', marginBottom: '12px' }}><strong>Round NOT saved. Your scores are still on this device.</strong><p>{completionSaveError}</p><button className="button primary" disabled={isSaving} onClick={() => { completionSaveAttemptRef.current = true; saveRound(); }}>Retry Saving Round</button></section>}
     {!showScoringMode && <section className="hero-card"><LogoMark /><div className="hero-copy"><p className="eyebrow">18 holes · 2 darts per hole · all holes par 3</p><h1>No gimmes. Just throw.</h1><p>Golf-course scoring for the dartboard. Play holes 1 through 18 by throwing two darts at each number. Lowest score wins.</p><div className="hero-actions"><button className="button primary" onClick={() => setShowScoringMode(true)}>{hasRoundScores(players) ? 'Resume Scoring' : 'Start New Round'}</button><button className="button secondary" onClick={() => setShowHowToPlay(true)}>How to Play</button><button className="button secondary" onClick={() => loadHistory()}>Saved Rounds</button></div></div></section>}
     <section className={`card ${currentRoundComplete(players) ? 'tbd-round-complete' : ''}`} id="scorecard" style={{ paddingTop: showScoringMode ? '0px' : '18px', marginTop: showScoringMode ? 0 : undefined }}>
       {!showScoringMode && <div className="section-heading" style={{ marginBottom: '12px', alignItems: 'center' }}><div><p className="eyebrow" style={{ margin: 0 }}>{showScoringMode ? 'Scoring Mode' : 'Live round'}</p>{!showScoringMode && <p style={{ margin: '6px 0 0', color: '#fff4d6', fontWeight: 900 }}>Start or resume a round to enter scores.</p>}</div>{!showScoringMode && <div className="actions-inline"><button className="button secondary" onClick={() => setShowScoringMode(true)}>{hasRoundScores(players) ? 'Resume Scoring' : 'Start New Round'}</button><button className="button secondary" onClick={addPlayer}>Add player</button><button className="button ghost" onClick={resetRound}>Reset</button><button className="button primary" disabled={isSaving || (Boolean(savedGameId) && !isRoundDirty)} onClick={saveRound}>{saveButtonLabel()}</button></div>}</div>}
